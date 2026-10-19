@@ -22,11 +22,11 @@ export default async function SupportTicketPage({ params }: { params: Promise<{ 
 
   return (
     <div className="mx-auto max-w-3xl space-y-5">
-      <Link href="/dashboard/support" className="text-sm text-neutral-500 hover:underline">← All tickets</Link>
+      <Link href="/dashboard/support" className="text-sm text-ink-muted hover:underline">← All tickets</Link>
 
       <div>
-        <h1 className="text-2xl font-bold">{ticket.subject}</h1>
-        <p className="mt-1 text-sm capitalize text-neutral-500">
+        <h1 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-ink">{ticket.subject}</h1>
+        <p className="mt-1 text-sm capitalize text-ink-muted">
           {ticket.category.replace("_", " ")} · {ticket.priority} priority · status <span className="font-medium">{ticket.status}</span>
         </p>
       </div>

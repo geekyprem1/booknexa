@@ -23,8 +23,8 @@ export default async function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="text-2xl font-bold">Author &amp; Publishing Profile</h1>
-      <p className="mt-1 text-sm text-neutral-600">
+      <h1 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-ink">Author &amp; Publishing Profile</h1>
+      <p className="mt-1 text-sm text-ink-soft">
         Set your publishing defaults once — every book and publish package inherits them.
       </p>
       <div className="mt-6">

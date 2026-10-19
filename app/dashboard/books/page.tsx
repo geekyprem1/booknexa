@@ -21,8 +21,8 @@ interface BookRow {
 }
 
 const STATUS: Record<string, { label: string; cls: string; dot: string }> = {
-  completed: { label: "Ready", cls: "bg-green-50 text-green-700 border-green-200", dot: "#16A34A" },
-  generating: { label: "Processing", cls: "bg-blue-50 text-blue-700 border-blue-200", dot: "#2563EB" },
+  completed: { label: "Ready", cls: "bg-forest-soft text-forest border-forest/30", dot: "#16A34A" },
+  generating: { label: "Processing", cls: "bg-marker-soft text-nexa-blue border-nexa-blue/30", dot: "#1463FF" },
   failed: { label: "Needs Attention", cls: "bg-amber-50 text-amber-700 border-amber-200", dot: "#D97706" },
 };
 
@@ -40,22 +40,22 @@ export default async function MyBooksPage() {
     <div className="mx-auto max-w-4xl">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="inline-block h-5 w-1 rounded-full bg-brand-gold" />
-          <h1 className="text-2xl font-bold text-neutral-900">Publishing Vault™</h1>
+          <span className="inline-block h-7 w-1.5 rounded-full nexa-bar-v" />
+          <h1 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-ink">Publishing Vault™</h1>
         </div>
-        <Link href="/dashboard/create" className="inline-flex items-center gap-1.5 rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-700">
+        <Link href="/dashboard/create" className="inline-flex items-center gap-1.5 rounded-lg btn-nexa px-4 py-2 text-sm font-medium text-white">
           <Plus className="h-4 w-4" /> New Book
         </Link>
       </div>
 
       {books.length === 0 ? (
-        <div className="mt-8 rounded-2xl border border-dashed border-neutral-300 bg-white/50 p-10 text-center">
-          <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand-gold-soft">
-            <FolderOpen className="h-6 w-6 text-brand-gold-dark" />
+        <div className="mt-8 rounded-2xl border border-dashed border-rule-strong bg-paper-card/60 p-10 text-center">
+          <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-marker-soft">
+            <FolderOpen className="h-6 w-6 text-nexa-indigo" />
           </span>
-          <p className="mt-3 text-sm font-semibold text-neutral-700">Your vault is empty</p>
-          <p className="mt-1 text-sm text-neutral-500">Every book you create lands here, ready to package into a Launch Kit™.</p>
-          <Link href="/dashboard/create" className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-neutral-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-neutral-700">
+          <p className="mt-3 text-sm font-semibold text-ink-soft">Your vault is empty</p>
+          <p className="mt-1 text-sm text-ink-muted">Every book you create lands here, ready to package into a Launch Kit™.</p>
+          <Link href="/dashboard/create" className="mt-4 inline-flex items-center gap-1.5 rounded-lg btn-nexa px-5 py-2.5 text-sm font-medium text-white">
             <Plus className="h-4 w-4" /> Create your first book
           </Link>
         </div>
@@ -64,10 +64,10 @@ export default async function MyBooksPage() {
           {books.map((b) => {
             const meta = bookTypeMeta(b.book_type);
             const Icon = meta.icon;
-            const st = STATUS[b.status] ?? { label: b.status, cls: "bg-neutral-100 text-neutral-600 border-neutral-200", dot: "#71717a" };
+            const st = STATUS[b.status] ?? { label: b.status, cls: "bg-paper-deep text-ink-soft border-rule", dot: "#71717a" };
             const isEbook = b.book_type === "ebook";
             return (
-              <li key={b.id} className="rounded-xl border border-neutral-200 bg-white p-4 shadow-card transition-shadow hover:shadow-md">
+              <li key={b.id} className="rounded-xl border border-rule bg-paper-card p-4 shadow-card transition-shadow hover:shadow-md">
                 <div className="flex items-start gap-3">
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg" style={{ background: `${meta.tint}1a`, color: meta.tint }}>
                     <Icon className="h-5 w-5" />
@@ -75,9 +75,9 @@ export default async function MyBooksPage() {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <h2 className="truncate font-semibold text-neutral-900">{b.title}</h2>
+                        <h2 className="truncate font-semibold text-ink">{b.title}</h2>
                         {b.book_metadata?.subtitle && (
-                          <p className="truncate text-sm text-neutral-500">{b.book_metadata.subtitle}</p>
+                          <p className="truncate text-sm text-ink-muted">{b.book_metadata.subtitle}</p>
                         )}
                       </div>
                       <span className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${st.cls}`}>
@@ -85,7 +85,7 @@ export default async function MyBooksPage() {
                         {st.label}
                       </span>
                     </div>
-                    <p className="mt-1 text-xs text-neutral-400">
+                    <p className="mt-1 text-xs text-ink-muted">
                       {typeLabel(b.book_type)} · {b.theme}
                       {["word_search", "sudoku", "maze", "coloring"].includes(b.book_type) ? ` · ${b.puzzle_count} puzzles` : ""}
                       {b.page_count ? ` · ${b.page_count} pages` : ""} · {new Date(b.created_at).toLocaleDateString()}
@@ -93,19 +93,19 @@ export default async function MyBooksPage() {
 
                     {b.status === "completed" && isEbook && (
                       <div className="mt-3 flex flex-wrap gap-2">
-                        <Link href={`/dashboard/ebook/${b.id}`} className="inline-flex items-center gap-1 rounded-lg bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-neutral-700"><BookOpen className="h-3.5 w-3.5" /> Open Editor</Link>
-                        <a href={`/api/ebook/${b.id}/export?format=pdf`} className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium hover:bg-neutral-50">PDF</a>
-                        <a href={`/api/ebook/${b.id}/export?format=epub`} className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium hover:bg-neutral-50">EPUB</a>
-                        <a href={`/api/ebook/${b.id}/export?format=docx`} className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium hover:bg-neutral-50">DOCX</a>
-                        <Link href={`/dashboard/books/${b.id}`} className="inline-flex items-center gap-1 rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium hover:bg-neutral-50"><Package className="h-3.5 w-3.5" /> Launch Kit</Link>
+                        <Link href={`/dashboard/ebook/${b.id}`} className="inline-flex items-center gap-1 rounded-lg btn-nexa px-3 py-1.5 text-xs font-medium text-white"><BookOpen className="h-3.5 w-3.5" /> Open Editor</Link>
+                        <a href={`/api/ebook/${b.id}/export?format=pdf`} className="rounded-lg border border-rule-strong px-3 py-1.5 text-xs font-medium hover:bg-paper">PDF</a>
+                        <a href={`/api/ebook/${b.id}/export?format=epub`} className="rounded-lg border border-rule-strong px-3 py-1.5 text-xs font-medium hover:bg-paper">EPUB</a>
+                        <a href={`/api/ebook/${b.id}/export?format=docx`} className="rounded-lg border border-rule-strong px-3 py-1.5 text-xs font-medium hover:bg-paper">DOCX</a>
+                        <Link href={`/dashboard/books/${b.id}`} className="inline-flex items-center gap-1 rounded-lg border border-rule-strong px-3 py-1.5 text-xs font-medium hover:bg-paper"><Package className="h-3.5 w-3.5" /> Launch Kit</Link>
                       </div>
                     )}
 
                     {b.status === "completed" && !isEbook && (
                       <div className="mt-3 flex flex-wrap gap-2">
-                        <a href={`/api/books/${b.id}/download?part=interior`} className="inline-flex items-center gap-1 rounded-lg bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-neutral-700"><FileText className="h-3.5 w-3.5" /> Interior PDF</a>
-                        <a href={`/api/books/${b.id}/download?part=cover`} className="inline-flex items-center gap-1 rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium hover:bg-neutral-50"><FileImage className="h-3.5 w-3.5" /> Cover PDF</a>
-                        <Link href={`/dashboard/books/${b.id}`} className="inline-flex items-center gap-1 rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium hover:bg-neutral-50"><Package className="h-3.5 w-3.5" /> Launch Kit</Link>
+                        <a href={`/api/books/${b.id}/download?part=interior`} className="inline-flex items-center gap-1 rounded-lg btn-nexa px-3 py-1.5 text-xs font-medium text-white"><FileText className="h-3.5 w-3.5" /> Interior PDF</a>
+                        <a href={`/api/books/${b.id}/download?part=cover`} className="inline-flex items-center gap-1 rounded-lg border border-rule-strong px-3 py-1.5 text-xs font-medium hover:bg-paper"><FileImage className="h-3.5 w-3.5" /> Cover PDF</a>
+                        <Link href={`/dashboard/books/${b.id}`} className="inline-flex items-center gap-1 rounded-lg border border-rule-strong px-3 py-1.5 text-xs font-medium hover:bg-paper"><Package className="h-3.5 w-3.5" /> Launch Kit</Link>
                       </div>
                     )}
                   </div>

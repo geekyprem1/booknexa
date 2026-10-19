@@ -161,7 +161,7 @@ export async function buildDotDotBook(opts: DotDotOptions): Promise<{ pageCount:
 
   const title = opts.title?.trim() || "Connect the Dots";
   const subtitle = opts.subtitle?.trim() || `${pageCount} Fun Dot-to-Dot Puzzles`;
-  const author = opts.author?.trim() || "KDP Profit Machine";
+  const author = opts.author?.trim() || "BookNexa";
 
   const pages: InteriorPageContent[] = [
     {

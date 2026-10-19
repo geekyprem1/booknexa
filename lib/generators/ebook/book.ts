@@ -10,7 +10,7 @@ import { generateMetadata } from "../../ai/metadata";
 import { buildEbookCover } from "./cover";
 import type { TrimSize } from "../../pdf/kdp-specs";
 
-const DEFAULT_AUTHOR = "KDP Profit Machine";
+const DEFAULT_AUTHOR = "BookNexa";
 const CONCURRENCY = 4;
 
 const clamp = (n: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, Math.round(n)));

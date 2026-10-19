@@ -34,12 +34,12 @@ export function DfyDownloadButton({ assetId }: { assetId: string }) {
       <button
         onClick={download}
         disabled={busy}
-        className="inline-flex items-center gap-2 rounded-lg bg-neutral-900 px-3 py-2 text-sm font-medium text-white hover:bg-neutral-700 disabled:opacity-50"
+        className="inline-flex items-center gap-2 rounded-lg btn-nexa px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
       >
         <Download className="h-4 w-4" />
         {busy ? "Preparing…" : "Download"}
       </button>
-      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+      {error && <p className="mt-1 text-xs text-clay">{error}</p>}
     </div>
   );
 }

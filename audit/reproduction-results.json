@@ -1,0 +1,87 @@
+{
+  "date": "2026-10-16",
+  "method": "Repository source executed with offline dependency doubles",
+  "reproduced": 16,
+  "evidence": [
+    {
+      "id": "B01",
+      "title": "Paid cover entitlements cannot open the unified studio",
+      "detail": "Four offers grant cover=true, but the only studio redirects to a feature they cannot access."
+    },
+    {
+      "id": "B02",
+      "title": "Unlimited failure refund adds credits without a debit",
+      "detail": "Balance 100 -> 104 after reserve(4), failure, refund(4); spend_credits was never called."
+    },
+    {
+      "id": "B03",
+      "title": "Plan changes overwrite concurrent credit spending",
+      "detail": "100 - 10 concurrent spend + 120 plan credits should be 210; stored balance is 220."
+    },
+    {
+      "id": "B04",
+      "title": "Concurrent offer grants lose an entitlement",
+      "detail": "Two successful concurrent grants leave only {\"coloring\":true,\"cover\":true,\"ebook\":true,\"crossword\":true,\"activity\":true}."
+    },
+    {
+      "id": "B05",
+      "title": "Offer delivery can fail after features have already unlocked",
+      "detail": "Credit RPC fails after unlimited access is committed; request fails and no grant_offer history is written."
+    },
+    {
+      "id": "B06",
+      "title": "Factory and Autopilot paths bypass generation caps",
+      "detail": "At a simulated 1,000 completed generations, coloring is blocked but factory/autopilot perform zero cap checks."
+    },
+    {
+      "id": "B07",
+      "title": "Autopilot ignores loss of the job attempt and keeps generating",
+      "detail": "Despite 9 lost-attempt errors, all 3 books complete and consume 30 credits."
+    },
+    {
+      "id": "B08",
+      "title": "Unset Cover V2 concept count returns one instead of the declared default two",
+      "detail": "With COVER_V2_CONCEPTS absent, Number(\"\") is 0 and the default becomes 1 instead of DEFAULT_CONCEPTS=2."
+    },
+    {
+      "id": "B09",
+      "title": "Spelling verifier accepts incorrect or missing titles",
+      "detail": "Title ART passes transcription SMART; a Hindi title passes unrelated English text."
+    },
+    {
+      "id": "B10",
+      "title": "Publish ZIP labels applied PNG artwork as cover.pdf",
+      "detail": "The ZIP receives name=cover.pdf but its bytes start with the PNG signature, not %PDF."
+    },
+    {
+      "id": "B11",
+      "title": "Ebook page_count records chapter count instead of actual pages",
+      "detail": "Three very long chapters are persisted as page_count=3, despite title/contents pages and flowing chapter pagination."
+    },
+    {
+      "id": "B12",
+      "title": "Support attachments have no way to open from either ticket page",
+      "detail": "Both admin/user ticket pages use a shared thread that renders attachments only as non-clickable spans."
+    },
+    {
+      "id": "B13",
+      "title": "Concurrent first subscription requests fail on unique(user_id)",
+      "detail": "Two concurrent initial requests: one succeeds, the other throws duplicate key instead of returning the same subscription."
+    },
+    {
+      "id": "B14",
+      "title": "Analytics failure refunds an already committed publishing package",
+      "detail": "Package upsert succeeds, usage insert fails, response is 500 and the completed package gets fully refunded."
+    },
+    {
+      "id": "B15",
+      "title": "Admin create-user fails after an active auth account is already created",
+      "detail": "Offer delivery fails after createUser succeeds; an active confirmed account remains although the API reports failure."
+    },
+    {
+      "id": "B16",
+      "title": "Queued generators still debit Unlimited customers",
+      "detail": "An Unlimited subscription still passes p_credit_cost=4; the SQL RPC debits v_cost without checking unlimited."
+    }
+  ]
+}

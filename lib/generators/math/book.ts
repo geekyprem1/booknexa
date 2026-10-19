@@ -93,7 +93,7 @@ export function resolveMathConfig(opts: MathOptions): ResolvedMathConfig {
     practicePages,
     title: opts.title?.trim() || `${OP_LABEL[operation]} Practice`,
     subtitle: opts.subtitle?.trim() || `${OP_LABEL[operation]} Drills — ${difficulty[0].toUpperCase()}${difficulty.slice(1)} Level`,
-    author: opts.author?.trim() || "KDP Profit Machine",
+    author: opts.author?.trim() || "BookNexa",
     problems,
   };
 }

@@ -1,21 +1,19 @@
 /**
- * Image model(s) a buyer may choose in the Beta.
+ * Image model(s) a buyer may choose.
  *
  * Cover V2 uses a single model — GPT Image 2 (OpenAI, via Replicate) — chosen for
  * its top-tier in-image text rendering. It is billed in real money (~$0.01/image),
- * so it requires a Replicate token to be configured. Other candidate models
- * (Cloudflare Flux/Leonardo, Ideogram) were evaluated and removed in favour of a
- * single, consistent, best-quality option.
+ * so it requires a Replicate token to be configured.
  */
 
-export type CoverV2Provider = "cloudflare" | "replicate";
+export type CoverV2Provider = "replicate";
 
 export interface CoverV2ModelOption {
   id: string;
   label: string;
   blurb: string;
   provider: CoverV2Provider;
-  /** True for options that cost real money outside the Cloudflare credit. */
+  /** True for options billed per image by the provider. */
   paid?: boolean;
 }
 
@@ -43,7 +41,7 @@ export function modelLabel(id: string): string {
 }
 
 export function modelProvider(id: string): CoverV2Provider {
-  return COVER_V2_MODEL_OPTIONS.find((m) => m.id === id)?.provider ?? "cloudflare";
+  return COVER_V2_MODEL_OPTIONS.find((m) => m.id === id)?.provider ?? "replicate";
 }
 
 /**

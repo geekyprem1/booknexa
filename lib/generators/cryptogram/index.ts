@@ -174,7 +174,7 @@ export async function buildCryptogramBook(opts: CryptogramOptions): Promise<{ pa
 
   const title = opts.title?.trim() || "Cryptogram Puzzles";
   const subtitle = opts.subtitle?.trim() || `${puzzleCount} Inspirational Quote Cryptograms`;
-  const author = opts.author?.trim() || "KDP Profit Machine";
+  const author = opts.author?.trim() || "BookNexa";
 
   const pages: InteriorPageContent[] = [
     {

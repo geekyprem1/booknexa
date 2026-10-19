@@ -34,7 +34,7 @@ async function bookAssets(
       {
         title: book.title,
         subtitle,
-        author: cfg.author ?? "KDP Profit Machine",
+        author: cfg.author ?? "BookNexa",
         chapters: (chapters ?? []).map((c) => ({ idx: c.idx, title: c.title, contentMd: c.content_md })),
       },
       { trim }
@@ -77,7 +77,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   const md = (pkg.metadata_json ?? {}) as { author?: string };
   const ctx: PublishContext = {
     title: book.title,
-    author: md.author ?? "KDP Profit Machine",
+    author: md.author ?? "BookNexa",
     bookType: book.book_type,
     trim: book.trim_size ?? "8.5x11",
   };

@@ -21,7 +21,7 @@ export default async function AdminDashboard() {
     <div className="mx-auto max-w-5xl space-y-8">
       <div>
         <h1 className="text-2xl font-bold">Admin Command Center</h1>
-        <p className="mt-1 text-sm text-neutral-600">Operate KDP Profit Machine — users, support, jobs, and billing in one place.</p>
+        <p className="mt-1 text-sm text-neutral-600">Operate BookNexa — users, support, jobs, and billing in one place.</p>
       </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">

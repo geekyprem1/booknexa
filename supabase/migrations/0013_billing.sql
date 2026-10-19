@@ -1,4 +1,4 @@
--- KDF Mafia monetization. Provider-agnostic: subscriptions reference a provider
+-- BookNexa monetization. Provider-agnostic: subscriptions reference a provider
 -- by name only. credit_transactions (from 0001) is reused as the credit ledger.
 
 create table if not exists public.subscriptions (

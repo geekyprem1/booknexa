@@ -10,10 +10,10 @@ import {
 } from "lucide-react";
 import type { BookType } from "@/lib/opportunity";
 
-// Category accent colors (subtle tints in the UI).
-const PUZZLE = "#3B82F6"; // blue
-const KIDS = "#F59E0B"; // amber (category tint)
-const TEXT = "#10B981"; // green
+// Category accent colors (subtle tints in the UI) — drawn from the logo spectrum.
+const PUZZLE = "#1463FF"; // logo blue
+const KIDS = "#7B2CF5"; // logo violet
+const TEXT = "#0092D6"; // logo cyan (darkened for ≥3:1 icon contrast on its tint)
 
 export interface BookTypeMeta {
   icon: LucideIcon;

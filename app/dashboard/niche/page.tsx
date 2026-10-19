@@ -25,8 +25,8 @@ export default async function NicheResearchPage() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <h1 className="text-2xl font-bold">Profit Radar™</h1>
-      <p className="mt-1 text-sm text-neutral-600">
+      <h1 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-ink">Profit Radar™</h1>
+      <p className="mt-1 text-sm text-ink-soft">
         Know what sells before you build. Enter a topic and get 20 scored
         opportunities — demand, competition, evergreen &amp; monetization — with the
         recommended book type for each.
@@ -36,26 +36,26 @@ export default async function NicheResearchPage() {
         <NicheForm />
       </div>
 
-      <h2 className="mt-10 text-lg font-semibold">Past research</h2>
+      <h2 className="font-display mt-10 text-lg font-semibold">Past research</h2>
       {reports.length === 0 ? (
-        <p className="mt-3 text-sm text-neutral-500">No research yet.</p>
+        <p className="mt-3 text-sm text-ink-muted">No research yet.</p>
       ) : (
         <ul className="mt-3 space-y-2">
           {reports.map((r) => (
             <li key={r.id}>
               <Link
                 href={`/dashboard/niche/${r.id}`}
-                className="flex items-center justify-between rounded-lg border border-neutral-200 p-4 hover:bg-neutral-50"
+                className="flex items-center justify-between rounded-lg border border-rule p-4 hover:bg-paper"
               >
                 <div>
                   <div className="font-medium">{r.keyword}</div>
-                  <div className="text-xs text-neutral-500">
+                  <div className="text-xs text-ink-muted">
                     {Array.isArray(r.ideas) ? r.ideas.length : 0} niches ·{" "}
                     {[r.audience, r.category].filter(Boolean).join(" · ") || "—"} ·{" "}
                     {new Date(r.created_at).toLocaleDateString()}
                   </div>
                 </div>
-                <span className="text-sm text-neutral-400">View →</span>
+                <span className="text-sm text-ink-muted">View →</span>
               </Link>
             </li>
           ))}

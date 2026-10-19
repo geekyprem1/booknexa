@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ─────────────────────────────────────────────────────────────
-# KDP Profit Machine — production Docker build (Next.js 16 + Puppeteer)
+# BookNexa — production Docker build (Next.js 16 + Puppeteer)
 #
 # Why a Dockerfile instead of Nixpacks: the Nixpacks setup phase
 # (nix-env) was failing on the build host with exit 255. This image

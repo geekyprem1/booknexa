@@ -21,8 +21,8 @@ export async function openRouterChat(opts: {
       Authorization: `Bearer ${key}`,
       "Content-Type": "application/json",
       // Optional attribution headers for OpenRouter dashboards.
-      "HTTP-Referer": process.env.OPENROUTER_SITE_URL || "https://kdp-pocket-ai.app",
-      "X-Title": "KDP Profit Machine",
+      "HTTP-Referer": process.env.OPENROUTER_SITE_URL || "https://booknexa.app",
+      "X-Title": "BookNexa",
     },
     body: JSON.stringify({
       model: opts.model,

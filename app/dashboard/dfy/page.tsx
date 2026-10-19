@@ -19,16 +19,16 @@ const CATEGORY_LABELS: Record<string, string> = {
 function LockedState() {
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="text-2xl font-bold text-neutral-900">Done-For-You Library</h1>
-      <div className="mt-6 rounded-2xl border border-neutral-200 bg-white p-8 text-center">
-        <h2 className="text-lg font-bold text-neutral-900">Unlock the DFY Library</h2>
-        <p className="mx-auto mt-2 max-w-md text-sm text-neutral-600">
+      <h1 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-ink">Done-For-You Library</h1>
+      <div className="mt-6 rounded-2xl border border-rule bg-paper-card p-8 text-center">
+        <h2 className="font-display text-lg font-bold text-ink">Unlock the DFY Library</h2>
+        <p className="mx-auto mt-2 max-w-md text-sm text-ink-soft">
           Get instant access to ready-to-publish interiors, covers and bundles — download and
           publish to KDP with zero generation. Included with the Done-For-You Edition.
         </p>
         <Link
           href="/dashboard/upgrade"
-          className="mt-6 inline-flex items-center gap-2 rounded-lg bg-neutral-900 px-5 py-2.5 text-sm font-bold text-white hover:bg-neutral-700"
+          className="mt-6 inline-flex items-center gap-2 rounded-lg btn-nexa px-5 py-2.5 text-sm font-bold text-white"
         >
           <Zap className="h-4 w-4" /> See the Done-For-You Edition
         </Link>
@@ -60,28 +60,28 @@ export default async function DfyLibraryPage() {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <h1 className="text-2xl font-bold text-neutral-900">Done-For-You Library</h1>
-      <p className="mt-1 text-sm text-neutral-600">
+      <h1 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-ink">Done-For-You Library</h1>
+      <p className="mt-1 text-sm text-ink-soft">
         Ready-to-publish assets — download, add your details, and publish. No credits used.
       </p>
 
       {assets.length === 0 ? (
-        <div className="mt-8 rounded-xl border border-neutral-200 bg-white p-8 text-center text-sm text-neutral-500">
+        <div className="mt-8 rounded-xl border border-rule bg-paper-card p-8 text-center text-sm text-ink-muted">
           New done-for-you assets are being added. Check back shortly.
         </div>
       ) : (
         <div className="mt-6 space-y-8">
           {orderedKeys.map((key) => (
             <section key={key}>
-              <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-500">
+              <h2 className="text-sm font-semibold font-ledger uppercase tracking-wide text-ink-muted">
                 {CATEGORY_LABELS[key]}
               </h2>
               <div className="mt-3 grid gap-4 sm:grid-cols-2">
                 {(groups.get(key) ?? []).map((a) => (
-                  <div key={a.id} className="flex flex-col rounded-xl border border-neutral-200 bg-white p-5">
-                    <h3 className="font-semibold text-neutral-900">{a.title}</h3>
+                  <div key={a.id} className="flex flex-col rounded-xl border border-rule bg-paper-card p-5">
+                    <h3 className="font-semibold text-ink">{a.title}</h3>
                     {a.description && (
-                      <p className="mt-1 flex-1 text-sm text-neutral-500">{a.description}</p>
+                      <p className="mt-1 flex-1 text-sm text-ink-muted">{a.description}</p>
                     )}
                     <div className="mt-4">
                       <DfyDownloadButton assetId={a.id} />

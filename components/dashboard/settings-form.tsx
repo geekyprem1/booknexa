@@ -13,8 +13,8 @@ export interface ProfileValues {
   copyrightNotice: string;
 }
 
-const field = "mt-1 w-full rounded border border-neutral-300 px-3 py-2 text-sm";
-const label = "block text-sm font-medium text-neutral-700";
+const field = "mt-1 w-full rounded border border-rule-strong px-3 py-2 text-sm";
+const label = "block text-sm font-medium text-ink-soft";
 const TRIMS = ["6x9", "8x10", "8.5x11"];
 
 export function SettingsForm({ initial }: { initial: ProfileValues }) {
@@ -48,7 +48,7 @@ export function SettingsForm({ initial }: { initial: ProfileValues }) {
   }
 
   return (
-    <form onSubmit={save} className="space-y-4 rounded-lg border border-neutral-200 p-5">
+    <form onSubmit={save} className="space-y-4 rounded-lg border border-rule p-5">
       <div className="grid grid-cols-2 gap-4">
         <div><label className={label}>Author name</label><input className={field} value={v.authorName} onChange={set("authorName")} placeholder="Your real name" /></div>
         <div><label className={label}>Pen name</label><input className={field} value={v.penName} onChange={set("penName")} placeholder="Shown on books (overrides author)" /></div>
@@ -74,13 +74,13 @@ export function SettingsForm({ initial }: { initial: ProfileValues }) {
       </div>
 
       <div className="flex items-center gap-3">
-        <button type="submit" disabled={busy} className="rounded bg-neutral-900 px-5 py-2.5 text-sm font-medium text-white disabled:opacity-50">
+        <button type="submit" disabled={busy} className="rounded-lg btn-nexa px-5 py-2.5 text-sm font-medium text-white disabled:opacity-50">
           {busy ? "Saving…" : "Save settings"}
         </button>
-        {saved && <span className="text-sm text-green-700">Saved ✓</span>}
-        {error && <span className="text-sm text-red-600">{error}</span>}
+        {saved && <span className="text-sm text-forest">Saved ✓</span>}
+        {error && <span className="text-sm text-clay">{error}</span>}
       </div>
-      <p className="text-xs text-neutral-500">
+      <p className="text-xs text-ink-muted">
         These defaults are applied to every new book (author/pen name on covers &amp; title pages)
         and to its publish package (publisher, language, price, AI disclosure, copyright).
       </p>

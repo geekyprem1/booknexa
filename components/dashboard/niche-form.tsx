@@ -12,8 +12,8 @@ export function NicheForm() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const field = "mt-1 w-full rounded border border-neutral-300 px-3 py-2 text-sm";
-  const label = "block text-sm font-medium text-neutral-700";
+  const field = "mt-1 w-full rounded border border-rule-strong px-3 py-2 text-sm";
+  const label = "block text-sm font-medium text-ink-soft";
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -43,7 +43,7 @@ export function NicheForm() {
   }
 
   return (
-    <form onSubmit={submit} className="space-y-4 rounded-lg border border-neutral-200 p-5">
+    <form onSubmit={submit} className="space-y-4 rounded-lg border border-rule p-5">
       <div>
         <label className={label}>Keyword / topic *</label>
         <input
@@ -87,12 +87,12 @@ export function NicheForm() {
       <button
         type="submit"
         disabled={busy}
-        className="w-full rounded bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
+        className="w-full rounded-lg btn-nexa px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
       >
         {busy ? "Researching 20 niches… (up to a minute)" : "Research Niches"}
       </button>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-clay">{error}</p>}
     </form>
   );
 }

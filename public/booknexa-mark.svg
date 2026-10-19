@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="BookNexa">
+  <defs>
+    <linearGradient id="bnxPageLeft" x1="34" y1="48" x2="104" y2="160" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3B82F6"/>
+      <stop offset="0.55" stop-color="#2563EB"/>
+      <stop offset="1" stop-color="#1D4ED8"/>
+    </linearGradient>
+    <linearGradient id="bnxPageRight" x1="166" y1="48" x2="96" y2="160" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#A855F7"/>
+      <stop offset="0.5" stop-color="#7C3AED"/>
+      <stop offset="1" stop-color="#4F46E5"/>
+    </linearGradient>
+    <linearGradient id="bnxSpark" x1="100" y1="4" x2="100" y2="46" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#6366F1"/>
+      <stop offset="1" stop-color="#7C3AED"/>
+    </linearGradient>
+  </defs>
+
+  <!-- sparkle -->
+  <path d="M100 4 C102.5 16 106.5 21 120 25 C106.5 29 102.5 34 100 46 C97.5 34 93.5 29 80 25 C93.5 21 97.5 16 100 4 Z" fill="url(#bnxSpark)"/>
+
+  <!-- open book wings -->
+  <path d="M98 72 C78 56 56 50 34 48 C26 64 24 92 30 120 C52 132 76 146 100 158 C99 130 99 100 98 72 Z" fill="url(#bnxPageLeft)"/>
+  <path d="M102 72 C122 56 144 50 166 48 C174 64 176 92 170 120 C148 132 124 146 100 158 C101 130 101 100 102 72 Z" fill="url(#bnxPageRight)"/>
+
+  <!-- navy under-book base -->
+  <path d="M22 104 C36 148 70 176 100 184 C130 176 164 148 178 104 C160 132 130 146 100 148 C70 146 40 132 22 104 Z" fill="#0B1E3B"/>
+  <path d="M42 116 C56 148 80 170 100 176" fill="none" stroke="#FFFFFF" stroke-opacity="0.85" stroke-width="3" stroke-linecap="round"/>
+  <path d="M158 116 C144 148 120 170 100 176" fill="none" stroke="#FFFFFF" stroke-opacity="0.85" stroke-width="3" stroke-linecap="round"/>
+  <path d="M64 128 C74 150 88 163 100 167" fill="none" stroke="#FFFFFF" stroke-opacity="0.5" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M136 128 C126 150 112 163 100 167" fill="none" stroke="#FFFFFF" stroke-opacity="0.5" stroke-width="2.2" stroke-linecap="round"/>
+
+  <!-- white gutter panel + pen nib -->
+  <path d="M100 46 L114 78 L108 126 L100 162 L92 126 L86 78 Z" fill="#FFFFFF"/>
+  <path d="M100 56 L110.5 94 L100 146 L89.5 94 Z" fill="#0B1E3B"/>
+  <circle cx="100" cy="94" r="5" fill="#FFFFFF"/>
+</svg>

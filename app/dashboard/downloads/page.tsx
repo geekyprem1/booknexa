@@ -22,16 +22,16 @@ export default async function DownloadsPage() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <h1 className="text-2xl font-bold">Asset Vault</h1>
+      <h1 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-ink">Asset Vault</h1>
 
       {rows.length === 0 ? (
-        <p className="mt-8 text-sm text-neutral-500">
+        <p className="mt-8 text-sm text-ink-muted">
           No downloads yet. <Link href="/dashboard/books" className="underline">Go to My Books</Link>.
         </p>
       ) : (
         <table className="mt-6 w-full text-sm">
           <thead>
-            <tr className="border-b border-neutral-200 text-left text-neutral-500">
+            <tr className="border-b border-rule text-left text-ink-muted">
               <th className="py-2 font-medium">Book</th>
               <th className="py-2 font-medium">File</th>
               <th className="py-2 font-medium">When</th>
@@ -39,10 +39,10 @@ export default async function DownloadsPage() {
           </thead>
           <tbody>
             {rows.map((r) => (
-              <tr key={r.id} className="border-b border-neutral-100">
+              <tr key={r.id} className="border-b border-rule">
                 <td className="py-2">{r.books?.title ?? "—"}</td>
                 <td className="py-2 capitalize">{r.part}</td>
-                <td className="py-2 text-neutral-500">
+                <td className="py-2 text-ink-muted">
                   {new Date(r.created_at).toLocaleString()}
                 </td>
               </tr>

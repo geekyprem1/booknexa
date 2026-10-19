@@ -55,21 +55,21 @@ const CONCEPT_DESC: Record<string, string> = {
 
 function overallColor(s: number): { bg: string; fg: string; ring: string } {
   if (s >= 80) return { bg: "#dcfce7", fg: "#166534", ring: "#86efac" };
-  if (s >= 65) return { bg: "#dbeafe", fg: "#1e40af", ring: "#93c5fd" };
+  if (s >= 65) return { bg: "#E3EBFF", fg: "#1146C8", ring: "#9DB8FF" };
   if (s >= 50) return { bg: "#fef9c3", fg: "#854d0e", ring: "#fde047" };
   return { bg: "#fee2e2", fg: "#991b1b", ring: "#fca5a5" };
 }
 
 function ScoreBar({ label, value, max }: { label: string; value: number; max: number }) {
   const pct = Math.round((value / max) * 100);
-  const color = pct >= 75 ? "#22c55e" : pct >= 50 ? "#3b82f6" : pct >= 35 ? "#f59e0b" : "#ef4444";
+  const color = pct >= 75 ? "#059669" : pct >= 50 ? "#1463FF" : pct >= 35 ? "#f59e0b" : "#D9324A";
   return (
     <div className="flex items-center gap-2">
-      <span className="w-28 shrink-0 text-[10px] text-neutral-500">{label}</span>
-      <div className="flex-1 rounded-full bg-neutral-100" style={{ height: 5 }}>
+      <span className="w-28 shrink-0 text-[11px] text-ink-muted">{label}</span>
+      <div className="flex-1 rounded-full bg-paper-deep" style={{ height: 5 }}>
         <div style={{ width: `${pct}%`, height: 5, borderRadius: 9999, background: color }} />
       </div>
-      <span className="w-8 text-right text-[10px] font-semibold text-neutral-700">{value}/{max}</span>
+      <span className="w-8 text-right text-[11px] font-semibold text-ink-soft">{value}/{max}</span>
     </div>
   );
 }
@@ -77,9 +77,9 @@ function ScoreBar({ label, value, max }: { label: string; value: number; max: nu
 function ScorePanel({ breakdown }: { breakdown: ScoreBreakdown }) {
   const c = overallColor(breakdown.overall);
   return (
-    <div className="mt-2 rounded-lg border border-neutral-200 bg-neutral-50 p-3 text-xs">
+    <div className="mt-2 rounded-lg border border-rule bg-paper p-3 text-xs">
       <div className="mb-2 flex items-center justify-between">
-        <span className="font-semibold text-neutral-700">Quality Scores</span>
+        <span className="font-semibold text-ink-soft">Quality Scores</span>
         <span
           className="rounded-full px-2.5 py-0.5 text-[11px] font-bold"
           style={{ background: c.bg, color: c.fg, border: `1.5px solid ${c.ring}` }}
@@ -102,9 +102,9 @@ function ScorePanel({ breakdown }: { breakdown: ScoreBreakdown }) {
 function VisualQualityPanel({ vq }: { vq: VisualQuality }) {
   const c = overallColor(vq.overall);
   return (
-    <div className="mt-2 rounded-lg border border-[#2563EB]/40 bg-[#FBF7EE] p-3 text-xs">
+    <div className="mt-2 rounded-lg border border-[#1463FF]/40 bg-paper p-3 text-xs">
       <div className="mb-2 flex items-center justify-between">
-        <span className="font-semibold text-neutral-700">Commercial Score</span>
+        <span className="font-semibold text-ink-soft">Commercial Score</span>
         <span
           className="rounded-full px-2.5 py-0.5 text-[11px] font-bold"
           style={{ background: c.bg, color: c.fg, border: `1.5px solid ${c.ring}` }}
@@ -200,15 +200,15 @@ export function CoverResults({
   }
 
   const modelLabel = brief?.model && brief.model !== "template"
-    ? <span className="ml-2 rounded bg-green-100 px-1.5 py-0.5 text-[10px] font-medium text-green-800">AI Brief</span>
+    ? <span className="ml-2 rounded bg-forest-soft px-1.5 py-0.5 text-[11px] font-medium text-forest">AI Brief</span>
     : null;
 
   return (
     <div>
       {/* Brief summary */}
       {brief && (brief.layout || brief.typography) && (
-        <div className="mb-5 rounded-lg border border-neutral-200 bg-neutral-50 p-3 text-xs text-neutral-600">
-          <div className="flex items-center gap-1 font-semibold text-neutral-700 mb-1">
+        <div className="mb-5 rounded-lg border border-rule bg-paper p-3 text-xs text-ink-soft">
+          <div className="flex items-center gap-1 font-semibold text-ink-soft mb-1">
             Cover Brief {modelLabel}
           </div>
           {brief.typography && <div className="mt-0.5"><b>Typography:</b> {brief.typography}</div>}
@@ -217,22 +217,22 @@ export function CoverResults({
 
       {books.length > 0 && (
         <div className="mb-5 flex items-center gap-2 text-sm">
-          <span className="text-neutral-600">Use for book:</span>
-          <select value={bookId} onChange={(e) => setBookId(e.target.value)} className="rounded border border-neutral-300 px-2 py-1 text-sm">
+          <span className="text-ink-soft">Use for book:</span>
+          <select value={bookId} onChange={(e) => setBookId(e.target.value)} className="rounded border border-rule-strong px-2 py-1 text-sm">
             <option value="">Select a book…</option>
             {books.map((b) => (<option key={b.id} value={b.id}>{b.title}</option>))}
           </select>
         </div>
       )}
       {/* ── Print wraparound settings (KDP paperback: back + spine + front) ── */}
-      <div className="mb-5 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
-        <div className="text-xs font-semibold text-neutral-700">Print wraparound settings</div>
-        <p className="mt-0.5 text-[11px] leading-relaxed text-neutral-500">
+      <div className="mb-5 rounded-lg border border-rule bg-paper p-3">
+        <div className="text-xs font-semibold text-ink-soft">Print wraparound settings</div>
+        <p className="mt-0.5 text-[11px] leading-relaxed text-ink-muted">
           Used by each concept&apos;s <b>Wrap</b> export — a single back + spine + front PDF for KDP
           paperbacks. The spine is sized from your interior page count &amp; paper.
         </p>
         <div className="mt-2 flex flex-wrap items-end gap-3">
-          <label className="text-[11px] font-medium text-neutral-600">
+          <label className="text-[11px] font-medium text-ink-soft">
             Interior pages
             <input
               type="number"
@@ -240,15 +240,15 @@ export function CoverResults({
               max={828}
               value={wrapPages}
               onChange={(e) => setWrapPages(e.target.value)}
-              className="mt-1 block w-24 rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-[13px] focus:border-neutral-900 focus:outline-none"
+              className="mt-1 block w-24 rounded-md border border-rule-strong bg-paper-card px-2 py-1.5 text-[13px] focus:border-nexa-blue focus:outline-none"
             />
           </label>
-          <label className="text-[11px] font-medium text-neutral-600">
+          <label className="text-[11px] font-medium text-ink-soft">
             Paper
             <select
               value={wrapPaper}
               onChange={(e) => setWrapPaper(e.target.value)}
-              className="mt-1 block rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-[13px] focus:border-neutral-900 focus:outline-none"
+              className="mt-1 block rounded-md border border-rule-strong bg-paper-card px-2 py-1.5 text-[13px] focus:border-nexa-blue focus:outline-none"
             >
               <option value="white">White</option>
               <option value="cream">Cream</option>
@@ -256,26 +256,26 @@ export function CoverResults({
               <option value="color-premium">Color · Premium</option>
             </select>
           </label>
-          <label className="text-[11px] font-medium text-neutral-600">
+          <label className="text-[11px] font-medium text-ink-soft">
             Back / spine color
             <span className="mt-1 flex items-center gap-2">
               <input
                 type="color"
                 value={wrapBg}
                 onChange={(e) => setWrapBg(e.target.value)}
-                className="h-8 w-10 cursor-pointer rounded border border-neutral-300 bg-white p-0.5"
+                className="h-8 w-10 cursor-pointer rounded border border-rule-strong bg-paper-card p-0.5"
                 aria-label="Back and spine background color"
               />
-              <span className="text-[11px] text-neutral-400">{wrapBg}</span>
+              <span className="text-[11px] text-ink-muted">{wrapBg}</span>
             </span>
           </label>
         </div>
-        <p className="mt-2 text-[10px] text-neutral-400">
+        <p className="mt-2 text-[11px] text-ink-muted">
           Always confirm the final file in KDP&apos;s Print Previewer before publishing.
         </p>
       </div>
 
-      {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
+      {error && <p className="mb-3 text-sm text-clay">{error}</p>}
 
       <div className="grid grid-cols-3 gap-5">
         {variations.map((v) => {
@@ -286,17 +286,17 @@ export function CoverResults({
           const showBreakdown = expanded === v.index;
 
           return (
-            <div key={v.index} className="flex flex-col rounded-xl border border-neutral-200 overflow-hidden">
+            <div key={v.index} className="flex flex-col rounded-xl border border-rule overflow-hidden">
               {/* Header */}
-              <div className="flex items-center justify-between px-3 py-2 bg-neutral-50 border-b border-neutral-200">
+              <div className="flex items-center justify-between px-3 py-2 bg-paper border-b border-rule">
                 <div>
-                  <div className="text-xs font-bold text-neutral-800">{label}</div>
-                  {desc && <div className="text-[10px] text-neutral-400 mt-0.5">{desc}</div>}
+                  <div className="text-xs font-bold text-ink">{label}</div>
+                  {desc && <div className="text-[11px] text-ink-muted mt-0.5">{desc}</div>}
                   {v.bg_source === "gradient" && (
-                    <div className="text-[9px] text-amber-600 font-semibold mt-0.5">⚠ Gradient fallback</div>
+                    <div className="text-[11px] text-amber-600 font-semibold mt-0.5">⚠ Gradient fallback</div>
                   )}
                   {v.bg_source === "image" && (
-                    <div className="text-[9px] text-green-600 font-semibold mt-0.5">✓ AI generated</div>
+                    <div className="text-[11px] text-forest font-semibold mt-0.5">✓ AI generated</div>
                   )}
                 </div>
                 {c && (
@@ -310,7 +310,7 @@ export function CoverResults({
               </div>
 
               {/* Cover image */}
-              <div className="relative bg-neutral-100">
+              <div className="relative bg-paper-deep">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={v.url} alt={label} className="w-full block" />
               </div>
@@ -327,7 +327,7 @@ export function CoverResults({
                 <div className="px-3 pt-2">
                   <button
                     onClick={() => setExpanded(showBreakdown ? null : v.index)}
-                    className="w-full text-[10px] text-neutral-400 hover:text-neutral-600 flex items-center justify-between"
+                    className="w-full text-[11px] text-ink-muted hover:text-ink-soft flex items-center justify-between"
                   >
                     <span>Technical breakdown</span>
                     <span>{showBreakdown ? "▲" : "▼"}</span>
@@ -341,13 +341,13 @@ export function CoverResults({
                 <div className="flex gap-1.5">
                   <a
                     href={`/api/cover/${coverId}/download?v=${v.index}`}
-                    className="flex-1 rounded bg-neutral-900 px-2 py-1.5 text-center text-xs font-medium text-white hover:bg-neutral-700"
+                    className="flex-1 rounded btn-nexa px-2 py-1.5 text-center text-xs font-medium text-white"
                   >
                     PNG
                   </a>
                   <a
                     href={`/api/cover/${coverId}/download-pdf?v=${v.index}`}
-                    className="flex-1 rounded border border-neutral-900 px-2 py-1.5 text-center text-xs font-medium hover:bg-neutral-50"
+                    className="flex-1 rounded border border-ink px-2 py-1.5 text-center text-xs font-medium hover:bg-paper"
                     title="Front-cover PDF (ebook / front art)"
                   >
                     PDF
@@ -355,8 +355,7 @@ export function CoverResults({
                 </div>
                 <a
                   href={wrapHref(v.index)}
-                  className="rounded px-2 py-1.5 text-center text-xs font-semibold text-white hover:opacity-90"
-                  style={{ backgroundColor: "#2563EB" }}
+                  className="btn-nexa rounded px-2 py-1.5 text-center text-xs font-semibold"
                   title="Print wraparound: back + spine + front for KDP paperbacks"
                 >
                   ⤓ Wrap PDF (back + spine + front)
@@ -364,7 +363,7 @@ export function CoverResults({
                 <button
                   onClick={() => regenerate(v.index)}
                   disabled={regen !== null}
-                  className="rounded border border-neutral-300 px-2 py-1.5 text-xs font-medium hover:bg-neutral-50 disabled:opacity-50"
+                  className="rounded border border-rule-strong px-2 py-1.5 text-xs font-medium hover:bg-paper disabled:opacity-50"
                 >
                   {regen === v.index ? "Regenerating…" : "Regenerate"}
                 </button>
@@ -372,7 +371,7 @@ export function CoverResults({
                   <button
                     onClick={() => useForBook(v.index)}
                     disabled={applying !== null}
-                    className="rounded border border-neutral-300 px-2 py-1.5 text-xs font-medium hover:bg-neutral-50 disabled:opacity-50"
+                    className="rounded border border-rule-strong px-2 py-1.5 text-xs font-medium hover:bg-paper disabled:opacity-50"
                   >
                     {applied === v.index ? "Applied ✓" : applying === v.index ? "Applying…" : "Use for Book"}
                   </button>

@@ -17,8 +17,8 @@ export function AutopilotForm() {
   const [upgrade, setUpgrade] = useState(false);
   const [nextRunAt, setNextRunAt] = useState<string | null>(null);
 
-  const field = "mt-1 w-full rounded border border-neutral-300 px-3 py-2 text-sm";
-  const label = "block text-sm font-medium text-neutral-700";
+  const field = "mt-1 w-full rounded border border-rule-strong px-3 py-2 text-sm";
+  const label = "block text-sm font-medium text-ink-soft";
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -54,10 +54,10 @@ export function AutopilotForm() {
   }
 
   return (
-    <form onSubmit={submit} className="space-y-5 rounded-lg border border-neutral-200 p-5">
+    <form onSubmit={submit} className="space-y-5 rounded-lg border border-rule p-5">
       <div>
         <label className={label}>Niche / topic *</label>
-        <p className="text-xs text-neutral-500">
+        <p className="text-xs text-ink-muted">
           What should all 3 books be about? We&apos;ll find 3 distinct angles within it.
         </p>
         <input
@@ -81,7 +81,7 @@ export function AutopilotForm() {
 
       <div>
         <label className={label}>Author name</label>
-        <p className="text-xs text-neutral-500">Printed on each book&apos;s cover.</p>
+        <p className="text-xs text-ink-muted">Printed on each book&apos;s cover.</p>
         <input
           className={field}
           value={author}
@@ -120,22 +120,22 @@ export function AutopilotForm() {
         </div>
       </div>
 
-      <div className="rounded-lg bg-neutral-50 p-4 text-sm text-neutral-600">
-        Autopilot writes <strong className="text-neutral-900">3 books</strong>, one after
-        another, and uses <strong className="text-neutral-900">3</strong> of your book
-        generations. It can be run <strong className="text-neutral-900">once every 30 days</strong>.
+      <div className="rounded-lg border border-rule bg-paper p-4 text-sm text-ink-soft">
+        Autopilot writes <strong className="text-ink">3 books</strong>, one after
+        another, and uses <strong className="text-ink">3</strong> of your book
+        generations. It can be run <strong className="text-ink">once every 30 days</strong>.
       </div>
 
       <button
         type="submit"
         disabled={busy}
-        className="w-full rounded bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
+        className="w-full rounded-lg btn-nexa px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
       >
         {busy ? "Starting Autopilot…" : "Write My 3 Books ✨"}
       </button>
 
       {error && (
-        <div className="text-sm text-red-600">
+        <div className="text-sm text-clay">
           {error}
           {upgrade && (
             <>
@@ -146,7 +146,7 @@ export function AutopilotForm() {
             </>
           )}
           {nextRunAt && (
-            <div className="mt-1 text-xs text-neutral-500">
+            <div className="mt-1 text-xs text-ink-muted">
               Next run unlocks {new Date(nextRunAt).toLocaleDateString()}.
             </div>
           )}

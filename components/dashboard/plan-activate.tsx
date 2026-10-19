@@ -30,7 +30,7 @@ export function PlanActivate({ planKey, label }: { planKey: string; label: strin
 
   return (
     <div>
-      <button onClick={activate} disabled={busy} className="mt-3 w-full rounded bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50">
+      <button onClick={activate} disabled={busy} className="mt-3 w-full rounded-lg btn-nexa px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50">
         {busy ? "Activating…" : label}
       </button>
       {msg && <p className="mt-2 text-xs text-amber-600">{msg}</p>}

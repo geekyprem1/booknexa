@@ -309,14 +309,13 @@ async function main() {
     assert.equal(t.b, 2);
   });
 
-  await test("Ideogram is hidden until Replicate is configured", () => {
+  await test("GPT Image 2 is hidden until Replicate is configured", () => {
     const without = availableModels(false);
-    assert.ok(!without.some((m) => m.provider === "replicate"), "paid model leaked without a token");
-    assert.ok(without.every((m) => m.provider === "cloudflare"));
+    assert.equal(without.length, 0, "paid model leaked without a token");
 
     const withToken = availableModels(true);
-    assert.ok(withToken.some((m) => m.id === "ideogram-ai/ideogram-v3-turbo"), "Ideogram missing when configured");
-    assert.ok(withToken.length > without.length);
+    assert.ok(withToken.some((m) => m.id === "openai/gpt-image-2"), "GPT Image 2 missing when configured");
+    assert.ok(withToken.every((m) => m.provider === "replicate"));
   });
 
   // ── hybrid fallback ──

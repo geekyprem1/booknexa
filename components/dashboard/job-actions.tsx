@@ -4,8 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-const btn = "rounded border border-neutral-300 px-3 py-1.5 text-xs font-medium hover:bg-neutral-50 disabled:opacity-50";
-const primary = "rounded bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50";
+const btn = "rounded border border-rule-strong px-3 py-1.5 text-xs font-medium hover:bg-paper disabled:opacity-50";
+const primary = "rounded-lg btn-nexa px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50";
 
 export function JobActions({ jobId, status, bookId }: { jobId: string; status: string; bookId: string | null }) {
   const router = useRouter();
@@ -49,7 +49,7 @@ export function JobActions({ jobId, status, bookId }: { jobId: string; status: s
       {!active && (
         <button onClick={() => act("DELETE")} disabled={busy} className={btn}>Delete</button>
       )}
-      {error && <p role="alert" className="basis-full text-xs text-red-600">{error}</p>}
+      {error && <p role="alert" className="basis-full text-xs text-clay">{error}</p>}
     </div>
   );
 }

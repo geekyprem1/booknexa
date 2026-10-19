@@ -24,8 +24,8 @@ const MOODS = ["Calm", "Bold", "Playful", "Elegant", "Dark", "Bright", "Minimal"
 const ART_STYLES = ["Modern", "Watercolor", "Flat vector", "Photographic", "Hand-drawn", "Vintage"];
 const TRIMS = ["6x9", "8x10", "8.5x11"];
 
-const field = "mt-1 w-full rounded border border-neutral-300 px-3 py-2 text-sm";
-const label = "block text-sm font-medium text-neutral-700";
+const field = "mt-1 w-full rounded border border-rule-strong px-3 py-2 text-sm";
+const label = "block text-sm font-medium text-ink-soft";
 
 interface Result {
   id: string;
@@ -69,7 +69,7 @@ export function CoverGenerator({ books }: { books: BookOption[] }) {
 
   return (
     <div>
-      <form onSubmit={generate} className="grid grid-cols-2 gap-4 rounded-lg border border-neutral-200 p-5">
+      <form onSubmit={generate} className="grid grid-cols-2 gap-4 rounded-lg border border-rule p-5">
         <div className="col-span-2">
           <label className={label}>Book title *</label>
           <input className={field} value={title} onChange={(e) => setTitle(e.target.value)} required placeholder="e.g. The Productive Morning" />
@@ -99,10 +99,10 @@ export function CoverGenerator({ books }: { books: BookOption[] }) {
         <div className="col-span-2"><label className={label}>Target audience</label><input className={field} value={audience} onChange={(e) => setAudience(e.target.value)} placeholder="busy professionals, kids 6–10…" /></div>
 
         <div className="col-span-2">
-          <button type="submit" disabled={busy || !title.trim()} className="w-full rounded bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50">
+          <button type="submit" disabled={busy || !title.trim()} className="w-full rounded-lg btn-nexa px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50">
             {busy ? "Generating your cover… (up to a minute)" : "Generate Cover"}
           </button>
-          {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+          {error && <p className="mt-2 text-sm text-clay">{error}</p>}
         </div>
       </form>
 
@@ -115,7 +115,7 @@ export function CoverGenerator({ books }: { books: BookOption[] }) {
 
       {result && (
         <div className="mt-6">
-          <h2 className="mb-3 text-lg font-semibold">Your cover <span className="text-xs font-normal text-green-700">· saved to library</span></h2>
+          <h2 className="font-display mb-3 text-lg font-semibold">Your cover <span className="text-xs font-normal text-forest">· saved to library</span></h2>
           <CoverResults coverId={result.id} variations={result.variations} books={books} brief={result.brief} />
         </div>
       )}

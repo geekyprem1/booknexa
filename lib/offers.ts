@@ -1,5 +1,5 @@
 /**
- * KDP Launchpad funnel offers — single source of truth for the Front End + 6 OTOs.
+ * BookNexa funnel offers — single source of truth for the Front End + 6 OTOs.
  *
  * Payment is ALWAYS handled on launchpadjv (never in this app). Each offer's Buy
  * button links out to that offer's launchpadjv Direct Checkout Link
@@ -72,7 +72,7 @@ export const OFFERS: Offer[] = [
     slug: "commercial",
     position: "Front End",
     kind: "front_end",
-    name: "KDP Launchpad Commercial",
+    name: "BookNexa Commercial",
     tagline: "AI se profitable KDP books minutes me — niche se cover tak, sab ek jagah.",
     price: 17,
     credits: 120,
@@ -242,7 +242,7 @@ export const OFFERS: Offer[] = [
     position: "OTO7",
     kind: "oto",
     name: "Reseller / Whitelabel Edition",
-    tagline: "KDP Launchpad ko apne brand naam se becho — white-label branding.",
+    tagline: "BookNexa ko apne brand naam se becho — white-label branding.",
     price: 197,
     credits: 2500,
     grants: "2,500 credits (+ reseller + white-label)",

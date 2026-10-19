@@ -2,35 +2,58 @@
   Production database backup (pre-migration safety net).
 
   Runs pg_dump inside Docker so no local PostgreSQL client install is needed.
+  Connection details come from .env.local:
+    NEXT_PUBLIC_SUPABASE_URL  → project ref (pooler user: postgres.<ref>)
+    SUPABASE_DB_HOST          → Session pooler host (Supabase → Connect → Session pooler)
   The database password is prompted for and passed as an environment variable to
   the container, so it is never written to disk, git, or the shell history.
 
   Usage (from the repository root):
       powershell -ExecutionPolicy Bypass -File scripts/db-backup.ps1
 
-  Output: backups/kdp-prod-<timestamp>.dump  (custom format, restorable)
-          backups/kdp-prod-<timestamp>.sql   (plain SQL, human-readable)
+  Output: backups/booknexa-prod-<timestamp>.dump  (custom format, restorable)
+          backups/booknexa-prod-<timestamp>.sql   (plain SQL, human-readable)
 
   The backups/ folder is gitignored — the dump contains real user data.
 #>
 
 $ErrorActionPreference = "Stop"
 
-# Supabase Session pooler (IPv4-friendly, free).
-$PgHost   = "aws-1-ap-south-1.pooler.supabase.com"
+function Get-EnvValue {
+  param([string]$Path, [string]$Key)
+  if (-not (Test-Path $Path)) { return $null }
+  foreach ($line in Get-Content -Path $Path) {
+    $match = [regex]::Match($line, "^\s*" + [regex]::Escape($Key) + "\s*=\s*(.*)$")
+    if ($match.Success) { return $match.Groups[1].Value.Trim().Trim('"').Trim("'") }
+  }
+  return $null
+}
+
+$repoRoot = Split-Path -Parent $PSScriptRoot
+$envFile  = Join-Path $repoRoot ".env.local"
+
+$siteUrl = Get-EnvValue -Path $envFile -Key "NEXT_PUBLIC_SUPABASE_URL"
+if ([string]::IsNullOrWhiteSpace($siteUrl)) {
+  throw "NEXT_PUBLIC_SUPABASE_URL is not set in .env.local — point it at the BookNexa Supabase project first."
+}
+$projectRef = ([Uri]$siteUrl).Host.Split('.')[0]
+
+$PgHost = Get-EnvValue -Path $envFile -Key "SUPABASE_DB_HOST"
+if ([string]::IsNullOrWhiteSpace($PgHost)) {
+  throw "SUPABASE_DB_HOST is not set in .env.local (Supabase → Connect → Session pooler host)."
+}
 $PgPort   = "5432"
 $PgDb     = "postgres"
-$PgUser   = "postgres.vkpaspmayrvwqkxwadry"
+$PgUser   = "postgres.$projectRef"
 # Match Supabase's server major version to avoid pg_dump version mismatch errors.
 $PgImage  = "postgres:17-alpine"
 
-$repoRoot  = Split-Path -Parent $PSScriptRoot
 $backupDir = Join-Path $repoRoot "backups"
 if (-not (Test-Path $backupDir)) { New-Item -ItemType Directory -Path $backupDir | Out-Null }
 
 $stamp    = Get-Date -Format "yyyyMMdd-HHmmss"
-$dumpName = "kdp-prod-$stamp.dump"
-$sqlName  = "kdp-prod-$stamp.sql"
+$dumpName = "booknexa-prod-$stamp.dump"
+$sqlName  = "booknexa-prod-$stamp.sql"
 
 Write-Host "Supabase database backup" -ForegroundColor Cyan
 Write-Host "  host : $PgHost"
@@ -79,6 +102,6 @@ finally {
 
 Write-Host ""
 Write-Host "Backup complete:" -ForegroundColor Green
-Get-ChildItem $backupDir -Filter "kdp-prod-$stamp.*" |
+Get-ChildItem $backupDir -Filter "booknexa-prod-$stamp.*" |
   Select-Object Name, @{ Name = "SizeMB"; Expression = { [math]::Round($_.Length / 1MB, 2) } } |
   Format-Table -AutoSize

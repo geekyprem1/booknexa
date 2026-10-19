@@ -41,7 +41,7 @@ async function main() {
     meta: {
       title: "The Compliance Test",
       subtitle: "A 6x9 KDP Gate Sample",
-      author: "KDP Pocket AI",
+      author: "BookNexa",
       backText:
         "This sample exists to validate the KDP PDF engine. If Amazon's previewer accepts both this cover and its interior with no errors, the PDF Engine Gate has passed and generator development can begin.",
     },

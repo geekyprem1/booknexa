@@ -26,14 +26,14 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   return (
     <div className="mx-auto max-w-2xl">
       <AutoRefresh active={active} />
-      <Link href="/dashboard/in-progress" className="text-sm text-neutral-500 hover:underline">← Book In Progress</Link>
-      <h1 className="mt-1 text-2xl font-bold">{job.title || "Untitled"}</h1>
-      <p className="text-sm text-neutral-500">
+      <Link href="/dashboard/in-progress" className="text-sm text-ink-muted hover:underline">← Book In Progress</Link>
+      <h1 className="mt-1 font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-ink">{job.title || "Untitled"}</h1>
+      <p className="text-sm text-ink-muted">
         {BOOK_TYPE_LABELS[job.job_type as BookType] ?? job.job_type} · {job.status} · {new Date(job.created_at).toLocaleString()}
       </p>
 
       {failed && job.error_message && (
-        <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{job.error_message}</div>
+        <div className="mt-4 rounded-lg border border-clay/30 bg-clay-soft p-3 text-sm text-clay">{job.error_message}</div>
       )}
 
       <GenerationProgress

@@ -44,7 +44,7 @@ export async function evaluateConsistency(opts: {
     headers: {
       Authorization: `Bearer ${key}`,
       "Content-Type": "application/json",
-      "X-Title": "KDP Profit Machine",
+      "X-Title": "BookNexa",
     },
     body: JSON.stringify({
       model,

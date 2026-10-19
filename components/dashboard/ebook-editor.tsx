@@ -54,16 +54,16 @@ export function EbookEditor({
   }
 
   const exportLink = (fmt: string) => `/api/ebook/${bookId}/export?format=${fmt}`;
-  const btn = "rounded border border-neutral-300 px-3 py-1.5 text-xs font-medium hover:bg-neutral-50 disabled:opacity-50";
+  const btn = "rounded border border-rule-strong px-3 py-1.5 text-xs font-medium hover:bg-paper disabled:opacity-50";
 
   return (
     <div>
       <div className="flex items-start justify-between gap-4">
         <div>
-          <Link href="/dashboard/books" className="text-sm text-neutral-500 hover:underline">← My Books</Link>
-          <h1 className="mt-1 text-2xl font-bold">{title}</h1>
-          {subtitle && <p className="text-sm text-neutral-600">{subtitle}</p>}
-          <p className="mt-1 text-xs text-neutral-500">{chapters.length} chapters · ~{totalWords.toLocaleString()} words</p>
+          <Link href="/dashboard/books" className="text-sm text-ink-muted hover:underline">← My Books</Link>
+          <h1 className="mt-1 font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-ink">{title}</h1>
+          {subtitle && <p className="text-sm text-ink-soft">{subtitle}</p>}
+          <p className="mt-1 text-xs text-ink-muted">{chapters.length} chapters · ~{totalWords.toLocaleString()} words</p>
         </div>
         <div className="flex shrink-0 flex-wrap gap-2">
           <a href={exportLink("pdf")} className={btn}>Export PDF</a>
@@ -81,10 +81,10 @@ export function EbookEditor({
               <li key={c.idx}>
                 <button
                   onClick={() => setSelected(i)}
-                  className={`w-full rounded px-3 py-2 text-left text-sm ${i === selected ? "bg-neutral-900 text-white" : "hover:bg-neutral-100"}`}
+                  className={`w-full rounded px-3 py-2 text-left text-sm ${i === selected ? "bg-ink text-white" : "hover:bg-paper-deep"}`}
                 >
                   <div className="truncate font-medium">{c.idx}. {c.title}</div>
-                  <div className={`text-xs ${i === selected ? "text-neutral-300" : "text-neutral-400"}`}>{c.wordCount} words</div>
+                  <div className={`text-xs ${i === selected ? "text-ink-faint" : "text-ink-muted"}`}>{c.wordCount} words</div>
                 </button>
               </li>
             ))}
@@ -96,21 +96,21 @@ export function EbookEditor({
           {chapter ? (
             <>
               <div className="flex items-center justify-between gap-3">
-                <h2 className="text-lg font-semibold">Chapter {chapter.idx}: {chapter.title}</h2>
+                <h2 className="font-display text-lg font-semibold">Chapter {chapter.idx}: {chapter.title}</h2>
                 <div className="flex shrink-0 gap-2">
                   <button onClick={() => run("rewrite")} disabled={busy !== null} className={btn}>{busy === "rewrite" ? "…" : "Rewrite"}</button>
                   <button onClick={() => run("expand")} disabled={busy !== null} className={btn}>{busy === "expand" ? "…" : "Expand"}</button>
                   <button onClick={() => run("shorten")} disabled={busy !== null} className={btn}>{busy === "shorten" ? "…" : "Shorten"}</button>
                 </div>
               </div>
-              {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
-              {busy && <p className="mt-2 text-sm text-neutral-500">Working… this can take a moment.</p>}
-              <div className="mt-3 max-h-[60vh] overflow-y-auto whitespace-pre-wrap rounded-lg border border-neutral-200 p-4 text-sm leading-relaxed text-neutral-800">
+              {error && <p className="mt-2 text-sm text-clay">{error}</p>}
+              {busy && <p className="mt-2 text-sm text-ink-muted">Working… this can take a moment.</p>}
+              <div className="mt-3 max-h-[60vh] overflow-y-auto whitespace-pre-wrap rounded-lg border border-rule p-4 text-sm leading-relaxed text-ink">
                 {chapter.contentMd}
               </div>
             </>
           ) : (
-            <p className="text-sm text-neutral-500">No chapters.</p>
+            <p className="text-sm text-ink-muted">No chapters.</p>
           )}
         </section>
       </div>

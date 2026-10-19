@@ -9,7 +9,7 @@ import { PersistenceError, PersistenceNotFoundError, requireMutationRow } from "
 import { changePlan, applyOfferMeta, getOrCreateSubscription } from "../billing/subscription";
 import { grant, removeCredits, refund } from "../billing/credits";
 import type { PlanKey } from "../billing/plans";
-import { grantableByKey } from "../offers";
+import { grantableByKey, grantables } from "../offers";
 import { logAdminAction } from "./audit";
 import type { AdminIdentity, AccountStatus, Role } from "./roles";
 
@@ -24,6 +24,7 @@ export interface AdminUserRow {
   plan_type: string | null;
   credits_remaining: number | null;
   sub_status: string | null;
+  granted_offers: Array<{ key: string; label: string; count: number }> | null;
 }
 
 interface SubEmbed {
@@ -32,6 +33,41 @@ interface SubEmbed {
   credits_remaining: number;
   status: string;
   entitlements?: Record<string, boolean | string>;
+}
+
+/** Use the delivery log, since several offers can grant the same feature flags. */
+async function grantedOffersForUsers(userIds: string[]): Promise<Map<string, NonNullable<AdminUserRow["granted_offers"]>> | null> {
+  const grouped = new Map<string, NonNullable<AdminUserRow["granted_offers"]>>();
+  if (userIds.length === 0) return grouped;
+  const labels = new Map(grantables().map((offer) => [offer.key, offer.label]));
+  const admin = getSupabaseAdminClient();
+  const pageSize = 500;
+
+  // Page through the log so older grants are still included for busy accounts.
+  for (let offset = 0; ; offset += pageSize) {
+    const { data, error } = await admin.from("admin_audit_log")
+      .select("target_id, detail")
+      .eq("action", "grant_offer")
+      .eq("target_type", "user")
+      .in("target_id", userIds)
+      .order("id", { ascending: true })
+      .range(offset, offset + pageSize - 1);
+    if (error) {
+      console.error("[admin] granted offers lookup failed:", error);
+      return null;
+    }
+    for (const row of data ?? []) {
+      const detail = row.detail as { offer?: unknown } | null;
+      if (!row.target_id || typeof detail?.offer !== "string") continue;
+      const offers = grouped.get(row.target_id) ?? [];
+      const existing = offers.find((offer) => offer.key === detail.offer);
+      if (existing) existing.count += 1;
+      else offers.push({ key: detail.offer, label: labels.get(detail.offer) ?? detail.offer, count: 1 });
+      grouped.set(row.target_id, offers);
+    }
+    if (!data || data.length < pageSize) break;
+  }
+  return grouped;
 }
 
 /** List users with their subscription, newest first. Optional search/status filter. */
@@ -47,6 +83,7 @@ export async function listUsers(opts: { search?: string; status?: string; limit?
   if (opts.status?.trim()) q = q.eq("account_status", opts.status.trim());
 
   const { data } = await q;
+  const grantedOffers = await grantedOffersForUsers((data ?? []).map((row) => row.id));
   return ((data ?? []) as unknown as Array<Record<string, unknown> & { subscriptions: SubEmbed[] | SubEmbed | null }>).map((r) => {
     const sub = Array.isArray(r.subscriptions) ? r.subscriptions[0] : r.subscriptions;
     return {
@@ -60,6 +97,7 @@ export async function listUsers(opts: { search?: string; status?: string; limit?
       plan_type: sub?.plan_type ?? null,
       credits_remaining: sub?.credits_remaining ?? null,
       sub_status: sub?.status ?? null,
+      granted_offers: grantedOffers ? grantedOffers.get(r.id as string) ?? [] : null,
     };
   });
 }

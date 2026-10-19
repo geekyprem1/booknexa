@@ -25,9 +25,9 @@ interface RunRow {
 }
 
 const BADGE: Record<string, string> = {
-  done: "bg-green-100 text-green-800",
-  writing: "bg-blue-100 text-blue-800",
-  pending: "bg-neutral-100 text-neutral-700",
+  done: "bg-forest-soft text-forest",
+  writing: "bg-marker-soft text-nexa-indigo",
+  pending: "bg-paper-deep text-ink-soft",
   failed: "bg-amber-100 text-amber-800",
 };
 
@@ -74,27 +74,27 @@ export default async function AutopilotRunPage({ params }: { params: Promise<{ i
   return (
     <div className="mx-auto max-w-2xl">
       <AutoRefresh active={active} />
-      <Link href="/dashboard/autopilot" className="text-sm text-neutral-500 hover:underline">
+      <Link href="/dashboard/autopilot" className="text-sm text-ink-muted hover:underline">
         ← Autopilot
       </Link>
-      <h1 className="mt-1 text-2xl font-bold">Autopilot</h1>
-      <p className="text-sm text-neutral-600">
+      <h1 className="mt-1 font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-ink">Autopilot</h1>
+      <p className="text-sm text-ink-soft">
         Answer a few questions and we&apos;ll write 3 complete books — with covers — for you.
       </p>
 
-      <div className="mt-6 rounded-lg border border-neutral-200 p-5">
+      <div className="mt-6 rounded-lg border border-rule p-5">
         <div className="flex items-center justify-between">
           <h2 className="font-semibold">
             {active ? "Writing your books…" : done === total ? "Your books are ready" : "Autopilot run"}
           </h2>
-          <span className="rounded-full bg-blue-100 px-2.5 py-1 text-xs font-semibold text-blue-800">
+          <span className="rounded-full bg-marker-soft px-2.5 py-1 text-xs font-semibold text-nexa-indigo">
             {done}/{total} done
           </span>
         </div>
 
-        <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-neutral-100">
+        <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-paper-deep">
           <div
-            className="h-full rounded-full bg-neutral-900 transition-all duration-700 ease-out"
+            className="h-full rounded-full nexa-bar transition-all duration-700 ease-out"
             style={{ width: `${Math.max(3, overall)}%` }}
           />
         </div>
@@ -103,10 +103,10 @@ export default async function AutopilotRunPage({ params }: { params: Promise<{ i
           {angles.map((a, i) => {
             const status = a.status ?? "pending";
             return (
-              <li key={i} className="rounded-lg border border-neutral-200 p-4">
+              <li key={i} className="rounded-lg border border-rule p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex min-w-0 gap-3">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-neutral-800 text-xs font-semibold text-white">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-ink-soft text-xs font-semibold text-white">
                       {i + 1}
                     </span>
                     <div className="min-w-0">
@@ -117,7 +117,7 @@ export default async function AutopilotRunPage({ params }: { params: Promise<{ i
                       ) : (
                         <div className="font-medium">{a.title || "Untitled"}</div>
                       )}
-                      <div className="text-xs text-neutral-500">
+                      <div className="text-xs text-ink-muted">
                         {status === "failed"
                           ? a.error || "Generation failed"
                           : status === "done"
@@ -141,7 +141,7 @@ export default async function AutopilotRunPage({ params }: { params: Promise<{ i
           })}
         </ul>
 
-        <p className="mt-4 text-xs text-neutral-500">
+        <p className="mt-4 text-xs text-ink-muted">
           This runs in the background and can take a while per book. You can leave this page —
           completed books appear in your Publishing Vault™ automatically.
         </p>

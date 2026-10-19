@@ -30,7 +30,7 @@ const PAPER = PRODUCTION_DEFAULTS.paper; // white
 const BLEED = PRODUCTION_DEFAULTS.bleed; // false
 const PUZZLES = 40; // → 83 pages (well over KDP's 24); thick enough for spine text
 const DIFFICULTY: Difficulty = "medium";
-const AUTHOR = "KDP Pocket AI Press";
+const AUTHOR = "BookNexa";
 
 interface BookSpec {
   slug: string;

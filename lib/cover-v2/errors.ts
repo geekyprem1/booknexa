@@ -1,10 +1,9 @@
 /** Typed failures for Cover V2, so routes can explain them to a human. */
 
 /**
- * Cloudflare's safety filter rejected the prompt or the output. In practice the
- * most common trigger is a title that closely echoes a well-known published work —
- * verified during probing: a famous title returned code 3030 while an original one
- * generated cleanly. The buyer needs to be told that, not shown a raw API error.
+ * The image model's safety filter rejected the prompt or the output. In practice
+ * the most common trigger is a title that closely echoes a well-known published
+ * work. The buyer needs to be told that, not shown a raw API error.
  */
 export class CoverV2SafetyError extends Error {
   constructor(detail?: string) {

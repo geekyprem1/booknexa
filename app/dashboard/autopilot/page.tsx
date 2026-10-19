@@ -24,8 +24,8 @@ export default async function AutopilotPage() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="text-2xl font-bold">Autopilot</h1>
-      <p className="mt-1 text-sm text-neutral-600">
+      <h1 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-ink">Autopilot</h1>
+      <p className="mt-1 text-sm text-ink-soft">
         Answer a few questions and we&apos;ll write 3 complete books — with covers — for you.
       </p>
 
@@ -33,9 +33,9 @@ export default async function AutopilotPage() {
         <AutopilotForm />
       </div>
 
-      <h2 className="mt-10 text-lg font-semibold">Past runs</h2>
+      <h2 className="font-display mt-10 text-lg font-semibold">Past runs</h2>
       {runs.length === 0 ? (
-        <p className="mt-3 text-sm text-neutral-500">
+        <p className="mt-3 text-sm text-ink-muted">
           No runs yet. Books appear in your{" "}
           <Link href="/dashboard/in-progress" className="underline">
             Production Queue
@@ -48,16 +48,16 @@ export default async function AutopilotPage() {
             <li key={r.id}>
               <Link
                 href={`/dashboard/autopilot/${r.id}`}
-                className="flex items-center justify-between rounded-lg border border-neutral-200 p-4 hover:bg-neutral-50"
+                className="flex items-center justify-between rounded-lg border border-rule p-4 hover:bg-paper"
               >
                 <div>
                   <div className="font-medium">{r.niche}</div>
-                  <div className="text-xs text-neutral-500">
+                  <div className="text-xs text-ink-muted">
                     {r.words_per_book.toLocaleString()} words · {r.trim_size} ·{" "}
                     {new Date(r.created_at).toLocaleDateString()}
                   </div>
                 </div>
-                <span className="text-xs capitalize text-neutral-500">{r.status}</span>
+                <span className="text-xs capitalize text-ink-muted">{r.status}</span>
               </Link>
             </li>
           ))}

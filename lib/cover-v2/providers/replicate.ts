@@ -1,10 +1,9 @@
 /**
- * Replicate image client for Cover V2 — currently Ideogram v3, which is a
- * typography specialist not available on Cloudflare Workers AI.
+ * Replicate image client for Cover V2 — GPT Image 2 (and Ideogram v3 support,
+ * kept for an easy switch back).
  *
- * Unlike the Cloudflare models this is billed in real money (~$0.03/image on the
- * Turbo tier), so it is offered only as an opt-in choice, never a default. Text
- * verification still runs on Cloudflare, so this provider only produces the image.
+ * Billed in real money per image. Text verification runs separately on an
+ * OpenRouter vision model (providers/vision.ts); this provider only draws.
  */
 
 import { CoverV2ProviderError, CoverV2SafetyError } from "../errors";
@@ -58,7 +57,7 @@ async function withTimeout<T>(ms: number, run: (signal: AbortSignal) => Promise<
   }
 }
 
-/** Ideogram flags content it will not render; surface it the same way Cloudflare's is. */
+/** The model flags content it will not render; surface it as a safety error. */
 function isContentBlock(message: string): boolean {
   return /flag|nsfw|safety|content|blocked|policy/i.test(message);
 }

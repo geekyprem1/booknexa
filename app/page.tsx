@@ -27,7 +27,7 @@ export default function Home() {
           </Link>
           <Link
             href="#pricing"
-            className="rounded-lg bg-[#2563EB] px-5 py-2 text-sm font-semibold text-white hover:bg-[#1D4ED8] transition-colors"
+            className="rounded-lg btn-brand px-5 py-2 text-sm font-semibold transition-opacity"
           >
             Buy Now — $17
           </Link>
@@ -44,7 +44,7 @@ export default function Home() {
           <h1 className="mt-6 text-5xl font-bold leading-tight tracking-tight sm:text-6xl">
             Build Your KDP Business
             <br />
-            <span className="text-[#2563EB]">Faster Than Ever</span>
+            <span className="brand-gradient-text brand-gradient-text-bright">Faster Than Ever</span>
           </h1>
 
           <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-white/50">
@@ -55,7 +55,7 @@ export default function Home() {
           <div className="mt-8 flex items-center justify-center gap-4">
             <Link
               href="#pricing"
-              className="rounded-lg bg-[#2563EB] px-8 py-3 text-sm font-bold text-white hover:bg-[#1D4ED8] transition-colors"
+              className="rounded-lg btn-brand px-8 py-3 text-sm font-bold transition-opacity"
             >
               Buy Now — $17
             </Link>
@@ -105,7 +105,7 @@ export default function Home() {
             <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-[#2563EB]">
               Front End
             </p>
-            <h2 className="text-3xl font-bold text-white">KDP Profit Machine</h2>
+            <h2 className="text-3xl font-bold text-white">BookNexa</h2>
             <ul className="mt-6 space-y-2 text-sm text-white/60">
               {FRONT_END_FEATURES.map((f) => (
                 <li key={f}>{f}</li>
@@ -115,7 +115,7 @@ export default function Home() {
             <p className="mt-1 text-xs text-white/30">one-time payment</p>
             <Link
               href={BUY_URL}
-              className="mt-8 inline-block w-full rounded-lg bg-[#2563EB] px-10 py-3.5 text-sm font-bold text-white hover:bg-[#1D4ED8] transition-colors"
+              className="mt-8 inline-block w-full rounded-lg btn-brand px-10 py-3.5 text-sm font-bold transition-opacity"
             >
               Buy Now
             </Link>
@@ -125,7 +125,7 @@ export default function Home() {
 
       {/* ── Footer ── */}
       <footer className="border-t border-white/10 px-8 py-6 text-center text-xs text-white/20">
-        KDP Profit Machine is an independent publishing software platform and is not affiliated with Amazon.
+        BookNexa is an independent publishing software platform and is not affiliated with Amazon.
       </footer>
 
     </div>

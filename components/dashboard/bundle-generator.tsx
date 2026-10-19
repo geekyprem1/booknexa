@@ -15,8 +15,8 @@ const BUNDLE_MESSAGES = [
 
 const PUZZLE_TYPES: BookType[] = ["word_search", "sudoku", "maze", "coloring"];
 const DIFFICULTIES = ["easy", "medium", "hard"];
-const field = "mt-1 w-full rounded border border-neutral-300 px-3 py-2 text-sm";
-const label = "block text-sm font-medium text-neutral-700";
+const field = "mt-1 w-full rounded border border-rule-strong px-3 py-2 text-sm";
+const label = "block text-sm font-medium text-ink-soft";
 
 interface TypeFit { type: BookType; fit: number; why: string }
 interface OpportunityAnalysis {
@@ -116,9 +116,9 @@ export function BundleGenerator() {
     const ok = result.books.filter((b) => b.status === "completed");
     return (
       <div>
-        <div className="rounded-lg border border-green-300 bg-green-50 p-6">
-          <h2 className="text-lg font-semibold text-green-900">✓ Bundle generated</h2>
-          <p className="mt-1 text-sm text-green-800">
+        <div className="rounded-lg border border-forest/40 bg-forest-soft p-6">
+          <h2 className="font-display text-lg font-semibold text-forest">✓ Bundle generated</h2>
+          <p className="mt-1 text-sm text-forest">
             <strong>Bundle value:</strong> {ok.length} book{ok.length === 1 ? "" : "s"} generated ·
             {" "}<strong>Estimated KDP publishing assets:</strong> {ok.length}
           </p>
@@ -126,32 +126,32 @@ export function BundleGenerator() {
 
         <div className="mt-4 space-y-2">
           {result.books.map((b) => (
-            <div key={b.type} className="flex items-center justify-between rounded-lg border border-neutral-200 p-3">
+            <div key={b.type} className="flex items-center justify-between rounded-lg border border-rule p-3">
               <div className="text-sm">
-                <span className={b.status === "completed" ? "text-green-700" : "text-red-600"}>{b.status === "completed" ? "✓" : "✗"}</span>{" "}
+                <span className={b.status === "completed" ? "text-forest" : "text-clay"}>{b.status === "completed" ? "✓" : "✗"}</span>{" "}
                 <span className="font-medium">{BOOK_TYPE_LABELS[b.type]}</span>{" "}
-                {b.title && <span className="text-neutral-500">— {b.title}</span>}
+                {b.title && <span className="text-ink-muted">— {b.title}</span>}
               </div>
               {b.status === "completed" && b.id && (
                 <div className="flex gap-2">
-                  <a href={`/api/books/${b.id}/download?part=interior`} className="rounded bg-neutral-900 px-2.5 py-1 text-xs font-medium text-white">Interior</a>
-                  <a href={`/api/books/${b.id}/download?part=cover`} className="rounded border border-neutral-900 px-2.5 py-1 text-xs font-medium">Cover</a>
+                  <a href={`/api/books/${b.id}/download?part=interior`} className="rounded-lg btn-nexa px-2.5 py-1 text-xs font-medium text-white">Interior</a>
+                  <a href={`/api/books/${b.id}/download?part=cover`} className="rounded border border-ink px-2.5 py-1 text-xs font-medium">Cover</a>
                 </div>
               )}
             </div>
           ))}
         </div>
 
-        <div className="mt-4 rounded-lg border border-neutral-200 p-4">
+        <div className="mt-4 rounded-lg border border-rule p-4">
           <h3 className="text-sm font-semibold">Recommended publishing order</h3>
-          <ol className="mt-2 list-decimal pl-5 text-sm text-neutral-700">
+          <ol className="mt-2 list-decimal pl-5 text-sm text-ink-soft">
             {result.recommendedOrder.map((t) => <li key={t}>{BOOK_TYPE_LABELS[t]}</li>)}
           </ol>
         </div>
 
         <div className="mt-4 flex flex-wrap gap-3">
-          <a href={`/api/bundle/${result.id}/export`} className="rounded bg-neutral-900 px-4 py-2 text-sm font-medium text-white">Download ZIP (all PDFs)</a>
-          <Link href={`/dashboard/bundle/${result.id}`} className="rounded border border-neutral-300 px-4 py-2 text-sm font-medium">Open bundle</Link>
+          <a href={`/api/bundle/${result.id}/export`} className="rounded-lg btn-nexa px-4 py-2 text-sm font-medium text-white">Download ZIP (all PDFs)</a>
+          <Link href={`/dashboard/bundle/${result.id}`} className="rounded border border-rule-strong px-4 py-2 text-sm font-medium">Open bundle</Link>
           <button onClick={() => { setPhase("input"); setResult(null); setSelected(new Set()); }} className="text-sm underline">New bundle</button>
         </div>
       </div>
@@ -168,7 +168,7 @@ export function BundleGenerator() {
         />
         <ul className="mt-4 space-y-1.5">
           {[...selected].map((t) => (
-            <li key={t} className="flex items-center gap-2 text-sm text-neutral-600">
+            <li key={t} className="flex items-center gap-2 text-sm text-ink-soft">
               <span className="inline-block h-3 w-3 animate-pulse rounded-full bg-amber-400" /> {BOOK_TYPE_LABELS[t]}
             </li>
           ))}
@@ -181,29 +181,29 @@ export function BundleGenerator() {
   if (phase === "compose") {
     return (
       <div>
-        <h2 className="text-lg font-semibold">Recommended bundle for “{topic}”</h2>
-        <p className="mt-1 text-sm text-neutral-600">Toggle which books to include, then generate.</p>
+        <h2 className="font-display text-lg font-semibold">Recommended bundle for “{topic}”</h2>
+        <p className="mt-1 text-sm text-ink-soft">Toggle which books to include, then generate.</p>
         <div className="mt-4 space-y-2">
           {fits.map((t) => {
             const badge = recommendationBadge(t.fit);
             const c = BADGE_COLORS[badge];
             const on = selected.has(t.type);
             return (
-              <button key={t.type} onClick={() => toggle(t.type)} className={`flex w-full items-center justify-between rounded-lg border p-3 text-left ${on ? "border-neutral-900 bg-neutral-50" : "border-neutral-200"}`}>
+              <button key={t.type} onClick={() => toggle(t.type)} className={`flex w-full items-center justify-between rounded-lg border p-3 text-left ${on ? "border-ink bg-paper" : "border-rule"}`}>
                 <div className="flex items-center gap-2 text-sm">
-                  <span className={`flex h-5 w-5 items-center justify-center rounded border ${on ? "border-neutral-900 bg-neutral-900 text-white" : "border-neutral-300"}`}>{on ? "✓" : ""}</span>
+                  <span className={`flex h-5 w-5 items-center justify-center rounded border ${on ? "border-ink bg-ink text-white" : "border-rule-strong"}`}>{on ? "✓" : ""}</span>
                   <span className="font-medium">{BOOK_TYPE_LABELS[t.type]}</span>
-                  <span className="text-neutral-400">— {t.why}</span>
+                  <span className="text-ink-muted">— {t.why}</span>
                 </div>
                 <span className="shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold" style={{ background: c.bg, color: c.fg }}>{t.fit} · {badge}</span>
               </button>
             );
           })}
         </div>
-        {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+        {error && <p className="mt-3 text-sm text-clay">{error}</p>}
         <div className="mt-4 flex gap-3">
-          <button onClick={() => setPhase("input")} className="rounded border border-neutral-300 px-4 py-2 text-sm">← Back</button>
-          <button onClick={generate} disabled={busy || selected.size < 2} className="rounded bg-neutral-900 px-5 py-2.5 text-sm font-medium text-white disabled:opacity-50">
+          <button onClick={() => setPhase("input")} className="rounded border border-rule-strong px-4 py-2 text-sm">← Back</button>
+          <button onClick={generate} disabled={busy || selected.size < 2} className="rounded-lg btn-nexa px-5 py-2.5 text-sm font-medium text-white disabled:opacity-50">
             Generate Bundle ({selected.size} books)
           </button>
         </div>
@@ -213,7 +213,7 @@ export function BundleGenerator() {
 
   // ── INPUT ──
   return (
-    <div className="rounded-lg border border-neutral-200 p-5">
+    <div className="rounded-lg border border-rule p-5">
       <div className="space-y-4">
         <div><label className={label}>Topic / niche *</label><input className={field} value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="e.g. Dinosaurs" /></div>
         <div className="grid grid-cols-3 gap-4">
@@ -222,8 +222,8 @@ export function BundleGenerator() {
           <div><label className={label}>Bundle size</label><select className={field} value={bundleSize} onChange={(e) => setBundleSize(Number(e.target.value))}>{[2, 3, 4].map((n) => <option key={n} value={n}>{n} books</option>)}</select></div>
         </div>
       </div>
-      {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
-      <button onClick={recommend} disabled={busy} className="mt-4 w-full rounded bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50">
+      {error && <p className="mt-3 text-sm text-clay">{error}</p>}
+      <button onClick={recommend} disabled={busy} className="mt-4 w-full rounded-lg btn-nexa px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50">
         {busy ? "Analyzing…" : "Analyze & Recommend Bundle →"}
       </button>
     </div>

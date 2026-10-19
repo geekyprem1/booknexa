@@ -48,7 +48,7 @@ const DEFAULTS = {
   gridSize: 15,
   difficulty: "medium" as Difficulty,
   wordsPerPuzzle: 12,
-  author: "KDP Profit Machine",
+  author: "BookNexa",
 };
 
 export function resolveConfig(opts: WordSearchBookOptions): ResolvedBookConfig {

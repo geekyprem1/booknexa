@@ -101,7 +101,7 @@ export default function LoginPage() {
         </div>
 
         <p className="text-xs text-white/20">
-          KDP Profit Machine is an independent publishing software platform and is not affiliated with Amazon.
+          BookNexa is an independent publishing software platform and is not affiliated with Amazon.
         </p>
       </div>
 

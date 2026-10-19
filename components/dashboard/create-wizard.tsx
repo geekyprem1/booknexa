@@ -50,8 +50,8 @@ const TRACING_SETS = ["uppercase", "lowercase", "numbers", "words"];
 const MATH_OPS = ["addition", "subtraction", "multiplication", "mixed"];
 const MATH_DIFFS = ["easy", "medium", "hard"];
 
-const field = "mt-1 w-full rounded border border-neutral-300 px-3 py-2 text-sm";
-const label = "block text-sm font-medium text-neutral-700";
+const field = "mt-1 w-full rounded border border-rule-strong px-3 py-2 text-sm";
+const label = "block text-sm font-medium text-ink-soft";
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 // Map the ?type= deep-link slug (from dedicated nav entries) to a BookType.
@@ -208,15 +208,15 @@ export function CreateWizard() {
     if (result.chapterCount !== undefined) {
       return (
         <Shell step={4}>
-          <div className="rounded-lg border border-green-300 bg-green-50 p-6">
-            <h2 className="text-lg font-semibold text-green-900">✓ Ebook created</h2>
-            <p className="mt-1 text-sm text-green-800">
+          <div className="rounded-lg border border-forest/40 bg-forest-soft p-6">
+            <h2 className="font-display text-lg font-semibold text-forest">✓ Ebook created</h2>
+            <p className="mt-1 text-sm text-forest">
               <strong>{result.title}</strong> — {result.chapterCount} chapters
               {result.totalWords ? `, ~${result.totalWords.toLocaleString()} words` : ""}.
             </p>
-            <p className="mt-1 text-xs text-green-700">Edit chapters and export PDF / EPUB / DOCX in the editor.</p>
+            <p className="mt-1 text-xs text-forest">Edit chapters and export PDF / EPUB / DOCX in the editor.</p>
             <div className="mt-4">
-              <Link href={`/dashboard/ebook/${result.id}`} className="rounded bg-neutral-900 px-4 py-2 text-sm font-medium text-white">
+              <Link href={`/dashboard/ebook/${result.id}`} className="rounded-lg btn-nexa px-4 py-2 text-sm font-medium text-white">
                 Open Editor →
               </Link>
             </div>
@@ -231,7 +231,7 @@ export function CreateWizard() {
       return (
         <Shell step={4}>
           <div className="rounded-lg border border-amber-300 bg-amber-50 p-6">
-            <h2 className="text-lg font-semibold text-amber-900">Ebook Creator — coming next</h2>
+            <h2 className="font-display text-lg font-semibold text-amber-900">Ebook Creator — coming next</h2>
             <p className="mt-1 text-sm text-amber-800">{result.message}</p>
           </div>
           <button onClick={() => { setResult(null); setStep(3); }} className="mt-4 text-sm underline">
@@ -242,12 +242,12 @@ export function CreateWizard() {
     }
     return (
       <Shell step={4}>
-        <div className="rounded-lg border border-green-300 bg-green-50 p-6">
-          <h2 className="text-lg font-semibold text-green-900">✓ {result.bookType ? BOOK_TYPE_LABELS[result.bookType] : "Book"} generated</h2>
-          <p className="mt-1 text-sm text-green-800"><strong>{result.title}</strong> — {result.pageCount} pages · 8.5×11, KDP-ready.</p>
+        <div className="rounded-lg border border-forest/40 bg-forest-soft p-6">
+          <h2 className="font-display text-lg font-semibold text-forest">✓ {result.bookType ? BOOK_TYPE_LABELS[result.bookType] : "Book"} generated</h2>
+          <p className="mt-1 text-sm text-forest"><strong>{result.title}</strong> — {result.pageCount} pages · 8.5×11, KDP-ready.</p>
           <div className="mt-4 flex gap-3">
-            <a href={`/api/books/${result.id}/download?part=interior`} className="rounded bg-neutral-900 px-4 py-2 text-sm font-medium text-white">Download Interior PDF</a>
-            <a href={`/api/books/${result.id}/download?part=cover`} className="rounded border border-neutral-900 px-4 py-2 text-sm font-medium">Download Cover PDF</a>
+            <a href={`/api/books/${result.id}/download?part=interior`} className="rounded-lg btn-nexa px-4 py-2 text-sm font-medium text-white">Download Interior PDF</a>
+            <a href={`/api/books/${result.id}/download?part=cover`} className="rounded border border-ink px-4 py-2 text-sm font-medium">Download Cover PDF</a>
           </div>
         </div>
         <div className="mt-4 flex gap-4 text-sm">
@@ -263,8 +263,8 @@ export function CreateWizard() {
       {/* STEP 1 */}
       {step === 1 && (
         <div>
-          <h2 className="text-lg font-semibold">1. Topic / niche</h2>
-          <p className="mt-1 text-sm text-neutral-600">Enter a topic — we'll score the opportunity and recommend the best book type.</p>
+          <h2 className="font-display text-lg font-semibold">1. Topic / niche</h2>
+          <p className="mt-1 text-sm text-ink-soft">Enter a topic — we'll score the opportunity and recommend the best book type.</p>
           <div className="mt-4 space-y-4">
             <div><label className={label}>Topic / niche *</label>
               <input className={field} value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="e.g. Dinosaurs, Productivity, Mindfulness" /></div>
@@ -275,7 +275,7 @@ export function CreateWizard() {
             <div><label className={label}>Country (optional)</label><input className={field} value={country} onChange={(e) => setCountry(e.target.value)} placeholder="United States" /></div>
           </div>
           <div className="mt-5 flex items-center gap-4">
-            <button onClick={analyze} disabled={analyzing} className="rounded bg-neutral-900 px-5 py-2.5 text-sm font-medium text-white disabled:opacity-50">
+            <button onClick={analyze} disabled={analyzing} className="rounded-lg btn-nexa px-5 py-2.5 text-sm font-medium text-white disabled:opacity-50">
               {analyzing ? "Analyzing…" : "Analyze Opportunity →"}
             </button>
             <button
@@ -285,7 +285,7 @@ export function CreateWizard() {
                 setAnalysis(null);
                 setStep(3);
               }}
-              className="text-sm text-neutral-500 underline"
+              className="text-sm text-ink-muted underline"
             >
               Skip analysis
             </button>
@@ -296,17 +296,17 @@ export function CreateWizard() {
       {/* STEP 2 */}
       {step === 2 && analysis && (
         <div>
-          <h2 className="text-lg font-semibold">2. Opportunity analysis</h2>
-          <p className="mt-1 text-sm text-neutral-600">{analysis.summary}</p>
+          <h2 className="font-display text-lg font-semibold">2. Opportunity analysis</h2>
+          <p className="mt-1 text-sm text-ink-soft">{analysis.summary}</p>
 
-          <div className="mt-4 flex items-center gap-4 rounded-lg border border-neutral-200 p-4">
+          <div className="mt-4 flex items-center gap-4 rounded-lg border border-rule p-4">
             <div className="flex h-20 w-20 flex-col items-center justify-center rounded-full text-center" style={{ background: BAND_COLORS[analysis.band].bg, color: BAND_COLORS[analysis.band].fg }}>
               <div className="text-2xl font-bold">{analysis.opportunity}</div>
-              <div className="text-[10px] font-semibold uppercase">{analysis.band}</div>
+              <div className="text-[11px] font-semibold uppercase">{analysis.band}</div>
             </div>
             <div className="grid flex-1 grid-cols-4 gap-2 text-center">
               {([["Demand", analysis.factors.demand], ["Competition", analysis.factors.competition], ["Evergreen", analysis.factors.evergreen], ["Monetization", analysis.factors.monetization]] as Array<[string, number]>).map(([l, v]) => (
-                <div key={l} className="rounded bg-neutral-50 py-2"><div className="text-[10px] uppercase text-neutral-400">{l}</div><div className="text-lg font-bold">{v}</div></div>
+                <div key={l} className="rounded bg-paper py-2"><div className="text-[11px] uppercase text-ink-muted">{l}</div><div className="text-lg font-bold">{v}</div></div>
               ))}
             </div>
           </div>
@@ -317,8 +317,8 @@ export function CreateWizard() {
               const badge = recommendationBadge(t.fit);
               const c = BADGE_COLORS[badge];
               return (
-                <li key={t.type} className="flex items-center justify-between gap-3 rounded border border-neutral-200 px-3 py-2 text-sm">
-                  <span><b>{BOOK_TYPE_LABELS[t.type]}</b> <span className="text-neutral-500">— {t.why}</span></span>
+                <li key={t.type} className="flex items-center justify-between gap-3 rounded border border-rule px-3 py-2 text-sm">
+                  <span><b>{BOOK_TYPE_LABELS[t.type]}</b> <span className="text-ink-muted">— {t.why}</span></span>
                   <span className="shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold" style={{ background: c.bg, color: c.fg }}>{t.fit} · {badge}</span>
                 </li>
               );
@@ -326,8 +326,8 @@ export function CreateWizard() {
           </ul>
 
           <div className="mt-5 flex gap-3">
-            <button onClick={() => setStep(1)} className="rounded border border-neutral-300 px-4 py-2 text-sm">← Back</button>
-            <button onClick={() => setStep(3)} className="rounded bg-neutral-900 px-5 py-2.5 text-sm font-medium text-white">Choose Book Type →</button>
+            <button onClick={() => setStep(1)} className="rounded border border-rule-strong px-4 py-2 text-sm">← Back</button>
+            <button onClick={() => setStep(3)} className="rounded-lg btn-nexa px-5 py-2.5 text-sm font-medium text-white">Choose Book Type →</button>
           </div>
         </div>
       )}
@@ -335,7 +335,7 @@ export function CreateWizard() {
       {/* STEP 3 */}
       {step === 3 && (
         <div>
-          <h2 className="text-lg font-semibold">3. Choose book type</h2>
+          <h2 className="font-display text-lg font-semibold">3. Choose book type</h2>
           <div className="mt-4 grid grid-cols-2 gap-3">
             {orderedTypes(analysis).map((t) => {
               const fit = analysis?.types.find((x) => x.type === t)?.fit;
@@ -344,27 +344,27 @@ export function CreateWizard() {
               const meta = bookTypeMeta(t);
               const Icon = meta.icon;
               return (
-                <button key={t} onClick={() => pickType(t)} className="group rounded-xl border border-neutral-200 bg-white p-4 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-neutral-300 hover:shadow-md">
+                <button key={t} onClick={() => pickType(t)} className="group rounded-xl border border-rule bg-paper-card p-4 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-rule-strong hover:shadow-md">
                   <div className="flex items-center justify-between">
                     <span className="flex h-9 w-9 items-center justify-center rounded-lg" style={{ background: `${meta.tint}1a`, color: meta.tint }}>
                       <Icon className="h-[18px] w-[18px]" />
                     </span>
-                    {badge && c && <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold" style={{ background: c.bg, color: c.fg }}>{badge}</span>}
+                    {badge && c && <span className="rounded-full px-2 py-0.5 text-[11px] font-semibold" style={{ background: c.bg, color: c.fg }}>{badge}</span>}
                   </div>
-                  <div className="mt-2.5 font-medium text-neutral-900">{BOOK_TYPE_LABELS[t]}</div>
-                  {fit !== undefined && <div className="mt-0.5 text-xs text-neutral-400">Fit {fit}/100</div>}
+                  <div className="mt-2.5 font-medium text-ink">{BOOK_TYPE_LABELS[t]}</div>
+                  {fit !== undefined && <div className="mt-0.5 text-xs text-ink-muted">Fit {fit}/100</div>}
                 </button>
               );
             })}
           </div>
-          <button onClick={() => setStep(analysis ? 2 : 1)} className="mt-5 rounded border border-neutral-300 px-4 py-2 text-sm">← Back</button>
+          <button onClick={() => setStep(analysis ? 2 : 1)} className="mt-5 rounded border border-rule-strong px-4 py-2 text-sm">← Back</button>
         </div>
       )}
 
       {/* STEP 4 */}
       {step === 4 && bookType && (
         <div>
-          <h2 className="text-lg font-semibold">4. Configure — {BOOK_TYPE_LABELS[bookType]}</h2>
+          <h2 className="font-display text-lg font-semibold">4. Configure — {BOOK_TYPE_LABELS[bookType]}</h2>
           <div className="mt-4 space-y-4">
             {/* Theme is needed for word search & coloring (used as the puzzle/art theme). */}
             {(bookType === "word_search" || bookType === "coloring" || bookType === "scramble" || bookType === "crossword" || bookType === "activity") && (
@@ -388,7 +388,7 @@ export function CreateWizard() {
             )}
 
             {(bookType === "word_search" || bookType === "sudoku") && (
-              <label className="flex items-center gap-2 text-sm text-neutral-700">
+              <label className="flex items-center gap-2 text-sm text-ink-soft">
                 <input type="checkbox" checked={largePrint} onChange={(e) => setLargePrint(e.target.checked)} />
                 Large Print edition (bigger grid & numbers — seniors market)
               </label>
@@ -453,7 +453,7 @@ export function CreateWizard() {
                   </div>
                   <div><label className={label}>Pages</label><input type="number" className={field} value={count} min={24} max={300} onChange={(e) => setCount(Number(e.target.value))} /></div>
                 </div>
-                <p className="text-xs text-neutral-500">Journals, planners & trackers — instant, no AI. KDP-ready 300 DPI interior + cover.</p>
+                <p className="text-xs text-ink-muted">Journals, planners & trackers — instant, no AI. KDP-ready 300 DPI interior + cover.</p>
               </>
             )}
 
@@ -466,7 +466,7 @@ export function CreateWizard() {
                     </select></div>
                   <div><label className={label}>Pages</label><input type="number" className={field} value={count} min={24} max={60} onChange={(e) => setCount(Number(e.target.value))} /></div>
                 </div>
-                <p className="text-xs text-neutral-500">Handwriting tracing workbook for kids — instant, no AI. 8.5 × 11, KDP-ready.</p>
+                <p className="text-xs text-ink-muted">Handwriting tracing workbook for kids — instant, no AI. 8.5 × 11, KDP-ready.</p>
               </>
             )}
 
@@ -483,7 +483,7 @@ export function CreateWizard() {
                     </select></div>
                 </div>
                 <div><label className={label}>Practice pages</label><input type="number" className={field} value={count} min={20} max={60} onChange={(e) => setCount(Number(e.target.value))} /></div>
-                <p className="text-xs text-neutral-500">Math drills with answer key — instant, no AI. 8.5 × 11, KDP-ready.</p>
+                <p className="text-xs text-ink-muted">Math drills with answer key — instant, no AI. 8.5 × 11, KDP-ready.</p>
               </>
             )}
 
@@ -494,7 +494,7 @@ export function CreateWizard() {
             {bookType === "cryptogram" && (
               <>
                 <div><label className={label}>Puzzles</label><input type="number" className={field} value={count} min={22} max={60} onChange={(e) => setCount(Number(e.target.value))} /></div>
-                <p className="text-xs text-neutral-500">Inspirational-quote cryptograms with answer key — instant, no AI. 8.5 × 11.</p>
+                <p className="text-xs text-ink-muted">Inspirational-quote cryptograms with answer key — instant, no AI. 8.5 × 11.</p>
               </>
             )}
 
@@ -507,7 +507,7 @@ export function CreateWizard() {
                     </select></div>
                   <div><label className={label}>Pages</label><input type="number" className={field} value={count} min={22} max={60} onChange={(e) => setCount(Number(e.target.value))} /></div>
                 </div>
-                <p className="text-xs text-neutral-500">Connect-the-dots puzzles — instant, no AI. 8.5 × 11, KDP-ready.</p>
+                <p className="text-xs text-ink-muted">Connect-the-dots puzzles — instant, no AI. 8.5 × 11, KDP-ready.</p>
               </>
             )}
 
@@ -520,17 +520,17 @@ export function CreateWizard() {
                     </select></div>
                   <div><label className={label}>Puzzle pages</label><input type="number" className={field} value={count} min={24} max={80} onChange={(e) => setCount(Number(e.target.value))} /></div>
                 </div>
-                <p className="text-xs text-neutral-500">Mixed variety book — mazes + word search + sudoku + connect-the-dots, with solutions. Instant, no AI.</p>
+                <p className="text-xs text-ink-muted">Mixed variety book — mazes + word search + sudoku + connect-the-dots, with solutions. Instant, no AI.</p>
               </>
             )}
           </div>
 
           <div className="mt-5 flex gap-3">
-            <button onClick={() => setStep(analysis ? 3 : 1)} className="rounded border border-neutral-300 px-4 py-2 text-sm">← Back</button>
+            <button onClick={() => setStep(analysis ? 3 : 1)} className="rounded border border-rule-strong px-4 py-2 text-sm">← Back</button>
             <button
               onClick={generate}
               disabled={busy || ((bookType === "word_search" || bookType === "coloring" || bookType === "ebook" || bookType === "story" || bookType === "scramble" || bookType === "crossword" || bookType === "activity") && !topic.trim())}
-              className="rounded bg-neutral-900 px-5 py-2.5 text-sm font-medium text-white disabled:opacity-50"
+              className="rounded-lg btn-nexa px-5 py-2.5 text-sm font-medium text-white disabled:opacity-50"
             >
               {busy ? "Generating… (up to a few minutes)" : "Generate Book"}
             </button>
@@ -539,7 +539,7 @@ export function CreateWizard() {
       )}
 
       {error && (
-        <div className="mt-4 text-sm text-red-600">
+        <div className="mt-4 text-sm text-clay">
           {error}
           {upgrade && (
             <Link href="/dashboard/billing" className="ml-2 font-medium underline">Open Billing →</Link>
@@ -560,10 +560,10 @@ function Shell({ step, children }: { step: number; children: React.ReactNode }) 
   const steps = ["Topic", "Opportunity", "Type", "Configure"];
   return (
     <div className="mx-auto max-w-xl">
-      <h1 className="text-2xl font-bold">Book Studio</h1>
+      <h1 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-ink">Book Studio</h1>
       <ol className="mt-3 flex gap-2 text-xs">
         {steps.map((s, i) => (
-          <li key={s} className={`flex-1 rounded px-2 py-1 text-center ${i + 1 === step ? "bg-neutral-900 text-white" : i + 1 < step ? "bg-neutral-200 text-neutral-700" : "bg-neutral-100 text-neutral-400"}`}>
+          <li key={s} className={`flex-1 rounded px-2 py-1 text-center ${i + 1 === step ? "bg-ink text-white" : i + 1 < step ? "bg-rule text-ink-soft" : "bg-paper-deep text-ink-muted"}`}>
             {i + 1}. {s}
           </li>
         ))}

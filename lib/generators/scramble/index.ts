@@ -127,7 +127,7 @@ export async function buildScrambleBook(opts: ScrambleOptions): Promise<Scramble
 
   const title = opts.title?.trim() || `${cap(theme)} Word Scramble`;
   const subtitle = opts.subtitle?.trim() || `${puzzleCount} Themed Word Scramble Puzzles`;
-  const author = opts.author?.trim() || "KDP Profit Machine";
+  const author = opts.author?.trim() || "BookNexa";
 
   const pages: InteriorPageContent[] = [
     {

@@ -278,7 +278,7 @@ export async function buildCrosswordBook(opts: CrosswordOptions): Promise<{ page
 
   const title = opts.title?.trim() || `${cap(theme)} Crossword Puzzles`;
   const subtitle = opts.subtitle?.trim() || `${puzzleCount} Themed Crossword Puzzles`;
-  const author = opts.author?.trim() || "KDP Profit Machine";
+  const author = opts.author?.trim() || "BookNexa";
 
   const pages: InteriorPageContent[] = [
     {

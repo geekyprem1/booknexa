@@ -1,9 +1,9 @@
 /**
- * Cover V2 end-to-end smoke test against the live Cloudflare account.
+ * Cover V2 end-to-end smoke test against the live providers
+ * (Replicate for images, OpenRouter for the spelling check).
  *
  *   npm run smoke:cover-v2
  *   npm run smoke:cover-v2 -- --genre kids --title "Sleepy Little Fox"
- *   npm run smoke:cover-v2 -- --model @cf/black-forest-labs/flux-2-dev
  *   npm run smoke:cover-v2 -- --set            # generate the full concept set
  *
  * Runs the real pipeline including the repair loop and the hybrid fallback, then
@@ -50,7 +50,7 @@ async function report(concept: GeneratedConcept, stem: string): Promise<void> {
 async function main(): Promise<void> {
   const blocked = coverV2Unavailable();
   if (blocked) {
-    console.error(blocked === "disabled" ? "✗ COVER_V2_ENABLED is not 1" : "✗ Cloudflare Workers AI is not configured");
+    console.error(blocked === "disabled" ? "✗ COVER_V2_ENABLED is 0" : "✗ REPLICATE_API_TOKEN is not set");
     process.exit(1);
   }
 

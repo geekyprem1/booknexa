@@ -49,7 +49,7 @@ export async function loadPublishingProfile(userId: string): Promise<PublishingP
 
 /** The display author for a book: pen name → author name → fallback. */
 export function profileAuthor(p: PublishingProfile): string {
-  return p.penName.trim() || p.authorName.trim() || "KDP Profit Machine";
+  return p.penName.trim() || p.authorName.trim() || "BookNexa";
 }
 
 /** Default copyright notice when the user hasn't set one. */

@@ -13,7 +13,7 @@
  * text, and the default model is fast and cheap precisely so this loop is affordable.
  */
 
-import { coverV2Config } from "./config";
+import { coverV2Config, isTextVerifierConfigured } from "./config";
 import { generateCoverV2Brief } from "./brief";
 import { buildArtOnlyPrompt, buildImagePrompt, textForStrategy, type PromptStrategy } from "./prompt";
 import { finalizeToPng, generationPixels, jpegSize, resolveTrim, targetPixels } from "./geometry";
@@ -91,7 +91,10 @@ export async function generateOneConcept(
   const attempts: ConceptAttempt[] = [];
   // Always the full text. These endpoints have no seed, so each retry is a fresh
   // sample of the same prompt — the retry itself is the fix, not dropping text.
-  const modelAttempts = Math.max(0, options.maxAttempts ?? 2);
+  // Without a spelling checker (no OpenRouter key) a model-lettered cover can't be
+  // verified, so go straight to the hybrid path, which is correct by construction.
+  const canVerify = options.skipVerification || isTextVerifierConfigured();
+  const modelAttempts = canVerify ? Math.max(0, options.maxAttempts ?? 2) : 0;
 
   for (let i = 0; i < modelAttempts; i++) {
     const prompt = buildImagePrompt({ brief, text: input, genre: input.genre, strategy: "standard", style: input.style, niche: input.niche, audience: input.audience });

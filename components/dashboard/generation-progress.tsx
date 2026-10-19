@@ -94,43 +94,43 @@ export function GenerationProgress({
   return (
     <div>
       {active && (
-        <div className="mt-5 rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
+        <div className="mt-5 rounded-xl border border-rule bg-paper-card p-4 shadow-sm">
           {/* header: spinner + current step + elapsed */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span
-                className="inline-block h-4 w-4 rounded-full border-2 border-neutral-300 border-t-neutral-900"
-                style={{ animation: "kdpm-spin 0.8s linear infinite" }}
+                className="inline-block h-4 w-4 rounded-full border-2 border-rule-strong border-t-neutral-900"
+                style={{ animation: "bnx-spin 0.8s linear infinite" }}
               />
-              <span className="text-sm font-semibold text-neutral-800">
+              <span className="text-sm font-semibold text-ink">
                 {currentStep ?? "Working…"}
               </span>
             </div>
-            <span className="text-xs tabular-nums text-neutral-400">{fmt(elapsedMs)} elapsed</span>
+            <span className="text-xs tabular-nums text-ink-muted">{fmt(elapsedMs)} elapsed</span>
           </div>
 
           {/* animated progress bar with shimmer */}
-          <div className="relative mt-3 h-2.5 w-full overflow-hidden rounded-full bg-neutral-100">
+          <div className="relative mt-3 h-2.5 w-full overflow-hidden rounded-full bg-paper-deep">
             <div
-              className="h-full rounded-full bg-neutral-900 transition-all duration-700 ease-out"
+              className="h-full rounded-full nexa-bar transition-all duration-700 ease-out"
               style={{ width: `${Math.max(5, progress)}%` }}
             />
             <div
               className="pointer-events-none absolute inset-y-0 left-0 w-1/3"
               style={{
                 background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent)",
-                animation: "kdpm-shimmer 1.6s ease-in-out infinite",
+                animation: "bnx-shimmer 1.6s ease-in-out infinite",
               }}
             />
           </div>
 
           {/* rotating reassurance */}
           <div className="mt-2 flex items-center justify-between">
-            <span className="text-xs italic text-neutral-500">{flavor}</span>
-            <span className="text-xs font-medium text-neutral-400">{progress}%</span>
+            <span className="text-xs italic text-ink-muted">{flavor}</span>
+            <span className="text-xs font-medium text-ink-muted">{progress}%</span>
           </div>
 
-          <p className="mt-3 rounded-lg bg-neutral-50 px-3 py-2 text-xs text-neutral-500">
+          <p className="mt-3 rounded-lg bg-paper px-3 py-2 text-xs text-ink-muted">
             ✨ You can leave this page — your book keeps generating in the background and
             lands in your Publishing Vault™ when it's done.
           </p>
@@ -138,7 +138,7 @@ export function GenerationProgress({
       )}
 
       {/* timeline */}
-      <h2 className="mt-6 text-sm font-semibold text-neutral-700">Timeline</h2>
+      <h2 className="mt-6 text-sm font-semibold text-ink-soft">Timeline</h2>
       <ol className="mt-3 space-y-2.5">
         {steps.map((s) => {
           const done = completed || progress >= s.at;
@@ -147,13 +147,13 @@ export function GenerationProgress({
             <li key={s.label} className="flex items-center gap-2.5 text-sm">
               <span
                 className={`flex h-5 w-5 items-center justify-center rounded-full text-[11px] ${
-                  done ? "bg-green-600 text-white" : current ? "bg-amber-400 text-white" : "bg-neutral-200 text-neutral-400"
+                  done ? "bg-forest text-white" : current ? "bg-amber-400 text-white" : "bg-rule text-ink-muted"
                 }`}
-                style={current ? { animation: "kdpm-pulse 1.2s ease-in-out infinite" } : undefined}
+                style={current ? { animation: "bnx-pulse 1.2s ease-in-out infinite" } : undefined}
               >
                 {done ? "✓" : ""}
               </span>
-              <span className={done ? "text-neutral-800" : current ? "font-medium text-neutral-800" : "text-neutral-400"}>
+              <span className={done ? "text-ink" : current ? "font-medium text-ink" : "text-ink-muted"}>
                 {s.label}
               </span>
             </li>

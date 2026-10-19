@@ -23,23 +23,23 @@ export default async function BundlePage() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <h1 className="text-2xl font-bold">Profit Factory™</h1>
-      <p className="mt-1 text-sm text-neutral-600">
+      <h1 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-ink">Profit Factory™</h1>
+      <p className="mt-1 text-sm text-ink-soft">
         Create multiple publishing assets from one niche. Enter a topic, and the
         Profit Factory™ recommends the best book mix and produces them all —
         with a suggested publishing order to maximize your KDP catalogue.
       </p>
 
-      <div className="mt-4 rounded-xl border border-neutral-200 bg-neutral-50 p-4">
-        <div className="text-xs font-semibold uppercase tracking-wide text-neutral-400">What gets produced</div>
+      <div className="mt-4 rounded-xl border border-rule bg-paper p-4">
+        <div className="text-xs font-semibold font-ledger uppercase tracking-wide text-ink-muted">What gets produced</div>
         <div className="mt-2 flex flex-wrap gap-2">
           {["Word Search", "Sudoku", "Maze", "Coloring Book", "Ebook"].map((t) => (
-            <span key={t} className="rounded-full bg-white border border-neutral-200 px-3 py-1 text-xs font-medium text-neutral-700">
+            <span key={t} className="rounded-full bg-paper-card border border-rule px-3 py-1 text-xs font-medium text-ink-soft">
               {t}
             </span>
           ))}
         </div>
-        <p className="mt-2 text-xs text-neutral-500">
+        <p className="mt-2 text-xs text-ink-muted">
           Opportunity Score powers recommendations — every book type is scored for
           demand, competition, and monetization before production begins.
         </p>
@@ -49,21 +49,21 @@ export default async function BundlePage() {
         <BundleGenerator />
       </div>
 
-      <h2 className="mt-10 text-lg font-semibold">Your bundles</h2>
+      <h2 className="font-display mt-10 text-lg font-semibold">Your bundles</h2>
       {bundles.length === 0 ? (
-        <p className="mt-3 text-sm text-neutral-500">No bundles yet.</p>
+        <p className="mt-3 text-sm text-ink-muted">No bundles yet.</p>
       ) : (
-        <ul className="mt-3 divide-y divide-neutral-100 rounded-lg border border-neutral-200">
+        <ul className="mt-3 divide-y divide-rule rounded-lg border border-rule">
           {bundles.map((b) => (
             <li key={b.id}>
-              <Link href={`/dashboard/bundle/${b.id}`} className="flex items-center justify-between px-4 py-3 hover:bg-neutral-50">
+              <Link href={`/dashboard/bundle/${b.id}`} className="flex items-center justify-between px-4 py-3 hover:bg-paper">
                 <div>
                   <div className="text-sm font-medium">{b.topic}</div>
-                  <div className="text-xs text-neutral-500">
+                  <div className="text-xs text-ink-muted">
                     {(b.book_types ?? []).length} books · {b.status} · {new Date(b.created_at).toLocaleDateString()}
                   </div>
                 </div>
-                <span className="text-sm text-neutral-400">Open →</span>
+                <span className="text-sm text-ink-muted">Open →</span>
               </Link>
             </li>
           ))}

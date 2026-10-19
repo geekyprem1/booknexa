@@ -54,7 +54,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const data: EbookData = {
     title: book.title,
     subtitle: meta?.subtitle ?? undefined,
-    author: cfg.author ?? "KDP Profit Machine",
+    author: cfg.author ?? "BookNexa",
     chapters: (chapters ?? []).map((c) => ({ idx: c.idx, title: c.title, contentMd: c.content_md })),
   };
 

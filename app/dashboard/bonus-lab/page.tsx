@@ -50,26 +50,26 @@ export default async function BonusLabPage() {
   return (
     <div className="mx-auto max-w-4xl">
       <div className="flex items-center gap-2">
-        <Gift className="h-6 w-6 text-neutral-900" />
-        <h1 className="text-2xl font-bold text-neutral-900">Bonus Lab</h1>
+        <Gift className="h-6 w-6 text-ink" />
+        <h1 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-ink">Bonus Lab</h1>
       </div>
-      <p className="mt-1 text-sm text-neutral-600">
+      <p className="mt-1 text-sm text-ink-soft">
         Free bonus resources for every member — download and put them to work today.
       </p>
 
       <div className="mt-6 grid gap-5 sm:grid-cols-2">
         {BONUSES.map((b) => (
-          <div key={b.title} className="flex flex-col overflow-hidden rounded-xl border border-neutral-200 bg-white">
+          <div key={b.title} className="flex flex-col overflow-hidden rounded-xl border border-rule bg-paper-card">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={b.image} alt={b.title} className="aspect-square w-full bg-neutral-100 object-cover" />
+            <img src={b.image} alt={b.title} className="aspect-square w-full bg-paper-deep object-cover" />
             <div className="flex flex-1 flex-col p-5">
-              <h3 className="font-semibold text-neutral-900">{b.title}</h3>
-              <p className="mt-1 flex-1 text-sm text-neutral-500">{b.description}</p>
+              <h3 className="font-semibold text-ink">{b.title}</h3>
+              <p className="mt-1 flex-1 text-sm text-ink-muted">{b.description}</p>
               <a
                 href={BONUS_DOWNLOAD_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-4 inline-flex items-center justify-center gap-2 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-neutral-700"
+                className="mt-4 inline-flex items-center justify-center gap-2 rounded-lg btn-nexa px-4 py-2.5 text-sm font-bold text-white transition-colors"
               >
                 <Download className="h-4 w-4" /> Download
               </a>

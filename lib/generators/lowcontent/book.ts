@@ -30,7 +30,7 @@ export interface ResolvedLowContentConfig {
   hasPageNumbers: boolean;
 }
 
-const DEFAULT_AUTHOR = "KDP Profit Machine";
+const DEFAULT_AUTHOR = "BookNexa";
 
 export function resolveLowContentConfig(opts: LowContentOptions): ResolvedLowContentConfig {
   const product = LOW_CONTENT_PRODUCTS[opts.layout];

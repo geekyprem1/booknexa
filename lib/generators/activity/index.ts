@@ -130,7 +130,7 @@ export async function buildActivityBook(opts: ActivityOptions): Promise<Activity
 
   const title = opts.title?.trim() || `${cap(theme)} Activity Book`;
   const subtitle = opts.subtitle?.trim() || `Mazes, Word Search, Sudoku & More`;
-  const author = opts.author?.trim() || "KDP Profit Machine";
+  const author = opts.author?.trim() || "BookNexa";
 
   const pages: InteriorPageContent[] = [
     {

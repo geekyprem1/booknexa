@@ -1,24 +1,37 @@
 interface LogoProps {
-  /** Height/util classes for the image (e.g. "h-9"). Width stays auto. */
+  /** Sizing classes (e.g. "h-9 text-[15px]"). Height drives the mark; text-* sets the wordmark size. */
   className?: string;
-  /** Kept for API compatibility with existing call sites; not used by the PNG. */
+  /** "dark" for dark surfaces (white wordmark), "light" for light surfaces (navy wordmark). */
   variant?: "dark" | "light";
+  /** Hide the "booknexa" wordmark and render only the mark. */
   showWordmark?: boolean;
 }
 
 /**
- * KDP Profit Machine brand logo.
+ * BookNexa brand logo.
  *
- * Renders the uploaded PNG at /public/logo.png. Height is driven by the caller's
- * `className` (e.g. "h-9"); width stays auto to preserve the aspect ratio.
+ * Renders the open-book + pen-nib mark from /public/booknexa-mark.png plus a
+ * live-text wordmark — "book" in navy (white on dark) + "nexa" in the logo's
+ * cyan → blue → violet → magenta gradient — so the lockup stays crisp at any
+ * size and adapts to dark/light surfaces. The full raster lockup lives at
+ * /public/booknexa-logo.png for places that need a single image.
  */
-export function Logo({ className = "" }: LogoProps) {
+export function Logo({ className = "", variant = "dark", showWordmark = true }: LogoProps) {
+  const isDark = variant === "dark";
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src="/logo.png"
-      alt="KDP Profit Machine"
-      className={`w-auto object-contain ${className}`}
-    />
+    <span
+      role="img"
+      aria-label="BookNexa"
+      className={`inline-flex items-center gap-2 whitespace-nowrap ${className}`}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/booknexa-mark.png" alt="" className="h-full w-auto shrink-0 object-contain" />
+      {showWordmark && (
+        <span className={`brand-wordmark leading-none ${isDark ? "text-white" : "text-[#0A1630]"}`}>
+          book
+          <span className={`brand-gradient-text ${isDark ? "brand-gradient-text-bright" : ""}`}>nexa</span>
+        </span>
+      )}
+    </span>
   );
 }

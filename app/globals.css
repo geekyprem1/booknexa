@@ -5,8 +5,8 @@
 :root {
   color-scheme: light;
 
-  /* ── KDP Profit Machine design tokens (mirror tailwind.config brand colors) ── */
-  /* Blue brand palette. Token names kept for backwards-compat. */
+  /* ── BookNexa design tokens (mirror tailwind.config brand colors) ── */
+  /* Blue → purple brand palette matching the BookNexa logo. Token names kept for backwards-compat. */
   --brand-dark: #0B1E3B;
   --brand-gold: #2563EB;
   --brand-gold-dark: #1D4ED8;
@@ -15,6 +15,8 @@
   --brand-blue: #2563EB;
   --brand-blue-dark: #1D4ED8;
   --brand-navy: #0B1E3B;
+  --brand-purple: #7C3AED;
+  --brand-purple-dark: #6D28D9;
   --kdp: #FF9900; /* Amazon KDP accent — publish actions only */
   --success: #16A34A;
   --warning: #D97706;
@@ -28,10 +30,36 @@ body {
 
 /* Reusable brand utilities */
 .btn-gold {
-  background: linear-gradient(135deg, var(--brand-blue), var(--brand-blue-dark));
+  background-image: linear-gradient(100deg, #1463FF 0%, #3B2BEF 55%, #8E25E8 100%);
   color: #fff;
 }
-.btn-gold:hover { opacity: 0.9; }
+.btn-gold:hover { filter: brightness(1.1); }
+
+/* Primary gradient CTA — the BookNexa logo spectrum. */
+.btn-brand {
+  background-image: linear-gradient(100deg, #1463FF 0%, #3B2BEF 55%, #8E25E8 100%);
+  color: #fff;
+}
+.btn-brand:hover { filter: brightness(1.1); }
+
+/* BookNexa wordmark + gradient text (logo component, accent headings). */
+.brand-wordmark {
+  font-family: var(--font-wordmark), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+/* Logo gradient — matches the "nexa" letters: cyan → blue → violet → magenta. */
+.brand-gradient-text {
+  background-image: linear-gradient(100deg, #00A8F5 0%, #1463FF 35%, #4F2BF2 65%, #9B2CF2 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.brand-gradient-text-bright {
+  background-image: linear-gradient(100deg, #22C8FF 0%, #4D8BFF 35%, #8B6BFF 65%, #C66BFF 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
 
 /* "Publish to Amazon KDP" call-to-action — the one place we nod to Amazon. */
 .btn-kdp {
@@ -42,7 +70,79 @@ body {
 .btn-kdp:hover { background: var(--kdp-dark, #E88B00); }
 
 /* Generation-progress animations (used on the in-progress list + detail). */
-@keyframes kdpm-shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
-@keyframes kdpm-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .45; transform: scale(.85); } }
-@keyframes kdpm-spin { to { transform: rotate(360deg); } }
-@keyframes kdpm-indeterminate { 0% { left: -40%; } 100% { left: 100%; } }
+@keyframes bnx-shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+@keyframes bnx-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .45; transform: scale(.85); } }
+@keyframes bnx-spin { to { transform: rotate(360deg); } }
+@keyframes bnx-indeterminate { 0% { left: -40%; } 100% { left: 100%; } }
+
+
+/* ── "Press" identity (dashboard v2) ── */
+/* Highlighter stroke behind a word — the signature mark of the new dashboard. */
+.marker-hl {
+  /* Logo-gradient text, with a faint cyan→violet underline swash. */
+  background-image:
+    linear-gradient(100deg, #00A8F5 0%, #1463FF 35%, #4F2BF2 65%, #9B2CF2 100%),
+    linear-gradient(100deg, rgb(0 184 255 / 0.18), rgb(155 44 242 / 0.18));
+  background-size: 100% 100%, 100% 0.28em;
+  background-position: 0 0, 0 88%;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text, border-box;
+  background-clip: text, border-box;
+  color: transparent;
+  padding: 0 0.06em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+/* Dotted table-of-contents leader between a label and its value. */
+.toc-leader {
+  flex: 1 1 auto;
+  min-width: 1.5rem;
+  border-bottom: 2px dotted #C3CBDD;
+  transform: translateY(-0.3em);
+}
+/* Subtle dot grid on the dashboard canvas (pure CSS, no image request). */
+.paper-grain {
+  background-color: #F4F6FB;
+  background-image: radial-gradient(rgb(10 22 48 / 0.05) 1px, transparent 1px);
+  background-size: 14px 14px;
+}
+/* Primary action — the logo spectrum, white label (≥4.5:1 across the whole ramp). */
+.btn-nexa {
+  background-image: linear-gradient(100deg, #1463FF 0%, #3B2BEF 55%, #8E25E8 100%);
+  color: #fff;
+}
+.btn-nexa:hover { filter: brightness(1.1); }
+/* Full-spectrum bar for rules, underlines and the shelf plank. */
+.nexa-bar {
+  background-image: linear-gradient(90deg, #00B8FF 0%, #1463FF 35%, #4F2BF2 65%, #B83CF6 100%);
+}
+.nexa-bar-v {
+  background-image: linear-gradient(180deg, #00B8FF 0%, #1463FF 35%, #4F2BF2 65%, #B83CF6 100%);
+}
+
+/* ── Press form controls: every dashboard input/select/textarea gets the same
+   surface + focus ring without touching each component. Wrapped in :where()
+   (zero specificity) so any explicit utility class on a control still wins. ── */
+:where(.press-forms) :where(input:not([type="checkbox"], [type="radio"], [type="range"], [type="color"], [type="file"]), select, textarea) {
+  background-color: #FFFFFF;
+  border-color: #B9C2D6;
+  color: #0A1630;
+}
+:where(.press-forms) :where(input, textarea)::placeholder { color: #7A84A0; }
+:where(.press-forms) :where(input, select, textarea):focus-visible {
+  outline: none;
+  border-color: #1463FF;
+  box-shadow: 0 0 0 3px rgb(20 99 255 / 0.18);
+}
+:where(.press-forms) :where(input[type="checkbox"], input[type="radio"], input[type="range"]) { accent-color: #1463FF; }
+/* Visible keyboard focus for any control that doesn't define its own. */
+:where(.press-forms) :where(a, button, [role="button"], summary):focus-visible {
+  outline: 2px solid #1463FF;
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .press-motion, .press-motion * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

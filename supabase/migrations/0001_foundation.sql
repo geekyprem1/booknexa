@@ -1,5 +1,5 @@
 -- ───────────────────────────────────────────────────────────────
--- KDP Pocket AI — Phase 0 foundation schema
+-- BookNexa — Phase 0 foundation schema
 --
 -- Scope: identity + the credit ledger backbone only.
 -- Book/job/order/template tables are intentionally NOT created here —

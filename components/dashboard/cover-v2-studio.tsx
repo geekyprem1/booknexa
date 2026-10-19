@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-const GOLD = "#2563EB";
+const GOLD = "#1463FF";
 
 function OpenIcon() {
   return (
@@ -69,8 +69,8 @@ const GENRES = [
 const TRIMS = ["5x8", "5.25x8", "5.5x8.5", "6x9", "7x10", "8.5x11"];
 
 const field =
-  "mt-1 w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none";
-const label = "block text-[13px] font-medium text-neutral-700";
+  "mt-1 w-full rounded-lg border border-rule-strong bg-paper-card px-3 py-2 text-sm focus:border-nexa-blue focus:outline-none";
+const label = "block text-[13px] font-medium text-ink-soft";
 
 /** Compact relative time, matching how the covers list reads elsewhere. */
 function timeAgo(iso: string): string {
@@ -262,8 +262,8 @@ export function CoverV2Studio({
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
       {/* ── left: the form ── */}
-      <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
-        <h2 className="text-sm font-semibold text-neutral-800">Cover details</h2>
+      <div className="rounded-2xl border border-rule bg-paper-card p-5 shadow-sm">
+        <h2 className="text-sm font-semibold text-ink">Cover details</h2>
 
         <div className="mt-4 space-y-4">
           <div>
@@ -277,12 +277,12 @@ export function CoverV2Studio({
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className={label}>Niche / topic</label>
-              <p className="text-[11px] text-neutral-400">Guides what the AI illustrates.</p>
+              <p className="text-[11px] text-ink-muted">Guides what the AI illustrates.</p>
               <input className={field} value={niche} onChange={(e) => setNiche(e.target.value)} placeholder="Mental health, mindfulness" />
             </div>
             <div>
               <label className={label}>Author name</label>
-              <p className="text-[11px] text-neutral-400">Will appear on the cover.</p>
+              <p className="text-[11px] text-ink-muted">Will appear on the cover.</p>
               <input className={field} value={author} onChange={(e) => setAuthor(e.target.value)} placeholder="Jane Doe" />
             </div>
           </div>
@@ -298,7 +298,7 @@ export function CoverV2Studio({
 
         {/* ── visual style ── */}
         <div className="mt-6">
-          <div className="text-[13px] font-medium text-neutral-700">Visual style</div>
+          <div className="text-[13px] font-medium text-ink-soft">Visual style</div>
           <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
             {styles.map((s) => {
               const on = s.key === style;
@@ -308,18 +308,18 @@ export function CoverV2Studio({
                   type="button"
                   onClick={() => setStyle(s.key)}
                   className={`rounded-lg border p-3 text-left transition-colors ${
-                    on ? "border-neutral-900 bg-neutral-50" : "border-neutral-200 hover:border-neutral-400"
+                    on ? "border-ink bg-paper" : "border-rule hover:border-ink-muted"
                   }`}
                 >
-                  <div className="text-[13px] font-medium text-neutral-900">{s.label}</div>
-                  <div className="mt-0.5 text-[11px] text-neutral-500">{s.blurb}</div>
+                  <div className="text-[13px] font-medium text-ink">{s.label}</div>
+                  <div className="mt-0.5 text-[11px] text-ink-muted">{s.blurb}</div>
                 </button>
               );
             })}
           </div>
         </div>
 
-        <label className="mt-5 flex items-start gap-2 rounded-lg border border-neutral-200 p-3 text-[13px] text-neutral-700">
+        <label className="mt-5 flex items-start gap-2 rounded-lg border border-rule p-3 text-[13px] text-ink-soft">
           <input
             type="checkbox"
             checked={hybridOnly}
@@ -328,7 +328,7 @@ export function CoverV2Studio({
           />
           <span>
             Set the type with the stable engine
-            <span className="block text-[11px] text-neutral-400">
+            <span className="block text-[11px] text-ink-muted">
               The model paints wordless artwork and our own typography engine adds the text, so
               the spelling is always correct. Use this if the model keeps mangling the title.
             </span>
@@ -336,8 +336,8 @@ export function CoverV2Studio({
         </label>
 
         {/* ── Print-ready wraparound (KDP paperback) ── */}
-        <div className="mt-4 rounded-lg border border-neutral-200 p-3">
-          <label className="flex items-start gap-2 text-[13px] font-medium text-neutral-800">
+        <div className="mt-4 rounded-lg border border-rule p-3">
+          <label className="flex items-start gap-2 text-[13px] font-medium text-ink">
             <input
               type="checkbox"
               checked={alsoPrint}
@@ -346,7 +346,7 @@ export function CoverV2Studio({
             />
             <span>
               Also create print-ready PDF (back + spine + front)
-              <span className="block text-[11px] font-normal text-neutral-400">
+              <span className="block text-[11px] font-normal text-ink-muted">
                 Leave unticked for an ebook / front-cover only. Tick it to also get a single
                 KDP-ready wraparound for paperbacks.
               </span>
@@ -364,7 +364,7 @@ export function CoverV2Studio({
             </div>
             <div>
               <label className={label}>Page count</label>
-              <p className="text-[11px] text-neutral-400">Used to compute spine width.</p>
+              <p className="text-[11px] text-ink-muted">Used to compute spine width.</p>
               <input
                 type="number"
                 min={24}
@@ -372,7 +372,7 @@ export function CoverV2Studio({
                 value={wrapPages}
                 onChange={(e) => setWrapPages(e.target.value)}
                 disabled={!alsoPrint}
-                className={`${field} disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-400`}
+                className={`${field} disabled:cursor-not-allowed disabled:bg-paper-deep disabled:text-ink-muted`}
               />
             </div>
           </div>
@@ -395,23 +395,22 @@ export function CoverV2Studio({
                     type="color"
                     value={wrapBg}
                     onChange={(e) => setWrapBg(e.target.value)}
-                    className="h-9 w-11 cursor-pointer rounded border border-neutral-300 bg-white p-0.5"
+                    className="h-9 w-11 cursor-pointer rounded border border-rule-strong bg-paper-card p-0.5"
                     aria-label="Back and spine background color"
                   />
-                  <span className="text-[12px] text-neutral-400">{wrapBg}</span>
+                  <span className="text-[12px] text-ink-muted">{wrapBg}</span>
                 </span>
               </div>
             </div>
           )}
         </div>
 
-        {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
+        {error && <p className="mt-4 text-sm text-clay">{error}</p>}
 
         <button
           onClick={generate}
           disabled={busy}
-          className="mt-5 w-full rounded-lg px-4 py-3 text-sm font-bold text-white transition-opacity disabled:opacity-50"
-          style={{ backgroundColor: GOLD }}
+          className="btn-nexa mt-5 w-full rounded-lg px-4 py-3 text-sm font-bold shadow-glow transition-all disabled:opacity-50"
         >
           {busy
             ? "Generating… this can take a minute or two"
@@ -419,27 +418,27 @@ export function CoverV2Studio({
             ? "Generate Cover + Print PDF"
             : "Generate Cover"}
         </button>
-        <p className="mt-2 text-center text-[11px] text-neutral-400">
+        <p className="mt-2 text-center text-[11px] text-ink-muted">
           Costs {credits} credits — you have {balance.toLocaleString()}
         </p>
       </div>
 
       {/* ── right: preview, or the covers list ── */}
-      <div className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm lg:sticky lg:top-6 lg:self-start">
+      <div className="rounded-2xl border border-rule bg-paper-card p-4 shadow-sm lg:sticky lg:top-6 lg:self-start">
         {preview ? (
           <div>
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-neutral-800">Preview</h2>
+              <h2 className="text-sm font-semibold text-ink">Preview</h2>
               <button
                 onClick={closePreview}
-                className="text-[11px] text-neutral-400 hover:underline"
+                className="text-[11px] text-ink-muted hover:underline"
               >
                 Your covers →
               </button>
             </div>
 
             {!current ? (
-              <p className="mt-3 text-[13px] text-neutral-500">
+              <p className="mt-3 text-[13px] text-ink-muted">
                 This cover&apos;s image files are unavailable. It may not have finished
                 generating — try deleting it and generating again.
               </p>
@@ -448,14 +447,14 @@ export function CoverV2Studio({
             <button
               type="button"
               onClick={() => setLightboxOpen(true)}
-              className="mt-3 block w-full cursor-zoom-in rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:ring-offset-2"
+              className="mt-3 block w-full cursor-zoom-in rounded-lg focus:outline-none focus:ring-2 focus:ring-nexa-blue focus:ring-offset-2"
               aria-label="Open full-size cover preview"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={current.url}
                 alt={preview.title}
-                className="w-full rounded-lg border border-neutral-200"
+                className="w-full rounded-lg border border-rule"
               />
             </button>
 
@@ -466,7 +465,7 @@ export function CoverV2Studio({
                     key={v.index}
                     onClick={() => setActive(v.index)}
                     className={`overflow-hidden rounded border ${
-                      v.index === active ? "border-neutral-900" : "border-neutral-200 opacity-70"
+                      v.index === active ? "border-ink" : "border-rule opacity-70"
                     }`}
                     style={{ width: 46 }}
                   >
@@ -478,24 +477,24 @@ export function CoverV2Studio({
             )}
 
             <div className="mt-3">
-              <p className="text-[13px] font-semibold text-neutral-900">{preview.title}</p>
-              {preview.subtitle && <p className="text-[12px] text-neutral-600">{preview.subtitle}</p>}
-              {preview.author && <p className="text-[12px] text-neutral-500">by {preview.author}</p>}
+              <p className="text-[13px] font-semibold text-ink">{preview.title}</p>
+              {preview.subtitle && <p className="text-[12px] text-ink-soft">{preview.subtitle}</p>}
+              {preview.author && <p className="text-[12px] text-ink-muted">by {preview.author}</p>}
             </div>
 
             <div className="mt-2 flex flex-wrap gap-1.5">
               <span
-                className="rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
+                className="rounded-full px-2 py-0.5 text-[11px] font-semibold font-ledger uppercase tracking-wide"
                 style={
                   current.textSource === "model"
                     ? { background: "#dcfce7", color: "#166534" }
-                    : { background: `${GOLD}22`, color: "#8a6d1f" }
+                    : { background: `${GOLD}1f`, color: "#1146C8" }
                 }
               >
                 {current.textSource === "model" ? "Type by model" : "Type by stable engine"}
               </span>
               {preview.style && (
-                <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[10px] text-neutral-500">
+                <span className="rounded-full bg-paper-deep px-2 py-0.5 text-[11px] text-ink-muted">
                   {preview.style}
                 </span>
               )}
@@ -504,7 +503,7 @@ export function CoverV2Studio({
             {/* The failed attempts are the clearest signal of how well a model spells,
                 which is the thing being compared while the Beta is being evaluated. */}
             {current.attempts.some((a) => !a.ok) && (
-              <ul className="mt-2 space-y-0.5 text-[11px] text-neutral-500">
+              <ul className="mt-2 space-y-0.5 text-[11px] text-ink-muted">
                 {current.attempts.filter((a) => !a.ok).map((a, i) => (
                   <li key={i}>✗ {a.strategy}: {a.reason}</li>
                 ))}
@@ -513,42 +512,42 @@ export function CoverV2Studio({
 
             <a
               href={`/api/cover/${preview.id}/download?v=${current.index}`}
-              className="mt-4 flex items-center justify-center gap-1.5 text-[13px] font-medium text-neutral-700 hover:underline"
+              className="mt-4 flex items-center justify-center gap-1.5 text-[13px] font-medium text-ink-soft hover:underline"
             >
               ⤓ Download cover image
             </a>
             <a
               href={`/api/cover/${preview.id}/download-pdf?v=${current.index}`}
-              className="mt-2 flex items-center justify-center gap-1.5 rounded-lg border border-neutral-300 px-3 py-2 text-[13px] font-medium text-neutral-800 hover:bg-neutral-50"
+              className="mt-2 flex items-center justify-center gap-1.5 rounded-lg border border-rule-strong px-3 py-2 text-[13px] font-medium text-ink hover:bg-paper"
             >
               Front-cover PDF (ebook / front art)
             </a>
 
             {/* ── Print wraparound (back + spine + front) for KDP paperbacks ── */}
-            <div className="mt-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
-              <p className="text-[12px] font-semibold text-neutral-800">Print wraparound (paperback)</p>
-              <p className="mt-0.5 text-[11px] leading-relaxed text-neutral-500">
+            <div className="mt-3 rounded-lg border border-rule bg-paper p-3">
+              <p className="text-[12px] font-semibold text-ink">Print wraparound (paperback)</p>
+              <p className="mt-0.5 text-[11px] leading-relaxed text-ink-muted">
                 KDP print books need a single back + spine + front PDF. The spine is sized from
                 your interior page count &amp; paper.
               </p>
               <div className="mt-2 grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-[11px] font-medium text-neutral-600">Interior pages</label>
+                  <label className="block text-[11px] font-medium text-ink-soft">Interior pages</label>
                   <input
                     type="number"
                     min={24}
                     max={828}
                     value={wrapPages}
                     onChange={(e) => setWrapPages(e.target.value)}
-                    className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-[13px] focus:border-neutral-900 focus:outline-none"
+                    className="mt-1 w-full rounded-md border border-rule-strong bg-paper-card px-2 py-1.5 text-[13px] focus:border-nexa-blue focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-medium text-neutral-600">Paper</label>
+                  <label className="block text-[11px] font-medium text-ink-soft">Paper</label>
                   <select
                     value={wrapPaper}
                     onChange={(e) => setWrapPaper(e.target.value)}
-                    className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-[13px] focus:border-neutral-900 focus:outline-none"
+                    className="mt-1 w-full rounded-md border border-rule-strong bg-paper-card px-2 py-1.5 text-[13px] focus:border-nexa-blue focus:outline-none"
                   >
                     <option value="white">White</option>
                     <option value="cream">Cream</option>
@@ -558,33 +557,32 @@ export function CoverV2Studio({
                 </div>
               </div>
               <div className="mt-2 flex items-center gap-2">
-                <label className="text-[11px] font-medium text-neutral-600">Back / spine color</label>
+                <label className="text-[11px] font-medium text-ink-soft">Back / spine color</label>
                 <input
                   type="color"
                   value={wrapBg}
                   onChange={(e) => setWrapBg(e.target.value)}
-                  className="h-7 w-10 cursor-pointer rounded border border-neutral-300 bg-white p-0.5"
+                  className="h-7 w-10 cursor-pointer rounded border border-rule-strong bg-paper-card p-0.5"
                   aria-label="Back and spine background color"
                 />
-                <span className="text-[11px] text-neutral-400">{wrapBg}</span>
+                <span className="text-[11px] text-ink-muted">{wrapBg}</span>
               </div>
               <a
                 href={`/api/cover/${preview.id}/wrap-pdf?v=${current.index}&pages=${encodeURIComponent(
                   wrapPages,
                 )}&paper=${wrapPaper}&bg=${encodeURIComponent(wrapBg.replace("#", ""))}`}
-                className="mt-3 flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-[13px] font-semibold text-white hover:opacity-90"
-                style={{ backgroundColor: GOLD }}
+                className="btn-nexa mt-3 flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-[13px] font-semibold"
               >
                 ⤓ Download print wraparound PDF
               </a>
-              <p className="mt-2 text-[10px] leading-snug text-neutral-400">
+              <p className="mt-2 text-[11px] leading-snug text-ink-muted">
                 Always confirm the final file in KDP&apos;s Print Previewer before publishing.
               </p>
             </div>
 
             <Link
               href={`/dashboard/cover/${preview.id}`}
-              className="mt-3 block text-center text-[11px] text-neutral-400 hover:underline"
+              className="mt-3 block text-center text-[11px] text-ink-muted hover:underline"
             >
               Open in the cover library
             </Link>
@@ -593,15 +591,15 @@ export function CoverV2Studio({
           </div>
         ) : (
           <div>
-            <h2 className="text-sm font-semibold text-neutral-800">Your covers</h2>
+            <h2 className="text-sm font-semibold text-ink">Your covers</h2>
             {covers.length === 0 ? (
-              <p className="mt-3 text-[13px] text-neutral-500">
+              <p className="mt-3 text-[13px] text-ink-muted">
                 Nothing here yet. Generate your first cover and it will appear in this list.
               </p>
             ) : (
               <ul className="mt-3 space-y-1">
                 {covers.map((c) => (
-                  <li key={c.id} className="flex items-center rounded-lg hover:bg-neutral-50">
+                  <li key={c.id} className="flex items-center rounded-lg hover:bg-paper">
                     {/* The whole row opens the cover — a 16px arrow is a poor click target.
                         Delete stays outside the link so it cannot be hit by accident. */}
                     <Link
@@ -614,16 +612,16 @@ export function CoverV2Studio({
                         <img
                           src={c.thumb}
                           alt=""
-                          className="h-11 w-8 shrink-0 rounded border border-neutral-200 object-cover"
+                          className="h-11 w-8 shrink-0 rounded border border-rule object-cover"
                         />
                       ) : (
-                        <div className="h-11 w-8 shrink-0 rounded border border-neutral-200 bg-neutral-100" />
+                        <div className="h-11 w-8 shrink-0 rounded border border-rule bg-paper-deep" />
                       )}
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-[13px] font-medium text-neutral-900">{c.title}</p>
-                        <p className="text-[11px] text-neutral-400">{timeAgo(c.createdAt)}</p>
+                        <p className="truncate text-[13px] font-medium text-ink">{c.title}</p>
+                        <p className="text-[11px] text-ink-muted">{timeAgo(c.createdAt)}</p>
                       </div>
-                      <span className="shrink-0 p-1 text-neutral-400" aria-hidden>
+                      <span className="shrink-0 p-1 text-ink-muted" aria-hidden>
                         <OpenIcon />
                       </span>
                     </Link>
@@ -632,7 +630,7 @@ export function CoverV2Studio({
                       disabled={deleting === c.id}
                       title="Delete"
                       aria-label={`Delete ${c.title}`}
-                      className="mr-1 shrink-0 rounded p-1 text-neutral-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-40"
+                      className="mr-1 shrink-0 rounded p-1 text-ink-muted hover:bg-clay-soft hover:text-clay disabled:opacity-40"
                     >
                       <TrashIcon />
                     </button>
@@ -657,7 +655,7 @@ export function CoverV2Studio({
           <button
             type="button"
             onClick={() => setLightboxOpen(false)}
-            className="absolute right-4 top-4 rounded-full bg-white/90 px-3 py-1.5 text-lg leading-none text-neutral-900 shadow hover:bg-white focus:outline-none focus:ring-2 focus:ring-white"
+            className="absolute right-4 top-4 rounded-full bg-paper-card/90 px-3 py-1.5 text-lg leading-none text-ink shadow hover:bg-paper-card focus:outline-none focus:ring-2 focus:ring-white"
             aria-label="Close full-size cover preview"
           >
             ×

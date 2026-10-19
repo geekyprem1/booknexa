@@ -35,14 +35,14 @@ export default async function BundleDetailPage({ params }: { params: Promise<{ i
 
   return (
     <div className="mx-auto max-w-3xl">
-      <Link href="/dashboard/bundle" className="text-sm text-neutral-500 hover:underline">← Bundle Generator</Link>
+      <Link href="/dashboard/bundle" className="text-sm text-ink-muted hover:underline">← Bundle Generator</Link>
       <div className="mt-1 flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">{bundle.topic} — bundle</h1>
-          <p className="text-sm text-neutral-500">{books.length} books · {bundle.status}</p>
+          <h1 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-ink">{bundle.topic} — bundle</h1>
+          <p className="text-sm text-ink-muted">{books.length} books · {bundle.status}</p>
         </div>
         {completed.length > 0 && (
-          <a href={`/api/bundle/${bundle.id}/export`} className="shrink-0 rounded bg-neutral-900 px-4 py-2 text-sm font-medium text-white">
+          <a href={`/api/bundle/${bundle.id}/export`} className="shrink-0 rounded-lg btn-nexa px-4 py-2 text-sm font-medium text-white">
             Download ZIP
           </a>
         )}
@@ -50,15 +50,15 @@ export default async function BundleDetailPage({ params }: { params: Promise<{ i
 
       <ul className="mt-6 space-y-2">
         {books.map((b) => (
-          <li key={b.id} className="flex items-center justify-between rounded-lg border border-neutral-200 p-4">
+          <li key={b.id} className="flex items-center justify-between rounded-lg border border-rule p-4">
             <div>
               <div className="font-medium">{b.title}</div>
-              <div className="text-xs text-neutral-500">{typeLabel(b.book_type)} · {b.status}</div>
+              <div className="text-xs text-ink-muted">{typeLabel(b.book_type)} · {b.status}</div>
             </div>
             {b.status === "completed" && (
               <div className="flex gap-2">
-                <a href={`/api/books/${b.id}/download?part=interior`} className="rounded bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white">Interior PDF</a>
-                <a href={`/api/books/${b.id}/download?part=cover`} className="rounded border border-neutral-900 px-3 py-1.5 text-xs font-medium">Cover PDF</a>
+                <a href={`/api/books/${b.id}/download?part=interior`} className="rounded-lg btn-nexa px-3 py-1.5 text-xs font-medium text-white">Interior PDF</a>
+                <a href={`/api/books/${b.id}/download?part=cover`} className="rounded border border-ink px-3 py-1.5 text-xs font-medium">Cover PDF</a>
               </div>
             )}
           </li>

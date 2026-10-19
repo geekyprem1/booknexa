@@ -34,9 +34,9 @@ export function PublishPackage({ bookId, initial }: { bookId: string; initial: P
   }
 
   return (
-    <div className="rounded-lg border border-neutral-200 p-5">
+    <div className="rounded-lg border border-rule p-5">
       <h2 className="font-semibold">Launch Kit™</h2>
-      <p className="mt-1 text-sm text-neutral-600">
+      <p className="mt-1 text-sm text-ink-soft">
         Everything you need to publish, in one ZIP: metadata.json, keywords,
         description, categories, alternative titles, a publish checklist, and your PDFs.
       </p>
@@ -49,29 +49,29 @@ export function PublishPackage({ bookId, initial }: { bookId: string; initial: P
             <Stat label="Alt. titles" value={pkg.titleCount} />
           </div>
           <div className="mt-4 flex flex-wrap gap-3">
-            <a href={`/api/publish-package/${pkg.id}`} className="rounded bg-neutral-900 px-4 py-2 text-sm font-medium text-white">
+            <a href={`/api/publish-package/${pkg.id}`} className="rounded-lg btn-nexa px-4 py-2 text-sm font-medium text-white">
               Download ZIP
             </a>
-            <button onClick={generate} disabled={busy} className="rounded border border-neutral-300 px-4 py-2 text-sm font-medium disabled:opacity-50">
+            <button onClick={generate} disabled={busy} className="rounded border border-rule-strong px-4 py-2 text-sm font-medium disabled:opacity-50">
               {busy ? "Regenerating…" : "Regenerate"}
             </button>
           </div>
         </>
       ) : (
-        <button onClick={generate} disabled={busy} className="mt-4 rounded bg-neutral-900 px-5 py-2.5 text-sm font-medium text-white disabled:opacity-50">
+        <button onClick={generate} disabled={busy} className="mt-4 rounded-lg btn-nexa px-5 py-2.5 text-sm font-medium text-white disabled:opacity-50">
           {busy ? "Generating package…" : "Generate Package"}
         </button>
       )}
-      {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-3 text-sm text-clay">{error}</p>}
     </div>
   );
 }
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded bg-neutral-50 py-2">
+    <div className="rounded bg-paper py-2">
       <div className="text-2xl font-bold">{value}</div>
-      <div className="text-xs text-neutral-500">{label}</div>
+      <div className="text-xs text-ink-muted">{label}</div>
     </div>
   );
 }

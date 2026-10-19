@@ -1,5 +1,5 @@
 {
-  "name": "kdp-pocket-ai",
+  "name": "booknexa",
   "version": "0.1.0",
   "private": true,
   "description": "AI-powered Amazon KDP book creation platform",
@@ -19,7 +19,6 @@
     "test:coloring": "tsx scripts/test-coloring.ts",
     "test:cover": "tsx scripts/test-cover-layout.ts",
     "test:cover-v2": "tsx scripts/test-cover-v2.ts",
-    "probe:cover-v2": "node --env-file=.env.local --import tsx scripts/probe-cover-v2.ts",
     "smoke:cover-v2": "node --env-file=.env.local --import tsx scripts/smoke-cover-v2.ts",
     "test:opportunity": "tsx scripts/test-opportunity.ts",
     "coloring:samples": "tsx scripts/generate-coloring-samples.ts",

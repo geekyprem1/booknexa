@@ -13,7 +13,6 @@ import { CoverV2Studio, type CoverListItem, type CoverPreview } from "@/componen
 
 export const dynamic = "force-dynamic";
 
-const GOLD = "#2563EB";
 const THUMB_TTL = 900;
 
 interface CoverRow {
@@ -129,25 +128,24 @@ export default async function CoverV2Page({
   return (
     <div className="mx-auto max-w-6xl">
       <div className="flex items-center gap-2">
-        <span className="inline-block h-5 w-1 rounded-full" style={{ background: GOLD }} />
-        <h1 className="text-2xl font-bold text-neutral-900">Cover Studio</h1>
+        <span className="inline-block h-7 w-1.5 rounded-full nexa-bar-v" />
+        <h1 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-ink">Cover Studio</h1>
       </div>
-      <p className="mt-1 text-sm text-neutral-600">
+      <p className="mt-1 text-sm text-ink-soft">
         AI designs the whole cover — artwork, layout and typography together.
         You choose the look; the system handles the rest.
       </p>
 
       {!entitled ? (
-        <div className="mt-6 rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
-          <h2 className="text-sm font-semibold text-neutral-800">Not unlocked on your account</h2>
-          <p className="mt-1 text-sm text-neutral-600">
+        <div className="mt-6 rounded-xl border border-rule bg-paper-card p-5 shadow-sm">
+          <h2 className="text-sm font-semibold text-ink">Not unlocked on your account</h2>
+          <p className="mt-1 text-sm text-ink-soft">
             Cover Studio needs the {requiredPlanFor("cover_v2").name} plan or an add-on that
             includes it.
           </p>
           <Link
             href="/dashboard/upgrade"
-            className="mt-4 inline-block rounded-lg px-4 py-2 text-sm font-bold text-white"
-            style={{ backgroundColor: GOLD }}
+            className="btn-nexa mt-4 inline-block rounded-lg px-4 py-2 text-sm font-bold"
           >
             View add-ons
           </Link>

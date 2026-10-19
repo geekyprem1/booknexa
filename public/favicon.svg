@@ -1,17 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="BookNexa">
   <defs>
-    <linearGradient id="b" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#3B82F6"/>
-      <stop offset="100%" stop-color="#1D4ED8"/>
+    <linearGradient id="bnxTile" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2563EB"/>
+      <stop offset="1" stop-color="#7C3AED"/>
     </linearGradient>
   </defs>
-  <rect x="1.5" y="1.5" width="45" height="45" rx="12" fill="url(#b)"/>
-  <path d="M11 17c4-2.2 8-2.2 12 0 4-2.2 8-2.2 12 0v15c-4-2.2-8-2.2-12 0-4-2.2-8-2.2-12 0V17Z" fill="#FFFFFF" fill-opacity="0.92"/>
-  <path d="M23 17.5v14.5" stroke="#1D4ED8" stroke-width="1.6" stroke-linecap="round"/>
-  <g stroke="#1D4ED8" stroke-width="1.8" stroke-linecap="round">
-    <path d="M15.5 28.5v-3"/>
-    <path d="M19 28.5v-5.5"/>
-    <path d="M27.5 25.5l3.2-3.2 2.4 2.4L37 20"/>
-    <path d="M34 20h3v3"/>
-  </g>
+  <rect width="64" height="64" rx="14" fill="url(#bnxTile)"/>
+  <path d="M32 6 C33 11.5 35 13.5 40 14.5 C35 15.5 33 17.5 32 23 C31 17.5 29 15.5 24 14.5 C29 13.5 31 11.5 32 6 Z" fill="#FFFFFF" opacity="0.95"/>
+  <path d="M30 25 C25 21 18 20 12 22 C10 30 10 38 13 44 C19 41 25 42 30 46 Z" fill="#FFFFFF" opacity="0.95"/>
+  <path d="M34 25 C39 21 46 20 52 22 C54 30 54 38 51 44 C45 41 39 42 34 46 Z" fill="#FFFFFF" opacity="0.8"/>
+  <path d="M32 23 L36 31 L32 45 L28 31 Z" fill="#0B1E3B"/>
+  <circle cx="32" cy="30" r="2" fill="#FFFFFF"/>
 </svg>

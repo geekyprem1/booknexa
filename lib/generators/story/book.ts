@@ -149,7 +149,7 @@ export async function buildStorybook(
   const idea = input.idea.trim();
   const ageRange = input.ageRange ?? "3-5";
   const artStyle = resolveArtStyle(input.artStyle);
-  const author = input.author?.trim() || "KDP Profit Machine";
+  const author = input.author?.trim() || "BookNexa";
   const seed = input.seed ?? hashSeed(`story|${idea}|${ageRange}|${input.artStyle ?? "watercolor"}`);
   const testPages = testIllustratedPages();
   const storyPageCount = testPages ?? clampPages(input.pageCount) - 2; // title + end
