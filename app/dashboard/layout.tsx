@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
-import { Inter, JetBrains_Mono, Playfair_Display } from "next/font/google";
+import { PRESS_FONT_VARS } from "@/lib/fonts";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { resolveAdmin } from "@/lib/admin";
 import { getOrCreateSubscription } from "@/lib/billing";
@@ -9,12 +9,7 @@ import { SignOutButton } from "@/components/dashboard/sign-out-button";
 
 export const dynamic = "force-dynamic";
 
-// "Press" identity type stack: editorial serif headlines, neutral UI sans,
-// monospace for ledgers / labels / numbers.
-const displayFont = Playfair_Display({ subsets: ["latin"], variable: "--font-display", display: "swap", weight: ["600", "700", "800"] });
-const uiFont = Inter({ subsets: ["latin"], variable: "--font-ui", display: "swap" });
-const ledgerFont = JetBrains_Mono({ subsets: ["latin"], variable: "--font-ledger", display: "swap", weight: ["400", "500", "600"] });
-const FONT_VARS = `${displayFont.variable} ${uiFont.variable} ${ledgerFont.variable}`;
+const FONT_VARS = PRESS_FONT_VARS;
 
 const STATUS_COPY: Record<string, { title: string; body: string }> = {
   suspended: { title: "Your account is suspended", body: "Access to BookNexa is temporarily paused. Contact support if you believe this is a mistake." },
