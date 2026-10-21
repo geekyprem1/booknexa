@@ -34,9 +34,12 @@ export interface CoverContent {
   /** Optional full-bleed front-panel illustration (data URI). When set, the title
    *  block renders over a readable bottom scrim instead of a flat color. */
   frontImage?: string;
+  /** Short chip at the top of the front panel, e.g. "VOL. 3" (max 24 chars). */
+  badge?: string;
 }
 
 export function renderCoverHtml(spec: CoverSpec, content: CoverContent): string {
+  const badge = content.badge?.trim().slice(0, 24);
   content = {
     ...content,
     title: escapeHtml(content.title),
@@ -44,6 +47,7 @@ export function renderCoverHtml(spec: CoverSpec, content: CoverContent): string 
     author: escapeHtml(content.author),
     backText: escapeHtml(content.backText),
     frontImage: safeFrontImage(content.frontImage),
+    badge: badge ? escapeHtml(badge) : undefined,
   };
   const bg = safeColor(content.background, "#1f3a5f");
   const spineBg = safeColor(content.spineColor, "#16293f");
@@ -112,6 +116,10 @@ export function renderCoverHtml(spec: CoverSpec, content: CoverContent): string 
   .front h2 { font-size: 16pt; font-weight: normal; opacity: 0.9; margin: 0 0 0.6in; }
   .front--art h2 { margin: 0 0 0.25in; }
   .front .author { font-size: 14pt; opacity: 0.95; }
+  /* Series volume chip: pinned inside the safe inset at the top of the front panel. */
+  .badge { position: absolute; top: ${SAFE_INSET_IN}in; left: 0; right: 0; text-align: center; z-index: 2; }
+  .badge span { display: inline-block; padding: 0.06in 0.18in; border: 2px solid #fff; border-radius: 999px;
+    font-size: 12pt; font-weight: bold; letter-spacing: 0.12em; background: rgba(0,0,0,0.25); }
 </style>
 </head>
 <body>
@@ -132,6 +140,7 @@ export function renderCoverHtml(spec: CoverSpec, content: CoverContent): string 
       ${content.frontImage
         ? `<div class="front-art" style="background-image:url('${content.frontImage}')"></div><div class="front-scrim"></div>`
         : ""}
+      ${content.badge ? `<div class="badge"><span>${content.badge}</span></div>` : ""}
       <div class="front-text">
         <h1>${content.title}</h1>
         <h2>${content.subtitle}</h2>

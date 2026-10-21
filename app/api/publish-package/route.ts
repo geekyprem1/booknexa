@@ -31,10 +31,17 @@ export async function POST(req: NextRequest) {
   // RLS scopes the book to the owner.
   const { data: book } = await supabase
     .from("books")
-    .select("id, title, theme, book_type, trim_size, difficulty, page_count, config, opportunity, book_metadata(subtitle, description, keywords)")
+    .select("id, title, theme, book_type, trim_size, difficulty, page_count, config, opportunity, series_id, volume_no, book_metadata(subtitle, description, keywords)")
     .eq("id", bookId)
     .single();
   if (!book) return NextResponse.json({ error: "Book not found" }, { status: 404 });
+
+  // Series volume → KDP "Series" field in metadata.json + checklist.
+  let series: PublishContext["series"] = null;
+  if (book.series_id && book.volume_no) {
+    const { data: s } = await supabase.from("series").select("name").eq("id", book.series_id).maybeSingle();
+    if (s?.name) series = { name: s.name as string, number: book.volume_no as number };
+  }
 
   const metaArr = book.book_metadata as unknown as { subtitle: string | null; description: string | null; keywords: string[] | null }[] | null;
   const meta = metaArr?.[0] ?? null;
@@ -63,6 +70,7 @@ export async function POST(req: NextRequest) {
     copyright: profileCopyright(profile),
     aiDisclosure: profile.aiDisclosure,
     priceOverride: profile.defaultPrice,
+    series,
   };
 
   // Launch Kit™ is an AI-backed generation (keywords + categories + titles +

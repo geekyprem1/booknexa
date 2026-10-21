@@ -14,6 +14,7 @@ import {
 } from "@/lib/generation-input";
 import { ALL_BOOK_TYPES, type BookType, type OpportunityBand } from "@/lib/opportunity";
 import { rateLimit, rateLimitResponse } from "@/lib/util/rate-limit";
+import { penNameGate } from "@/lib/publishing/pen-name";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -115,6 +116,9 @@ export async function POST(req: NextRequest) {
   const provisionalCost = explicitTypes
     ? explicitTypes.reduce((sum, type) => sum + costOf(type), 0)
     : [...PUZZLE_BOOK_TYPES].map(costOf).sort((a, b) => b - a).slice(0, bundleSize).reduce((sum, cost) => sum + cost, 0);
+
+  const needsPenName = await penNameGate(user.id);
+  if (needsPenName) return needsPenName;
 
   try {
     await assertFeature(user.id, "factory");

@@ -1,11 +1,22 @@
 /** Executes one fenced generation attempt. */
 
 import { getSupabaseAdminClient } from "../supabase/admin";
-import { generateAndStoreBook, type PipelineBookType } from "../books/pipeline";
+import { generateAndStoreBook, normalizeSeed, type PipelineBookType } from "../books/pipeline";
 import { generateAndStoreEbook } from "../books/ebook-pipeline";
 import { generateAndStoreStorybook } from "../books/storybook-pipeline";
 import { runAutopilotBooks } from "../books/autopilot-pipeline";
 import { claimJob, markCompleted, markFailed, progressUpdater } from "./job-progress";
+import { normalizeCoverStyle } from "../shelves/core";
+import type { CoverStyle } from "../pdf/cover-style";
+
+/** Re-validate the shelf/series cover style stored on the job input. */
+function jobCoverStyle(raw: unknown): CoverStyle | undefined {
+  if (!raw || typeof raw !== "object") return undefined;
+  const style: CoverStyle = normalizeCoverStyle(raw);
+  const badge = (raw as Record<string, unknown>).badge;
+  if (typeof badge === "string" && badge.trim()) style.badge = badge.trim().slice(0, 24);
+  return style.background || style.spineColor || style.badge ? style : undefined;
+}
 
 async function discardFencedBook(bookId: string, userId: string): Promise<void> {
   const { data, error } = await getSupabaseAdminClient()
@@ -103,8 +114,17 @@ export async function runJob(jobId: string): Promise<void> {
           set: input.set as string | undefined,
           operation: input.operation as string | undefined,
           largePrint: input.largePrint === true,
+          author: typeof input.author === "string" && input.author.trim() ? input.author.trim() : undefined,
+          seed: normalizeSeed(input.seed),
+          coverStyle: jobCoverStyle(input.coverStyle),
         },
-        { opportunity: input.opportunity, onProgress }
+        {
+          opportunity: input.opportunity,
+          shelfId: typeof input.shelfId === "string" ? input.shelfId : null,
+          seriesId: typeof input.seriesId === "string" ? input.seriesId : null,
+          volumeNo: Number.isInteger(input.volumeNo) && (input.volumeNo as number) > 0 ? (input.volumeNo as number) : null,
+          onProgress,
+        }
       );
       bookId = result.id;
     }

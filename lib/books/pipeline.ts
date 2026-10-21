@@ -25,6 +25,7 @@ import { buildActivityBook } from "../generators/activity";
 import { generateWordList, generateMetadata } from "../ai";
 import { loadPublishingProfile, profileAuthor } from "../publishing/profile";
 import type { InteriorResult, CoverResult } from "../pdf";
+import { runWithCoverStyle, type CoverStyle } from "../pdf/cover-style";
 
 export type PipelineBookType =
   | "word_search" | "sudoku" | "maze" | "coloring"
@@ -62,6 +63,17 @@ export interface BookGenInput {
   operation?: string; // math
   largePrint?: boolean; // word_search / sudoku large-print edition
   author?: string; // from the Publishing Profile (passed to the generator's author option)
+  /** Explicit PRNG seed. Omit for a fresh random seed (the normal case). */
+  seed?: number;
+  /** Shelf colors + series volume badge, merged into the generated cover. */
+  coverStyle?: CoverStyle;
+}
+
+/** A valid stored seed: a non-negative 31-bit integer (fits mulberry32 + bigint). */
+export function normalizeSeed(value: unknown): number | undefined {
+  const n = typeof value === "string" && value.trim() !== "" ? Number(value) : value;
+  if (typeof n !== "number" || !Number.isInteger(n) || n < 0 || n >= 2 ** 31) return undefined;
+  return n;
 }
 
 interface BuildPlan {
@@ -303,7 +315,16 @@ export interface StoredBook {
 export async function generateAndStoreBook(
   userId: string,
   input: BookGenInput,
-  opts?: { opportunity?: unknown; bundleId?: string | null; onProgress?: (step: string, percent: number) => void | Promise<void> }
+  opts?: {
+    opportunity?: unknown;
+    bundleId?: string | null;
+    /** Shelf / series grouping (Shelf Suite). Only written when set, so callers that
+     *  don't use shelves keep working before the shelves migration is applied. */
+    shelfId?: string | null;
+    seriesId?: string | null;
+    volumeNo?: number | null;
+    onProgress?: (step: string, percent: number) => void | Promise<void>;
+  }
 ): Promise<StoredBook> {
   const admin = getSupabaseAdminClient();
   const progress = async (step: string, pct: number) => {
@@ -314,6 +335,11 @@ export async function generateAndStoreBook(
   const author = input.author ?? profileAuthor(await loadPublishingProfile(userId));
   await progress("Metadata", 15);
   const plan = await planBook({ ...input, author });
+  const seed = normalizeSeed(input.seed) ?? randomSeed();
+  const grouping: Record<string, unknown> = {};
+  if (opts?.shelfId) grouping.shelf_id = opts.shelfId;
+  if (opts?.seriesId) grouping.series_id = opts.seriesId;
+  if (opts?.volumeNo) grouping.volume_no = opts.volumeNo;
 
   const insertResult = await admin
     .from("books")
@@ -330,6 +356,8 @@ export async function generateAndStoreBook(
       config: { ...plan.config, author },
       opportunity: opts?.opportunity ?? null,
       bundle_id: opts?.bundleId ?? null,
+      seed,
+      ...grouping,
     })
     .select("id")
     .single();
@@ -338,7 +366,7 @@ export async function generateAndStoreBook(
 
   try {
     await progress("Generating", 40);
-    const book = await plan.build(randomSeed());
+    const book = await runWithCoverStyle(input.coverStyle, () => plan.build(seed));
     await progress("Uploading", 80);
     const interiorKey = bookObjectKey(userId, bookId, "interior");
     const coverKey = bookObjectKey(userId, bookId, "cover");

@@ -75,6 +75,13 @@ export interface MetadataJson {
   keywords: string[];
   categories: string[];
   suggested_price: number;
+  /** KDP "Series" field. Absent on packages built before the Shelf Suite. */
+  series?: SeriesInfo | null;
+}
+
+export interface SeriesInfo {
+  name: string;
+  number: number;
 }
 
 export function buildMetadataJson(opts: {
@@ -93,6 +100,7 @@ export function buildMetadataJson(opts: {
   description: string;
   keywords: string[]; // primary
   categories: string[];
+  series?: SeriesInfo | null;
 }): MetadataJson {
   return {
     title: opts.title,
@@ -109,5 +117,6 @@ export function buildMetadataJson(opts: {
     keywords: opts.keywords,
     categories: opts.categories,
     suggested_price: opts.priceOverride != null && opts.priceOverride > 0 ? opts.priceOverride : suggestedPrice(opts.bookType, opts.pageCount),
+    ...(opts.series ? { series: opts.series } : {}),
   };
 }

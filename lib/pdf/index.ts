@@ -20,6 +20,7 @@ import {
 } from "./templates/interior";
 import { renderCoverHtml, type CoverContent } from "./templates/cover";
 import { renderPdf } from "./render";
+import { applyCoverStyle } from "./cover-style";
 
 export * from "./kdp-specs";
 export { closeBrowser, renderPng, renderPdfFromCss } from "./render";
@@ -64,7 +65,7 @@ export async function buildCoverPdf(opts: {
   content: CoverContent;
 }): Promise<CoverResult> {
   const spec = computeCover(opts);
-  const html = renderCoverHtml(spec, opts.content);
+  const html = renderCoverHtml(spec, applyCoverStyle(opts.content));
   const pdf = await renderPdf(html, {
     widthIn: spec.fullWidthIn,
     heightIn: spec.fullHeightIn,

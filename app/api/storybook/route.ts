@@ -6,6 +6,7 @@ import { enqueue } from "@/lib/jobs/job-queue";
 import { costFor, reserve } from "@/lib/billing";
 import { billingErrorResponse } from "@/lib/billing/guard";
 import { rateLimit, rateLimitResponse } from "@/lib/util/rate-limit";
+import { penNameGate } from "@/lib/publishing/pen-name";
 import { isImageConfigured } from "@/lib/generators/story-poc/images";
 import {
   STORY_AGE_RANGES,
@@ -80,6 +81,9 @@ export async function POST(req: NextRequest) {
 
   // count = illustrated pages (total minus title + end)
   const cost = costFor("storybook", { count: pageCount - 2 });
+
+  const needsPenName = await penNameGate(user.id);
+  if (needsPenName) return needsPenName;
 
   try {
     await reserve(user.id, cost, "job");

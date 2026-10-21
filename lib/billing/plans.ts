@@ -26,7 +26,8 @@ export type Feature =
   | "crossword"
   | "activity"
   | "factory"
-  | "autopilot";
+  | "autopilot"
+  | "shelves";
 
 export interface Plan {
   key: PlanKey;
@@ -81,6 +82,9 @@ export const FEATURE_TIER: Record<Feature, number> = {
   // V1, so it sits at the top tier. Any offer that grants the cover_v2 entitlement
   // unlocks it without a tier change.
   cover_v2: 5,
+  // Shelf & Series Manager — the Front End's core "build a shelf" promise. Volumes
+  // are still gated and priced by their own book type.
+  shelves: 1,
 };
 
 export function planByKey(key: string | null | undefined): Plan {

@@ -1,5 +1,7 @@
 import Link from "next/link";
-import { Plus, FileText, FileImage, Package, BookOpen, FolderOpen } from "lucide-react";
+import { Plus, FileText, FileImage, Package, BookOpen, FolderOpen, Layers } from "lucide-react";
+import { BOOK_TYPES } from "@/lib/books/request";
+import type { PipelineBookType } from "@/lib/books/pipeline";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { BOOK_TYPE_LABELS, type BookType } from "@/lib/opportunity";
 import { bookTypeMeta } from "@/components/dashboard/book-type-meta";
@@ -17,6 +19,9 @@ interface BookRow {
   page_count: number | null;
   word_source: string | null;
   created_at: string;
+  shelf_id: string | null;
+  series_id: string | null;
+  volume_no: number | null;
   book_metadata: { subtitle: string | null; keywords: string[] | null } | null;
 }
 
@@ -106,6 +111,11 @@ export default async function MyBooksPage() {
                         <a href={`/api/books/${b.id}/download?part=interior`} className="inline-flex items-center gap-1 rounded-lg btn-nexa px-3 py-1.5 text-xs font-medium text-white"><FileText className="h-3.5 w-3.5" /> Interior PDF</a>
                         <a href={`/api/books/${b.id}/download?part=cover`} className="inline-flex items-center gap-1 rounded-lg border border-rule-strong px-3 py-1.5 text-xs font-medium hover:bg-paper"><FileImage className="h-3.5 w-3.5" /> Cover PDF</a>
                         <Link href={`/dashboard/books/${b.id}`} className="inline-flex items-center gap-1 rounded-lg border border-rule-strong px-3 py-1.5 text-xs font-medium hover:bg-paper"><Package className="h-3.5 w-3.5" /> Launch Kit</Link>
+                        {b.series_id && b.shelf_id ? (
+                          <Link href={`/dashboard/shelves/${b.shelf_id}`} className="inline-flex items-center gap-1 rounded-lg border border-rule-strong px-3 py-1.5 text-xs font-medium hover:bg-paper"><Layers className="h-3.5 w-3.5" /> Series · Vol. {b.volume_no ?? "?"}</Link>
+                        ) : BOOK_TYPES.includes(b.book_type as PipelineBookType) ? (
+                          <Link href={`/dashboard/books/${b.id}#series`} className="inline-flex items-center gap-1 rounded-lg border border-rule-strong px-3 py-1.5 text-xs font-medium hover:bg-paper"><Layers className="h-3.5 w-3.5" /> Make series</Link>
+                        ) : null}
                       </div>
                     )}
                   </div>

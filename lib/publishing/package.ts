@@ -7,7 +7,7 @@ import JSZip from "jszip";
 import { generateKeywords, type KeywordSet } from "./keywords";
 import { recommendCategories } from "./categories";
 import { generateAltTitles } from "./titles";
-import { generateDescription, buildMetadataJson, type MetadataJson } from "./metadata";
+import { generateDescription, buildMetadataJson, type MetadataJson, type SeriesInfo } from "./metadata";
 
 export interface PublishContext {
   title: string;
@@ -29,6 +29,8 @@ export interface PublishContext {
   copyright?: string;
   aiDisclosure?: string;
   priceOverride?: number | null;
+  /** Shelf Suite series this book is a volume of (KDP "Series" field). */
+  series?: SeriesInfo | null;
 }
 
 export interface PackageData {
@@ -64,12 +66,13 @@ export async function generatePackageData(ctx: PublishContext): Promise<PackageD
     description,
     keywords: keywords.primary,
     categories,
+    series: ctx.series ?? null,
   });
 
   return { metadataJson, keywords, description, categories, alternativeTitles };
 }
 
-export function buildChecklist(ctx: PublishContext): string {
+export function buildChecklist(ctx: PublishContext, series: SeriesInfo | null | undefined = ctx.series): string {
   const bleed = ctx.bookType === "coloring" ? "Bleed (edge-to-edge art)" : "No Bleed";
   return [
     `KDP PUBLISHING CHECKLIST — ${ctx.title}`,
@@ -80,6 +83,7 @@ export function buildChecklist(ctx: PublishContext): string {
     `[ ] Select bleed setting: ${bleed}`,
     "[ ] Enter title (see metadata.json)",
     "[ ] Enter subtitle (see metadata.json)",
+    ...(series ? [`[ ] Add to series: "${series.name}", number ${series.number} (Paperback Details → Series)`] : []),
     "[ ] Enter 7 keywords (see keywords.txt)",
     "[ ] Enter categories (see categories.txt)",
     "[ ] Paste description (description.txt)",
@@ -107,7 +111,7 @@ export function packageFiles(ctx: PublishContext, data: PackageData): Array<{ na
     { name: "description.txt", content: data.description },
     { name: "categories.txt", content: data.categories.join("\n") },
     { name: "book_titles.txt", content: data.alternativeTitles.join("\n") },
-    { name: "publish_checklist.txt", content: buildChecklist(ctx) },
+    { name: "publish_checklist.txt", content: buildChecklist(ctx, ctx.series ?? data.metadataJson.series) },
   ];
 }
 

@@ -15,6 +15,7 @@ import {
 import { lowContentPickerOptions } from "@/lib/generators/lowcontent/registry";
 import { KDP_TRIM_OPTIONS } from "@/lib/pdf/kdp-specs";
 import { bookTypeMeta } from "@/components/dashboard/book-type-meta";
+import { needsPenName, PenNameDialog } from "@/components/dashboard/pen-name-dialog";
 
 interface Analysis {
   factors: { demand: number; competition: number; evergreen: number; monetization: number };
@@ -89,6 +90,8 @@ export function CreateWizard() {
   const router = useRouter();
   // Dedicated generator entries deep-link with ?type= → preselect + jump to config.
   const presetType = slugToType(params.get("type"));
+  // Shelf Suite deep link (?shelf=<id>): print books are filed on that shelf.
+  const shelfId = params.get("shelf");
   const [step, setStep] = useState(presetType ? 4 : 1);
 
   // Step 1
@@ -121,6 +124,7 @@ export function CreateWizard() {
   const [result, setResult] = useState<Result | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [upgrade, setUpgrade] = useState(false);
+  const [penNameOpen, setPenNameOpen] = useState(false);
 
   function handleBillingError(json: { error?: string; upgrade?: boolean; requiredCredits?: number; currentCredits?: number }) {
     setUpgrade(Boolean(json.upgrade));
@@ -184,12 +188,14 @@ export function CreateWizard() {
       else if (bookType === "activity") Object.assign(payload, { theme: topic, difficulty, pageCount: count });
 
       const endpoint = bookType === "ebook" ? "/api/ebook" : bookType === "story" ? "/api/storybook" : "/api/books";
+      if (shelfId && endpoint === "/api/books") payload.shelfId = shelfId;
       const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
       const json = await res.json();
+      if (!res.ok && needsPenName(json)) { setPenNameOpen(true); setBusy(false); return; }
       if (!res.ok) { handleBillingError(json); setBusy(false); return; }
       // Generation now runs in the background — go to the Book In Progress page.
       if (json.jobId) {
@@ -260,6 +266,17 @@ export function CreateWizard() {
 
   return (
     <Shell step={step}>
+      <PenNameDialog
+        open={penNameOpen}
+        onCancel={() => setPenNameOpen(false)}
+        onSaved={() => { setPenNameOpen(false); void generate(); }}
+      />
+      {shelfId && (
+        <p className="mb-4 rounded-md border border-rule bg-paper px-3 py-2 text-sm text-ink-soft">
+          This book will be added to your shelf, with its pen name and cover colors.{" "}
+          <Link href={`/dashboard/shelves/${encodeURIComponent(shelfId)}`} className="font-medium underline">Back to shelf</Link>
+        </p>
+      )}
       {/* STEP 1 */}
       {step === 1 && (
         <div>

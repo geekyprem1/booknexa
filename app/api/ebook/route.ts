@@ -6,6 +6,7 @@ import { costFor, refund, reserve } from "@/lib/billing";
 import { assertFeature, billingErrorResponse } from "@/lib/billing/guard";
 import { GenerationInputError, normalizeFiniteInteger } from "@/lib/generation-input";
 import { rateLimit, rateLimitResponse } from "@/lib/util/rate-limit";
+import { penNameGate } from "@/lib/publishing/pen-name";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -55,6 +56,9 @@ export async function POST(req: NextRequest) {
     opportunity: body.opportunity && typeof body.opportunity === "object" ? body.opportunity : undefined,
   };
   const cost = costFor("ebook", { chapterCount });
+
+  const needsPenName = await penNameGate(user.id);
+  if (needsPenName) return needsPenName;
 
   try {
     await assertFeature(user.id, "ebook");

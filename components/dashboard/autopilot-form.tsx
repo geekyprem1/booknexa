@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { KDP_TRIM_OPTIONS } from "@/lib/pdf/kdp-specs";
+import { needsPenName, PenNameDialog } from "./pen-name-dialog";
 
 export function AutopilotForm() {
   const router = useRouter();
@@ -16,6 +17,8 @@ export function AutopilotForm() {
   const [error, setError] = useState<string | null>(null);
   const [upgrade, setUpgrade] = useState(false);
   const [nextRunAt, setNextRunAt] = useState<string | null>(null);
+  const [penNameOpen, setPenNameOpen] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const field = "mt-1 w-full rounded border border-rule-strong px-3 py-2 text-sm";
   const label = "block text-sm font-medium text-ink-soft";
@@ -40,6 +43,11 @@ export function AutopilotForm() {
       });
       const text = await res.text();
       const json = text ? JSON.parse(text) : {};
+      if (!res.ok && needsPenName(json)) {
+        setPenNameOpen(true);
+        setBusy(false);
+        return;
+      }
       if (!res.ok) {
         if (json.upgrade) setUpgrade(true);
         if (json.monthlyLimit && json.nextRunAt) setNextRunAt(json.nextRunAt);
@@ -54,7 +62,13 @@ export function AutopilotForm() {
   }
 
   return (
-    <form onSubmit={submit} className="space-y-5 rounded-lg border border-rule p-5">
+    <>
+    <PenNameDialog
+      open={penNameOpen}
+      onCancel={() => setPenNameOpen(false)}
+      onSaved={() => { setPenNameOpen(false); formRef.current?.requestSubmit(); }}
+    />
+    <form ref={formRef} onSubmit={submit} className="space-y-5 rounded-lg border border-rule p-5">
       <div>
         <label className={label}>Niche / topic *</label>
         <p className="text-xs text-ink-muted">
@@ -153,5 +167,6 @@ export function AutopilotForm() {
         </div>
       )}
     </form>
+    </>
   );
 }

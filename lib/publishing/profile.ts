@@ -49,7 +49,12 @@ export async function loadPublishingProfile(userId: string): Promise<PublishingP
 
 /** The display author for a book: pen name → author name → fallback. */
 export function profileAuthor(p: PublishingProfile): string {
-  return p.penName.trim() || p.authorName.trim() || "BookNexa";
+  return resolvedAuthor(p) ?? "BookNexa";
+}
+
+/** The user's own author name (pen name → author name), or null if neither is set. */
+export function resolvedAuthor(p: PublishingProfile): string | null {
+  return p.penName.trim() || p.authorName.trim() || null;
 }
 
 /** Default copyright notice when the user hasn't set one. */

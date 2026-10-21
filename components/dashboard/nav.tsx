@@ -26,6 +26,7 @@ const PRIMARY: NavItem[] = [
   { href: "/dashboard", label: "Overview", icon: BookOpen },
   { href: "/dashboard/niche", label: "Profit Radar™", icon: TrendingUp },
   { href: "/dashboard/create", label: "Book Studio", icon: SquarePen },
+  { href: "/dashboard/shelves", label: "Shelves", icon: Layers },
   { href: "/dashboard/cover-v2", label: "Cover Studio", icon: ImageIcon },
   { href: "/dashboard/in-progress", label: "Queue", icon: ListChecks },
   { href: "/dashboard/books", label: "Vault", icon: Library },

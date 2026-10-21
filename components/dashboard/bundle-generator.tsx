@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { BOOK_TYPE_LABELS, recommendationBadge, BADGE_COLORS, type BookType } from "@/lib/opportunity";
 import { InlineGenerating } from "./inline-generating";
+import { needsPenName, PenNameDialog } from "./pen-name-dialog";
 
 const BUNDLE_MESSAGES = [
   "Recommending the best book mix…",
@@ -50,6 +51,7 @@ export function BundleGenerator() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<BundleResult | null>(null);
+  const [penNameOpen, setPenNameOpen] = useState(false);
 
   async function recommend() {
     if (!topic.trim()) { setError("Please enter a topic."); return; }
@@ -100,6 +102,7 @@ export function BundleGenerator() {
         }),
       });
       const json = await res.json();
+      if (!res.ok && needsPenName(json)) { setPenNameOpen(true); setPhase("compose"); return; }
       if (!res.ok) throw new Error(json.error ?? "Bundle failed");
       setResult(json);
       setPhase("done");
@@ -200,6 +203,11 @@ export function BundleGenerator() {
             );
           })}
         </div>
+        <PenNameDialog
+          open={penNameOpen}
+          onCancel={() => setPenNameOpen(false)}
+          onSaved={() => { setPenNameOpen(false); void generate(); }}
+        />
         {error && <p className="mt-3 text-sm text-clay">{error}</p>}
         <div className="mt-4 flex gap-3">
           <button onClick={() => setPhase("input")} className="rounded border border-rule-strong px-4 py-2 text-sm">← Back</button>

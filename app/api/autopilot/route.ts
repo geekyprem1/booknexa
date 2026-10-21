@@ -9,6 +9,7 @@ import { assertFeature, billingErrorResponse } from "@/lib/billing/guard";
 import { GenerationInputError, normalizeFiniteInteger } from "@/lib/generation-input";
 import { KDP_TRIM_OPTIONS } from "@/lib/pdf/kdp-specs";
 import { rateLimit, rateLimitResponse } from "@/lib/util/rate-limit";
+import { penNameGate } from "@/lib/publishing/pen-name";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -82,6 +83,11 @@ export async function POST(req: NextRequest) {
   const chapterCount = Math.max(5, Math.min(20, Math.round(wordsPerBook / WORDS_PER_CHAPTER)));
   const costPerBook = costFor("ebook", { chapterCount });
   const totalCost = costPerBook * BOOKS_PER_RUN;
+
+  // No author on the form and none in the profile → ask for a pen name before
+  // claiming the monthly lock.
+  const needsPenName = await penNameGate(user.id, author);
+  if (needsPenName) return needsPenName;
 
   // Feature gate + affordability pre-check BEFORE claiming the monthly lock, so a
   // user who can't afford the run doesn't burn their one monthly slot.

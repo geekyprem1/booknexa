@@ -3,6 +3,10 @@ import { notFound } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { BOOK_TYPE_LABELS, type BookType } from "@/lib/opportunity";
 import { PublishPackage, type PackageInfo } from "@/components/dashboard/publish-package";
+import { MakeSeries, type ShelfOption } from "@/components/dashboard/shelves/make-series";
+import { BOOK_TYPES } from "@/lib/books/request";
+import type { PipelineBookType } from "@/lib/books/pipeline";
+import { seriesNameFromTitle } from "@/lib/shelves/core";
 
 export const dynamic = "force-dynamic";
 
@@ -12,10 +16,20 @@ export default async function BookDetailPage({ params }: { params: Promise<{ id:
 
   const { data: book } = await supabase
     .from("books")
-    .select("id, title, theme, book_type, status, page_count, difficulty")
+    .select("id, title, theme, book_type, status, page_count, difficulty, shelf_id, series_id, volume_no")
     .eq("id", id)
     .single();
   if (!book) notFound();
+
+  // Shelf Suite: show the series this book belongs to, or offer to start one.
+  const [{ data: seriesRow }, { data: shelfRows }] = await Promise.all([
+    book.series_id
+      ? supabase.from("series").select("id, name, shelf_id").eq("id", book.series_id).maybeSingle()
+      : Promise.resolve({ data: null }),
+    supabase.from("shelves").select("id, name").order("created_at", { ascending: false }).limit(200),
+  ]);
+  const shelves = (shelfRows ?? []) as ShelfOption[];
+  const canStartSeries = !book.series_id && book.status === "completed" && BOOK_TYPES.includes(book.book_type as PipelineBookType);
 
   const { data: pkgRow } = await supabase
     .from("book_publish_packages")
@@ -45,6 +59,20 @@ export default async function BookDetailPage({ params }: { params: Promise<{ id:
         {typeLabel} · {book.status}
         {book.page_count ? ` · ${book.page_count} pages` : ""}
       </p>
+      {seriesRow && (
+        <p className="mt-1 text-sm">
+          Vol. {book.volume_no ?? "?"} of{" "}
+          <Link href={`/dashboard/shelves/${seriesRow.shelf_id}`} className="font-medium underline">{seriesRow.name}</Link>
+        </p>
+      )}
+      {!seriesRow && book.shelf_id && (
+        <p className="mt-1 text-sm">
+          On shelf{" "}
+          <Link href={`/dashboard/shelves/${book.shelf_id}`} className="font-medium underline">
+            {shelves.find((s) => s.id === book.shelf_id)?.name ?? "Open shelf"}
+          </Link>
+        </p>
+      )}
 
       {/* assets */}
       {book.status === "completed" && (
@@ -70,6 +98,18 @@ export default async function BookDetailPage({ params }: { params: Promise<{ id:
       <div className="mt-6">
         <PublishPackage bookId={book.id} initial={initial} />
       </div>
+
+      {canStartSeries && (
+        <div id="series" className="mt-6 scroll-mt-24">
+          <MakeSeries
+            bookId={book.id}
+            defaultName={seriesNameFromTitle(book.title)}
+            defaultShelfName={book.theme || seriesNameFromTitle(book.title)}
+            shelves={shelves}
+            currentShelfId={book.shelf_id ?? null}
+          />
+        </div>
+      )}
     </div>
   );
 }
