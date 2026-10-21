@@ -23,7 +23,7 @@ import { renderPdf } from "./render";
 import { applyCoverStyle } from "./cover-style";
 
 export * from "./kdp-specs";
-export { closeBrowser, renderPng, renderPdfFromCss } from "./render";
+export { closeBrowser, renderPng, renderPagePngs, renderPdfFromCss } from "./render";
 export { validateBook, allPass, type Check } from "./validate";
 
 export interface BookMeta {
@@ -36,11 +36,15 @@ export interface BookMeta {
 export interface InteriorResult {
   pdf: Uint8Array;
   spec: InteriorSpec;
+  /** The rendered HTML (for PNG previews / mockups). */
+  html?: string;
 }
 
 export interface CoverResult {
   pdf: Uint8Array;
   spec: CoverSpec;
+  /** The rendered HTML (for PNG previews / mockups). */
+  html?: string;
 }
 
 /** Build an interior PDF from explicit page content. */
@@ -54,7 +58,7 @@ export async function buildInteriorPdf(
     widthIn: spec.pageWidthIn,
     heightIn: spec.pageHeightIn,
   });
-  return { pdf, spec };
+  return { pdf, spec, html };
 }
 
 /** Build a wraparound cover PDF. */
@@ -70,7 +74,7 @@ export async function buildCoverPdf(opts: {
     widthIn: spec.fullWidthIn,
     heightIn: spec.fullHeightIn,
   });
-  return { pdf, spec };
+  return { pdf, spec, html };
 }
 
 /**

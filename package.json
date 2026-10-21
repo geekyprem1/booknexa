@@ -24,6 +24,7 @@
     "test:shelves": "tsx scripts/test-shelves.ts",
     "test:royalty": "tsx scripts/test-royalty.ts",
     "test:planner": "tsx scripts/test-planner.ts",
+    "test:mockups": "tsx scripts/test-mockups.ts",
     "coloring:samples": "tsx scripts/generate-coloring-samples.ts",
     "story:poc": "node --env-file=.env.local --import tsx scripts/story-poc.ts",
     "worker": "node --env-file=.env.local --import tsx scripts/worker.ts"

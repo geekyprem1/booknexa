@@ -27,7 +27,8 @@ export type Feature =
   | "activity"
   | "factory"
   | "autopilot"
-  | "shelves";
+  | "shelves"
+  | "mockups";
 
 export interface Plan {
   key: PlanKey;
@@ -85,6 +86,10 @@ export const FEATURE_TIER: Record<Feature, number> = {
   // Shelf & Series Manager — the Front End's core "build a shelf" promise. Volumes
   // are still gated and priced by their own book type.
   shelves: 1,
+  // Mockups + A+ images. OPEN DECISION (FE vs OTO): set to 1 for now so every
+  // plan can use it. To move it to an upgrade, raise this tier; an offer can also
+  // grant the `mockups` entitlement directly.
+  mockups: 1,
 };
 
 export function planByKey(key: string | null | undefined): Plan {

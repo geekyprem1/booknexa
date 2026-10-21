@@ -26,6 +26,8 @@ import { generateWordList, generateMetadata } from "../ai";
 import { loadPublishingProfile, profileAuthor } from "../publishing/profile";
 import type { InteriorResult, CoverResult } from "../pdf";
 import { runWithCoverStyle, type CoverStyle } from "../pdf/cover-style";
+import { renderBookPreviews } from "../mockups/render";
+import { savePreviews } from "../mockups/assets";
 
 export type PipelineBookType =
   | "word_search" | "sudoku" | "maze" | "coloring"
@@ -392,6 +394,16 @@ export async function generateAndStoreBook(
       updated_at: new Date().toISOString(),
     }).eq("id", bookId).select("id").maybeSingle();
     requireMutationRow(completeResult, "Complete book", "Book");
+
+    // Best-effort PNG previews (cover wrap + 3 interior pages) for mockups and the
+    // A+ images. A failure here never fails the book.
+    try {
+      await progress("Previews", 97);
+      const previews = await renderBookPreviews(book);
+      if (previews) await savePreviews(userId, bookId, previews);
+    } catch (previewError) {
+      console.warn("[books] preview render skipped:", previewError instanceof Error ? previewError.message : previewError);
+    }
 
     return { id: bookId, title: plan.title, bookType: plan.bookType, pageCount: book.pageCount, wordSource, metadataBy: plan.metadata.generatedBy };
   } catch (err) {

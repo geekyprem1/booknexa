@@ -167,3 +167,38 @@ export async function renderPdf(
     await page.close();
   }
 }
+
+/**
+ * Screenshot selected pages of a multi-page interior document. The pages
+ * (`section.page`) stack vertically on screen, each exactly one page tall, so
+ * page i sits at y = i × pageHeight. The document loads once for all pages.
+ */
+export async function renderPagePngs(
+  html: string,
+  opts: PngOptions,
+  pageIndexes: number[]
+): Promise<Uint8Array[]> {
+  const dpi = opts.dpi ?? 100;
+  const width = Math.round(opts.widthIn * CSS_PX_PER_IN);
+  const height = opts.heightIn * CSS_PX_PER_IN;
+  const browser = await getBrowser();
+  const page = await browser.newPage();
+  try {
+    await securePage(page);
+    await page.setViewport({ width, height: Math.round(height), deviceScaleFactor: dpi / CSS_PX_PER_IN });
+    await page.setContent(html, { waitUntil: "load" });
+    const out: Uint8Array[] = [];
+    for (const i of pageIndexes) {
+      out.push(
+        await page.screenshot({
+          type: "png",
+          clip: { x: 0, y: i * height, width, height: Math.round(height) },
+          captureBeyondViewport: true,
+        })
+      );
+    }
+    return out;
+  } finally {
+    await page.close();
+  }
+}

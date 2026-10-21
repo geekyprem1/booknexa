@@ -5,6 +5,9 @@ import { buildPackageZip, type PackageAsset, type PackageData, type PublishConte
 import { buildEbookPdf } from "@/lib/export/pdf";
 import { TRIM_SIZES, type TrimSize } from "@/lib/pdf/kdp-specs";
 import { rateLimit, rateLimitResponse } from "@/lib/util/rate-limit";
+import { getSupabaseAdminClient } from "@/lib/supabase/admin";
+import { MOCKUP_KINDS } from "@/lib/mockups/kinds";
+import { isOwnAssetKey, readAssets } from "@/lib/mockups/assets";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -49,6 +52,29 @@ async function bookAssets(
   return assets;
 }
 
+/** Rendered mockups go into the ZIP under mockups/. Missing column or files are skipped. */
+async function mockupAssets(userId: string, bookId: string): Promise<PackageAsset[]> {
+  const { data, error } = await getSupabaseAdminClient()
+    .from("books")
+    .select("assets")
+    .eq("id", bookId)
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (error || !data) return [];
+  const mockups = readAssets(data.assets).mockups ?? {};
+  const out: PackageAsset[] = [];
+  for (const kind of MOCKUP_KINDS) {
+    const key = mockups[kind];
+    if (!isOwnAssetKey(key, userId, bookId)) continue;
+    try {
+      out.push({ name: `mockups/${kind}.png`, bytes: await getBytes(key) });
+    } catch {
+      /* a missing file shouldn't break the Launch Kit */
+    }
+  }
+  return out;
+}
+
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = await createSupabaseServerClient();
@@ -91,6 +117,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   };
 
   const assets = await bookAssets(supabase, book);
+  assets.push(...(await mockupAssets(user.id, book.id)));
   const zip = await buildPackageZip({ ctx, data, assets });
 
   return new NextResponse(Buffer.from(zip), {

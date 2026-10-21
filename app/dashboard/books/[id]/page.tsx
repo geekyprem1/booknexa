@@ -8,6 +8,9 @@ import { BOOK_TYPES } from "@/lib/books/request";
 import type { PipelineBookType } from "@/lib/books/pipeline";
 import { seriesNameFromTitle } from "@/lib/shelves/core";
 import { RoyaltyCalculator } from "@/components/dashboard/royalty-calculator";
+import { MockupsPanel } from "@/components/dashboard/mockups-panel";
+import { MOCKUP_KINDS, unavailableReason } from "@/lib/mockups/kinds";
+import { quickMockupState } from "@/lib/mockups/source";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +33,11 @@ export default async function BookDetailPage({ params }: { params: Promise<{ id:
     supabase.from("shelves").select("id, name").order("created_at", { ascending: false }).limit(200),
   ]);
   const shelves = (shelfRows ?? []) as ShelfOption[];
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const mockupState = user && book.status === "completed" ? await quickMockupState(user.id, book.id) : null;
   const canStartSeries = !book.series_id && book.status === "completed" && BOOK_TYPES.includes(book.book_type as PipelineBookType);
 
   const { data: pkgRow } = await supabase
@@ -99,6 +107,19 @@ export default async function BookDetailPage({ params }: { params: Promise<{ id:
       <div className="mt-6">
         <PublishPackage bookId={book.id} initial={initial} />
       </div>
+
+      {mockupState && (
+        <div className="mt-6">
+          <MockupsPanel
+            bookId={book.id}
+            existing={MOCKUP_KINDS.filter((k) => mockupState.mockups[k])}
+            mockupsAt={mockupState.mockupsAt}
+            unavailable={Object.fromEntries(
+              MOCKUP_KINDS.map((k) => [k, unavailableReason(k, mockupState.availability)]).filter(([, r]) => r)
+            )}
+          />
+        </div>
+      )}
 
       {!isEbook && book.status === "completed" && book.page_count ? (
         <div className="mt-6">

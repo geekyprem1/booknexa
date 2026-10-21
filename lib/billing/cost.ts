@@ -19,7 +19,8 @@ export type CostableAction =
   | "cryptogram"
   | "dot_to_dot"
   | "crossword"
-  | "activity";
+  | "activity"
+  | "mockups";
 
 export interface CostInput {
   count?: number; // puzzles / pages / illustrated story pages
@@ -30,6 +31,8 @@ export function costFor(action: CostableAction, input: CostInput = {}): number {
   switch (action) {
     case "market_intelligence":
     case "cover":
+    // Mockup pack: Puppeteer renders only, no AI or image-model calls.
+    case "mockups":
       return 1;
     // Low-content + algorithmic workbooks/puzzles are pure templates/algorithms with
     // little or no AI cost — the cheapest book types.

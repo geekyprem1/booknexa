@@ -391,14 +391,15 @@ Har task ke baad: `npm run typecheck`. Har milestone ke end me: `npm run build` 
 - **Done when:** test script pass, aur nayi Launch Kit 8.5×11 puzzle book ke liye $9.99 suggest kare.
 
 ### M4 — Mockups + A+
-- [ ] **M4.1** Migration `0029_book_assets.sql`.
-- [ ] **M4.2** `lib/pdf/index.ts` results me `html`; `renderPagePng` helper.
-- [ ] **M4.3** Pipeline me best-effort `cover-wrap.png` + 3 previews, `books.assets` update.
-- [ ] **M4.4** `lib/mockups/templates/*` (6 kinds) + `render.ts`.
-- [ ] **M4.5** `scripts/test-mockups.ts`: sample book se saare kinds render, output size exact check (pngjs se width/height padho), `output/` me save.
-- [ ] **M4.6** Routes `/api/books/[id]/mockups` + zip. Launch Kit me `mockups/`.
-- [ ] **M4.7** Feature `"mockups"` tier 2 + entitlement, `costFor("mockups") = 1`. Book detail "Mockups" tab.
-- [ ] **M4.8** A+ sizes KDP A+ Content Manager me verify.
+- [x] **M4.1** Migration `0029_book_assets.sql` + `bootstrap.sql`.
+- [x] **M4.2** `lib/pdf/index.ts` results me `html`; `renderPagePngs` (ek load, kai pages) in `lib/pdf/render.ts`.
+- [x] **M4.3** Pipeline me best-effort cover wrap PNG (150 DPI) + 3 previews (page 4–5 spread + back page), `books.assets` update.
+- [x] **M4.4** `lib/mockups/` — `kinds.ts`, `templates.ts` (9 kinds: 3D paperback, look inside, series stack, social square, A+ header 970×600, A+ banner 970×300, 3× A+ tile 300×300), `render.ts`, `source.ts`, `assets.ts`.
+- [x] **M4.5** `scripts/test-mockups.ts` (`npm run test:mockups`, 12 checks, exact sizes + A+ < 2 MB, PNGs `output/mockups-test/` me).
+- [x] **M4.6** Routes `POST /api/books/[id]/mockups`, `GET /api/books/[id]/mockups/[kind|zip]`. Launch Kit ZIP me `mockups/`.
+- [x] **M4.7** Feature `"mockups"` (**tier abhi 1, FE vs OTO OPEN**), `costFor("mockups") = 1`. Book detail pe "Mockups & A+ images" panel.
+- [x] **M4.8** A+ ko KDP ke official "A+ Content Examples" page ke hisaab se kiya: saari A+ images 2× (banner 1940×600, tiles 600×600, header 1940×1200), max 3 MB, naya text-free banner (`aplus_banner_clean`, KDP overlay box ke liye), tiles ke caption bade + bold.
+- [ ] **M4.9** Live: `0029` apply → nayi book banao → mockups render → Launch Kit ZIP me `mockups/`.
 - **Done when:** nayi book ke liye 6 PNGs exact sizes me banein, ZIP download ho, aur `shelf_stack` series ke saare volumes dikhaye.
 
 ### M5+ — Phase 2
@@ -411,7 +412,7 @@ Har task ke baad: `npm run typecheck`. Har milestone ke end me: `npm run build` 
 
 ## 10. Open decisions
 
-1. **Mockups FE me ya OTO?** Plan me tier 2 + entitlement hai. FE me dena hai to `FEATURE_TIER.mockups = 1` aur sales copy update.
+1. **Mockups FE me ya OTO? (OPEN)** Abhi `FEATURE_TIER.mockups = 1` (sab plans). OTO me le jaana ho to `lib/billing/plans.ts` me tier badhao; koi offer `mockups` entitlement se bhi unlock kar sakta hai.
 2. **Shelf naming:** UI me "Shelf" (sales copy se match), DB me `shelves`/`series`. Theek hai?
 3. **Series multi-volume limit:** ek click me max 5 volumes. Agency users ke liye zyada?
 4. **Purani books ke mockups:** v1 me skip, ya abhi `pdfjs-dist` add karein?
