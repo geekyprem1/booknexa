@@ -38,7 +38,8 @@ export function PublishPackage({ bookId, initial }: { bookId: string; initial: P
       <h2 className="font-semibold">Launch Kit™</h2>
       <p className="mt-1 text-sm text-ink-soft">
         Everything you need to publish, in one ZIP: metadata.json, keywords,
-        description, categories, alternative titles, a publish checklist, and your PDFs.
+        description, categories, alternative titles, pricing per store, an Amazon Ads
+        keyword sheet, a publish checklist, and your PDFs.
       </p>
 
       {pkg ? (

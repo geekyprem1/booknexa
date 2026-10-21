@@ -406,7 +406,7 @@ Har task ke baad: `npm run typecheck`. Har milestone ke end me: `npm run build` 
 - [ ] **M5** PDF Checker (section 8.1).
 - [ ] **M6** Hardcover (8.2), M3 data ke baad.
 - [ ] **M7** Multi-language (8.3), `es` + `de` se start.
-- [ ] **M8** Ads CSV (8.4), sabse chhota, kabhi bhi.
+- [x] **M8** Ads CSV: `lib/publishing/ads.ts` → Launch Kit me `ads_keywords.csv` (exact/phrase/broad ad groups + negatives, royalty se bid ceiling) aur `ads_guide.txt` (setup, break-even bids, paste lists). Purane Launch Kits ke ZIP me bhi aata hai (stored keywords se). `npm run test:ads` (8 checks). Bulksheet format abhi nahi.
 
 ---
 

@@ -17,6 +17,7 @@ import {
   type SeriesInfo,
 } from "./metadata";
 import { formatMoney, royalty } from "../kdp/royalty";
+import { adsGuide, adsKeywordsCsv, buildAdsKeywords } from "./ads";
 
 export interface PublishContext {
   title: string;
@@ -101,6 +102,7 @@ export function buildChecklist(ctx: PublishContext, series: SeriesInfo | null | 
       : "[ ] Set price per marketplace (see pricing.txt — stay at or above the 60% royalty line)",
     "[ ] Review in KDP Previewer",
     "[ ] Publish",
+    "[ ] Optional, once live: start Amazon Ads with ads_keywords.csv (setup steps in ads_guide.txt)",
     "",
     "Tip: alternative title ideas are in book_titles.txt.",
   ].join("\n");
@@ -128,6 +130,32 @@ export function packageFiles(ctx: PublishContext, data: PackageData): Array<{ na
     { name: "book_titles.txt", content: data.alternativeTitles.join("\n") },
     { name: "publish_checklist.txt", content: buildChecklist(ctx, ctx.series ?? data.metadataJson.series) },
     ...(pricing ? [{ name: "pricing.txt", content: buildPricingReport(pricing, data.metadataJson.suggested_price) }] : []),
+    ...adsFiles(ctx, data, pricing),
+  ];
+}
+
+/** Amazon.com royalty at the price in metadata.json (print books only). */
+export function usRoyalty(pricing: PricingJson | undefined, usPrice: number | undefined): { royalty: number; price: number } | null {
+  const us = pricing?.marketplaces.find((r) => r.marketplace === "com");
+  if (!pricing || !us) return null;
+  if (!usPrice || Math.abs(usPrice - us.list_price) < 0.001) return { royalty: us.royalty, price: us.list_price };
+  const r = royalty("com", trimDims(pricing.trim_size), pricing.page_count, usPrice);
+  return { royalty: r.royalty, price: r.listPrice };
+}
+
+/** ads_keywords.csv + ads_guide.txt (Amazon Ads starter). */
+function adsFiles(ctx: PublishContext, data: PackageData, pricing: PricingJson | undefined): Array<{ name: string; content: string }> {
+  const us = usRoyalty(pricing, data.metadataJson.suggested_price);
+  const rows = buildAdsKeywords({
+    primary: data.keywords.primary,
+    longTail: data.keywords.longTail,
+    bookType: ctx.bookType,
+    royaltyUsd: us?.royalty ?? null,
+  });
+  if (!rows.some((r) => r.source !== "negative")) return [];
+  return [
+    { name: "ads_keywords.csv", content: adsKeywordsCsv(rows) },
+    { name: "ads_guide.txt", content: adsGuide({ title: ctx.title, rows, royaltyUsd: us?.royalty ?? null, listPriceUsd: us?.price ?? null }) },
   ];
 }
 
