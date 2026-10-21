@@ -70,14 +70,16 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   return (
-    <div className={`${FONT_VARS} paper-grain flex min-h-screen flex-col font-ui text-ink`}>
+    <div className={`${FONT_VARS} paper-grain min-h-screen font-ui text-ink lg:flex`}>
       <a
         href="#main"
         className="sr-only z-50 rounded-md bg-ink px-4 py-2 text-sm font-medium text-paper focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
       >
         Skip to content
       </a>
-      <Suspense fallback={<div className="h-16 border-b-2 border-ink bg-paper" />}>
+      <Suspense
+        fallback={<div className="h-14 border-b-2 border-ink bg-paper lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:shrink-0 lg:border-b-0 lg:border-r-2" />}
+      >
         <DashboardNav
           email={email}
           isAdmin={Boolean(admin)}
@@ -87,8 +89,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
           planName={planName}
         />
       </Suspense>
-      <main id="main" className="press-forms mx-auto w-full max-w-[1360px] flex-1 px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
-        {children}
+      <main id="main" className="press-forms min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
+        <div className="mx-auto w-full max-w-[1280px]">{children}</div>
       </main>
     </div>
   );
