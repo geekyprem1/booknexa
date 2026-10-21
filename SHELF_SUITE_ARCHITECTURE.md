@@ -374,20 +374,20 @@ Har task ke baad: `npm run typecheck`. Har milestone ke end me: `npm run build` 
 - **Done when:** ek word search book se series bana ke Vol. 2 aur Vol. 3 generate ho, titles "…, Vol. 2/3" hon, cover pe badge + same colors hon, seeds alag hon, aur Launch Kit me series info ho.
 
 ### M2 — Weekly Slot Planner
-- [ ] **M2.1** Migration `0028_publications.sql` + `profiles.weekly_slot_limit`. Schema docs update.
-- [ ] **M2.2** `lib/planner/week.ts`, `slots.ts`, `suggest.ts`.
-- [ ] **M2.3** `scripts/test-planner.ts`: Sunday UTC boundary (Sat 23:59 UTC vs Sun 00:00 UTC), limit check, suggest priority.
-- [ ] **M2.4** Routes `/api/planner`, `/api/planner/[id]`, `/api/planner/suggest`.
-- [ ] **M2.5** UI planner page, overview widget, settings field, nav item. Feature `"planner"` tier 1.
+- [x] **M2.1** Migration `0028_publications.sql` + `profiles.weekly_slot_limit` + `bootstrap.sql`.
+- [x] **M2.2** `lib/planner/core.ts` (week math, slot counting, backlog order, `suggestFill`) + `lib/planner/store.ts` (data access).
+- [x] **M2.3** `scripts/test-planner.ts` (`npm run test:planner`, 7 checks incl. Sat 23:59 vs Sun 00:00 UTC aur IST timezone).
+- [x] **M2.4** Routes `/api/planner` (GET grid, POST single/batch), `/api/planner/[id]` (move, status, ASIN, notes, delete), `/api/planner/suggest`, `/api/planner/settings`.
+- [x] **M2.5** `/dashboard/planner` (6-week grid, backlog, "Fill my free slots", slots-per-week select), overview strip, nav (More → Slot Planner; PRIMARY bar me jagah nahi thi). Alag Feature key nahi, sab tiers ke liye open.
 - **Done when:** ek week me 3rd paperback slot 409 de, ebook slot alag count ho, "Mark published" ASIN save kare, aur overview widget sahi count dikhaye.
 
 ### M3 — Royalty & Price
-- [ ] **M3.1** `lib/kdp/pricing-data.ts` (table section 6.1, `VERIFIED_AT`).
-- [ ] **M3.2** `lib/kdp/royalty.ts` functions.
-- [ ] **M3.3** `scripts/test-royalty.ts`: US 8.5×11 100 pp: $9.99 → 3.15, $8.99 → 1.66, $7.99 → 1.16. US 6×9 333 pp: $15 → 4.00 (KDP ka example). UK £7.98 vs £7.99 rate switch. AU 109 pp per-page band. JPY rounding.
-- [ ] **M3.4** `suggestedPrice` replace + `metadata_json.pricing` + `pricing.txt`.
-- [ ] **M3.5** Calculator page + book detail card + nav. Feature `"royalty_calculator"` tier 1.
-- [ ] **M3.6** Sales page numbers cross-check (section 6.4).
+- [x] **M3.1** `lib/kdp/pricing-data.ts` (8 marketplace rows, `VERIFIED_AT = 2026-10-21`).
+- [x] **M3.2** `lib/kdp/royalty.ts` (integer micro-unit math; `printingCost`, `royaltyRate`, `royalty`, `minListPrice`, `recommendPrice`, `recommendAll`, `formatMoney`).
+- [x] **M3.3** `scripts/test-royalty.ts` (`npm run test:royalty`, 12 checks incl. KDP ka 333pp example, AU 108pp band, JPY).
+- [x] **M3.4** `suggestedPrice(bookType, pages, trim)` ab royalty engine se, `metadata_json.pricing`, Launch Kit me `pricing.txt` (50%-band override warning ke saath), checklist line update.
+- [x] **M3.5** `/dashboard/royalty` page, book detail pe compact "Pricing & royalty" card, nav (More → Royalty Calculator). Calculator client-side pure hai, isliye alag Feature key nahi banayi (sab tiers ke liye open).
+- [x] **M3.6** Sales page numbers ($9.99 → 3.15, $8.99 → 1.66, $7.99 → 1.16, $11.99 → 4.35) tests me match.
 - **Done when:** test script pass, aur nayi Launch Kit 8.5×11 puzzle book ke liye $9.99 suggest kare.
 
 ### M4 — Mockups + A+

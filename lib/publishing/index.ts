@@ -1,7 +1,7 @@
 export { generateKeywords, type KeywordSet } from "./keywords";
 export { recommendCategories } from "./categories";
 export { generateAltTitles } from "./titles";
-export { generateDescription, buildMetadataJson, suggestedPrice, AI_DISCLOSURE, type MetadataJson } from "./metadata";
+export { generateDescription, buildMetadataJson, buildPricing, suggestedPrice, AI_DISCLOSURE, type MetadataJson, type PricingJson } from "./metadata";
 export {
   loadPublishingProfile,
   profileAuthor,

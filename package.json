@@ -22,6 +22,8 @@
     "smoke:cover-v2": "node --env-file=.env.local --import tsx scripts/smoke-cover-v2.ts",
     "test:opportunity": "tsx scripts/test-opportunity.ts",
     "test:shelves": "tsx scripts/test-shelves.ts",
+    "test:royalty": "tsx scripts/test-royalty.ts",
+    "test:planner": "tsx scripts/test-planner.ts",
     "coloring:samples": "tsx scripts/generate-coloring-samples.ts",
     "story:poc": "node --env-file=.env.local --import tsx scripts/story-poc.ts",
     "worker": "node --env-file=.env.local --import tsx scripts/worker.ts"

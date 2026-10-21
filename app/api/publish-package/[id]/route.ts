@@ -69,7 +69,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 
   const { data: book } = await supabase
     .from("books")
-    .select("id, title, book_type, trim_size, interior_key, cover_key, config")
+    .select("id, title, book_type, trim_size, page_count, interior_key, cover_key, config")
     .eq("id", pkg.book_id)
     .single();
   if (!book) return NextResponse.json({ error: "Book not found" }, { status: 404 });
@@ -80,6 +80,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     author: md.author ?? "BookNexa",
     bookType: book.book_type,
     trim: book.trim_size ?? "8.5x11",
+    pageCount: book.page_count ?? undefined,
   };
   const data: PackageData = {
     metadataJson: pkg.metadata_json as PackageData["metadataJson"],

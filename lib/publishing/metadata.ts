@@ -4,6 +4,9 @@
 
 import { generateText } from "../ai/provider";
 import { isAiConfigured } from "../ai/models";
+import { recommendAll, recommendPrice } from "../kdp/royalty";
+import { MARKETPLACES, VERIFIED_AT, type MarketplaceId } from "../kdp/pricing-data";
+import { TRIM_SIZES, type TrimSize } from "../pdf/kdp-specs";
 
 export const AI_DISCLOSURE =
   "This book contains content created with the assistance of AI-based tools, reviewed for quality before publishing.";
@@ -49,15 +52,57 @@ Requirements: 150–400 words; an engaging opening; a bulleted list of benefits 
   }
 }
 
-/** Heuristic KDP price suggestion (USD). */
-export function suggestedPrice(bookType: string, pageCount?: number): number {
-  const pages = pageCount ?? 80;
+/** Trim dimensions for pricing; unknown trims price as 8.5x11 (large trim). */
+export function trimDims(trim?: string) {
+  return TRIM_SIZES[(trim ?? "") as TrimSize] ?? TRIM_SIZES["8.5x11"];
+}
+
+/**
+ * Suggested amazon.com list price (USD).
+ * Print books: the lowest price that earns KDP's 60% royalty for this trim and
+ * page count (usually $9.99), from the royalty engine. Kindle ebooks: $4.99
+ * (inside Kindle's 70% band of $2.99–$9.99).
+ */
+export function suggestedPrice(bookType: string, pageCount?: number, trim?: string): number {
   if (bookType === "ebook") return 4.99;
-  if (bookType === "coloring") return pages > 60 ? 8.99 : 7.99;
-  // puzzle books
-  if (pages > 120) return 8.99;
-  if (pages > 70) return 7.49;
-  return 6.99;
+  return recommendPrice("com", trimDims(trim), pageCount ?? 80).listPrice;
+}
+
+export interface PricingRow {
+  marketplace: MarketplaceId;
+  domains: string[];
+  currency: string;
+  list_price: number;
+  royalty_rate: number;
+  printing_cost: number;
+  royalty: number;
+}
+
+export interface PricingJson {
+  trim_size: string;
+  page_count: number;
+  ink: "black";
+  verified_at: string;
+  marketplaces: PricingRow[];
+}
+
+/** Recommended list price + royalty per marketplace (print books only). */
+export function buildPricing(trim: string, pageCount: number): PricingJson {
+  return {
+    trim_size: trim,
+    page_count: pageCount,
+    ink: "black",
+    verified_at: VERIFIED_AT,
+    marketplaces: recommendAll(trimDims(trim), pageCount).map((r) => ({
+      marketplace: r.marketplace,
+      domains: MARKETPLACES[r.marketplace].domains,
+      currency: r.currency,
+      list_price: r.listPrice,
+      royalty_rate: r.rate,
+      printing_cost: r.printingCost,
+      royalty: r.royalty,
+    })),
+  };
 }
 
 export interface MetadataJson {
@@ -77,6 +122,8 @@ export interface MetadataJson {
   suggested_price: number;
   /** KDP "Series" field. Absent on packages built before the Shelf Suite. */
   series?: SeriesInfo | null;
+  /** Per-marketplace price + royalty (print books). Absent on older packages and ebooks. */
+  pricing?: PricingJson;
 }
 
 export interface SeriesInfo {
@@ -116,7 +163,11 @@ export function buildMetadataJson(opts: {
     description: opts.description,
     keywords: opts.keywords,
     categories: opts.categories,
-    suggested_price: opts.priceOverride != null && opts.priceOverride > 0 ? opts.priceOverride : suggestedPrice(opts.bookType, opts.pageCount),
+    suggested_price:
+      opts.priceOverride != null && opts.priceOverride > 0
+        ? opts.priceOverride
+        : suggestedPrice(opts.bookType, opts.pageCount, opts.trimSize),
     ...(opts.series ? { series: opts.series } : {}),
+    ...(opts.bookType !== "ebook" && opts.pageCount ? { pricing: buildPricing(opts.trimSize, opts.pageCount) } : {}),
   };
 }

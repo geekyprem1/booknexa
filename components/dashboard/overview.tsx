@@ -87,6 +87,15 @@ export interface OverviewData {
   downloadCount: number;
   recent: RecentBook[];
   ready: ReadyJob[];
+  /** This week's planner usage; null hides the strip (e.g. planner tables not migrated). */
+  slots?: WeeklySlots | null;
+}
+
+export interface WeeklySlots {
+  limit: number;
+  paperback: number;
+  ebook: number;
+  backlog: number;
 }
 
 /** Cheap stable hash so each book keeps the same spine colour / size. */
@@ -111,6 +120,7 @@ export function Overview({
   downloadCount,
   recent,
   ready,
+  slots = null,
 }: OverviewData) {
   const creditPct =
     monthlyCredits > 0 ? Math.min(100, Math.round((creditsRemaining / monthlyCredits) * 100)) : creditsRemaining > 0 ? 100 : 0;
@@ -365,6 +375,26 @@ export function Overview({
               </div>
             </div>
           ))}
+        </section>
+      )}
+
+      {/* ═══ This week's KDP slots ═══ */}
+      {slots && (
+        <section aria-labelledby="slots" className="flex flex-wrap items-center justify-between gap-4 rounded-xl border-2 border-ink bg-paper-card px-5 py-4">
+          <div>
+            <h2 id="slots" className="font-display text-xl font-bold text-ink">This week&apos;s KDP slots</h2>
+            <p className="mt-0.5 text-sm text-ink-soft">
+              Paperback <strong className="text-ink">{slots.paperback}/{slots.limit}</strong> · Kindle eBook{" "}
+              <strong className="text-ink">{slots.ebook}/{slots.limit}</strong>
+              {slots.backlog > 0 ? ` · ${slots.backlog} finished book${slots.backlog === 1 ? "" : "s"} waiting for a slot` : ""}
+            </p>
+          </div>
+          <Link
+            href="/dashboard/planner"
+            className={`inline-flex min-h-[44px] items-center gap-1 rounded-md border-2 border-ink px-4 text-sm font-semibold hover:bg-paper ${FOCUS}`}
+          >
+            Open Slot Planner <ArrowRight className="h-4 w-4" aria-hidden />
+          </Link>
         </section>
       )}
 

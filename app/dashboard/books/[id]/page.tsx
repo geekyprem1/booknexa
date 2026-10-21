@@ -7,6 +7,7 @@ import { MakeSeries, type ShelfOption } from "@/components/dashboard/shelves/mak
 import { BOOK_TYPES } from "@/lib/books/request";
 import type { PipelineBookType } from "@/lib/books/pipeline";
 import { seriesNameFromTitle } from "@/lib/shelves/core";
+import { RoyaltyCalculator } from "@/components/dashboard/royalty-calculator";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +17,7 @@ export default async function BookDetailPage({ params }: { params: Promise<{ id:
 
   const { data: book } = await supabase
     .from("books")
-    .select("id, title, theme, book_type, status, page_count, difficulty, shelf_id, series_id, volume_no")
+    .select("id, title, theme, book_type, status, page_count, trim_size, difficulty, shelf_id, series_id, volume_no")
     .eq("id", id)
     .single();
   if (!book) notFound();
@@ -98,6 +99,13 @@ export default async function BookDetailPage({ params }: { params: Promise<{ id:
       <div className="mt-6">
         <PublishPackage bookId={book.id} initial={initial} />
       </div>
+
+      {!isEbook && book.status === "completed" && book.page_count ? (
+        <div className="mt-6">
+          <h2 className="mb-2 font-semibold">Pricing &amp; royalty</h2>
+          <RoyaltyCalculator compact initialTrim={book.trim_size ?? "8.5x11"} initialPages={book.page_count} />
+        </div>
+      ) : null}
 
       {canStartSeries && (
         <div id="series" className="mt-6 scroll-mt-24">

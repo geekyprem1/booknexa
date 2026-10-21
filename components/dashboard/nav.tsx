@@ -7,7 +7,7 @@ import {
   TrendingUp, Wand2, SquarePen, Factory, Bot, Image as ImageIcon, Sparkles, ListChecks,
   Grid3x3, Hash, Waypoints, Grid2x2, Shuffle, KeyRound, Spline, Palette, Layers, PenLine,
   Calculator, BookOpen, NotebookPen, Library, Download, CreditCard, LifeBuoy, Settings,
-  Zap, ShieldCheck, LogOut, Gift, Users, Store, FlaskConical, Plus, ChevronDown, Menu, X,
+  Zap, ShieldCheck, LogOut, Gift, Users, Store, FlaskConical, Plus, ChevronDown, Menu, X, CalendarCheck,
   Coins, ArrowRight, type LucideIcon,
 } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -35,6 +35,8 @@ const PRIMARY: NavItem[] = [
 /** Secondary tools, grouped under "More". */
 const MORE: NavItem[] = [
   { href: "/dashboard/title-optimizer", label: "Title Lab", icon: Wand2, desc: "Search-optimized titles & subtitles" },
+  { href: "/dashboard/planner", label: "Slot Planner", icon: CalendarCheck, desc: "Fill KDP's 2 weekly slots, in series order" },
+  { href: "/dashboard/royalty", label: "Royalty Calculator", icon: Calculator, desc: "Price for KDP's 60% royalty in every store" },
   { href: "/dashboard/bundle", label: "Profit Factory™", icon: Factory, desc: "Produce a whole series in one run" },
   { href: "/dashboard/autopilot", label: "Autopilot", icon: Bot, desc: "Hands-off planning & production" },
   { href: "/dashboard/dfy", label: "DFY Library", icon: Gift, desc: "Done-for-you books & assets" },
