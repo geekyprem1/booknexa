@@ -97,11 +97,13 @@ export default async function BookDetailPage({ params }: { params: Promise<{ id:
               <a href={`/api/ebook/${book.id}/export?format=epub`} className="rounded border border-ink px-3 py-1.5 text-xs font-medium">EPUB</a>
               <a href={`/api/ebook/${book.id}/export?format=docx`} className="rounded border border-ink px-3 py-1.5 text-xs font-medium">DOCX</a>
               <a href={`/api/ebook/${book.id}/cover`} className="rounded border border-ink px-3 py-1.5 text-xs font-medium">Kindle Cover (JPG)</a>
+              <Link href={`/dashboard/cover-v2?book=${book.id}`} className="rounded border border-ink px-3 py-1.5 text-xs font-medium">Design cover</Link>
             </div>
           ) : (
             <div className="mt-3 flex flex-wrap gap-2">
               <a href={`/api/books/${book.id}/download?part=interior`} className="rounded-lg btn-nexa px-3 py-1.5 text-xs font-medium text-white">Interior PDF</a>
               <a href={`/api/books/${book.id}/download?part=cover`} className="rounded border border-ink px-3 py-1.5 text-xs font-medium">Cover PDF</a>
+              <Link href={`/dashboard/cover-v2?book=${book.id}`} className="rounded border border-ink px-3 py-1.5 text-xs font-medium">Design cover</Link>
             </div>
           )}
         </div>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import type { CoverBookOption } from "@/lib/cover/book-prefill";
 
 const GOLD = "#1463FF";
 
@@ -105,6 +106,8 @@ export function CoverV2Studio({
   balance,
   covers,
   initialPreview,
+  books = [],
+  initialBookId = null,
 }: {
   styles: StyleOption[];
   defaultModel: string;
@@ -112,15 +115,23 @@ export function CoverV2Studio({
   balance: number;
   covers: CoverListItem[];
   initialPreview: CoverPreview | null;
+  /** Finished books, for "pick a book" prefill and "use for this book". */
+  books?: CoverBookOption[];
+  initialBookId?: string | null;
 }) {
   const router = useRouter();
+  const startBook = books.find((b) => b.id === initialBookId) ?? null;
 
-  const [title, setTitle] = useState(initialPreview?.title ?? "");
-  const [subtitle, setSubtitle] = useState(initialPreview?.subtitle ?? "");
-  const [author, setAuthor] = useState(initialPreview?.author ?? "");
-  const [niche, setNiche] = useState("");
-  const [genre, setGenre] = useState("business");
-  const [trim, setTrim] = useState("6x9");
+  const [bookId, setBookId] = useState<string>(startBook?.id ?? "");
+  const [title, setTitle] = useState(initialPreview?.title ?? startBook?.title ?? "");
+  const [subtitle, setSubtitle] = useState(initialPreview?.subtitle ?? startBook?.subtitle ?? "");
+  const [author, setAuthor] = useState(initialPreview?.author ?? startBook?.author ?? "");
+  const [niche, setNiche] = useState(startBook?.niche ?? "");
+  const [genre, setGenre] = useState<string>(startBook?.genre ?? "business");
+  const [trim, setTrim] = useState(startBook?.trim ?? "6x9");
+  const book = books.find((b) => b.id === bookId) ?? null;
+  const [applying, setApplying] = useState(false);
+  const [applied, setApplied] = useState<string | null>(null);
   const [style, setStyle] = useState(styles[0]?.key ?? "clean_modern");
   const [model, setModel] = useState(defaultModel);
   const [hybridOnly, setHybridOnly] = useState(false);
@@ -136,7 +147,7 @@ export function CoverV2Studio({
 
   // Print wraparound export: KDP needs the spine width, which depends on the
   // interior page count + paper stock the buyer will actually upload.
-  const [wrapPages, setWrapPages] = useState("120");
+  const [wrapPages, setWrapPages] = useState(String(startBook?.pageCount ?? 120));
   const [wrapPaper, setWrapPaper] = useState("white");
   const [wrapBg, setWrapBg] = useState("#1a1a1a");
 
@@ -175,6 +186,46 @@ export function CoverV2Studio({
   function closePreview() {
     setPreview(null);
     router.replace("/dashboard/cover-v2", { scroll: false });
+  }
+
+  /** Picking a book fills the form from it; "none" leaves the fields as typed. */
+  function pickBook(id: string) {
+    setBookId(id);
+    setApplied(null);
+    const b = books.find((x) => x.id === id);
+    if (!b) return;
+    setTitle(b.title);
+    setSubtitle(b.subtitle);
+    setAuthor(b.author);
+    setNiche(b.niche);
+    setGenre(b.genre);
+    setTrim(b.trim);
+    if (b.pageCount) setWrapPages(String(b.pageCount));
+  }
+
+  /** Attach the shown concept to the picked book (print → wrap PDF, ebook → Kindle cover). */
+  async function applyToBook() {
+    if (!preview || !current || !book) return;
+    setApplying(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/cover/${preview.id}/use`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bookId: book.id, variation: current.index }),
+      });
+      const json = await res.json().catch(() => null);
+      if (!res.ok) {
+        setError(json?.error ?? "Could not apply the cover.");
+        return;
+      }
+      setApplied(`${preview.id}:${current.index}:${book.id}`);
+      router.refresh();
+    } catch {
+      setError("Could not reach the server. Please try again.");
+    } finally {
+      setApplying(false);
+    }
   }
 
   async function generate() {
@@ -264,6 +315,21 @@ export function CoverV2Studio({
       {/* ── left: the form ── */}
       <div className="rounded-2xl border border-rule bg-paper-card p-5 shadow-sm">
         <h2 className="text-sm font-semibold text-ink">Cover details</h2>
+
+        {books.length > 0 && (
+          <div className="mt-4 rounded-lg border border-nexa-blue/30 bg-marker-soft p-3">
+            <label className={label} htmlFor="cover-book">Make a cover for one of your books</label>
+            <p className="text-[11px] text-ink-muted">
+              Fills in the title, author, topic and trim from the book. You can still edit them.
+            </p>
+            <select id="cover-book" className={field} value={bookId} onChange={(e) => pickBook(e.target.value)}>
+              <option value="">No book, I&apos;ll fill it in</option>
+              {books.map((b) => (
+                <option key={b.id} value={b.id}>{b.title} · {b.typeLabel}</option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <div className="mt-4 space-y-4">
           <div>
@@ -356,8 +422,14 @@ export function CoverV2Studio({
           <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label className={label}>Trim size</label>
-              <select className={field} value={trim} onChange={(e) => setTrim(e.target.value)}>
-                {TRIMS.map((t) => (
+              {book && <p className="text-[11px] text-ink-muted">Locked to the book so the cover fits it.</p>}
+              <select
+                className={`${field} disabled:cursor-not-allowed disabled:bg-paper-deep`}
+                value={trim}
+                onChange={(e) => setTrim(e.target.value)}
+                disabled={Boolean(book)}
+              >
+                {(TRIMS.includes(trim) ? TRIMS : [...TRIMS, trim]).map((t) => (
                   <option key={t} value={t}>{t} in</option>
                 ))}
               </select>
@@ -508,6 +580,42 @@ export function CoverV2Studio({
                   <li key={i}>✗ {a.strategy}: {a.reason}</li>
                 ))}
               </ul>
+            )}
+
+            {books.length > 0 && (
+              <div className="mt-4 rounded-lg border border-nexa-blue/30 bg-marker-soft p-3">
+                <p className="text-[12px] font-semibold text-ink">Use this cover for a book</p>
+                <select
+                  className="mt-1 w-full rounded-md border border-rule-strong bg-paper-card px-2 py-1.5 text-[13px] focus:border-nexa-blue focus:outline-none"
+                  value={bookId}
+                  onChange={(e) => { setBookId(e.target.value); setApplied(null); }}
+                  aria-label="Book to use this cover for"
+                >
+                  <option value="">Choose a book…</option>
+                  {books.map((b) => (
+                    <option key={b.id} value={b.id}>{b.title} · {b.typeLabel}</option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={applyToBook}
+                  disabled={!book || applying}
+                  className="btn-nexa mt-2 w-full rounded-lg px-3 py-2 text-[13px] font-semibold disabled:opacity-50"
+                >
+                  {applying ? "Applying…" : book ? `Use for “${book.title}”` : "Use for this book"}
+                </button>
+                <p className="mt-1.5 text-[11px] leading-snug text-ink-muted">
+                  {book?.isEbook
+                    ? "Becomes the Kindle cover (JPG download + Launch Kit)."
+                    : "Builds the paperback wraparound PDF (back + spine + front) from the book's page count."}
+                </p>
+                {applied === `${preview.id}:${current.index}:${bookId}` && book && (
+                  <p className="mt-1.5 text-[12px] text-forest" role="status">
+                    ✓ Applied.{" "}
+                    <Link href={`/dashboard/books/${book.id}`} className="underline">Open the book</Link>
+                  </p>
+                )}
+              </div>
             )}
 
             <a

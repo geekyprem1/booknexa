@@ -16,7 +16,7 @@ import { isSelectableModel, modelLabel, modelProvider } from "@/lib/cover-v2/mod
 import { isReplicateConfigured } from "@/lib/cover-v2/providers/replicate";
 import { resolveStyle, STYLE_PRESETS } from "@/lib/cover-v2/styles";
 import { CoverV2SafetyError } from "@/lib/cover-v2/errors";
-import { KDP_TRIM_OPTIONS, type TrimSize } from "@/lib/pdf/kdp-specs";
+import { TRIM_SIZES, type TrimSize } from "@/lib/pdf/kdp-specs";
 import { costFor, recordUsage, refund, reserve } from "@/lib/billing";
 import { assertFeature, billingErrorResponse } from "@/lib/billing/guard";
 import { rateLimit, rateLimitResponse } from "@/lib/util/rate-limit";
@@ -28,9 +28,9 @@ export const dynamic = "force-dynamic";
 // its 235s per cover would not fit any request budget.
 export const maxDuration = 300;
 
-// Same list the studio picker offers; kept in one place in kdp-specs so the
-// form and the API can never drift apart again.
-const TRIMS = KDP_TRIM_OPTIONS.map((option) => option.value) as TrimSize[];
+// Every KDP trim the app knows (incl. 8x10, which the picker hides but a book
+// may already use), so a cover made for an existing book always fits it.
+const TRIMS = Object.keys(TRIM_SIZES) as TrimSize[];
 const LIMITS = { title: 300, subtitle: 300, author: 200, niche: 200, audience: 300 } as const;
 
 function text(body: Record<string, unknown>, field: keyof typeof LIMITS): string | undefined {

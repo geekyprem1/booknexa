@@ -10,6 +10,9 @@ import { availableModels, isSelectableModel } from "@/lib/cover-v2/models";
 import { isReplicateConfigured } from "@/lib/cover-v2/providers/replicate";
 import { stylePickerOptions } from "@/lib/cover-v2/styles";
 import { CoverV2Studio, type CoverListItem, type CoverPreview } from "@/components/dashboard/cover-v2-studio";
+import { coverBookOption, type CoverBookOption } from "@/lib/cover/book-prefill";
+import { loadPublishingProfile, profileAuthor } from "@/lib/publishing/profile";
+import { BOOK_TYPE_LABELS, type BookType } from "@/lib/opportunity";
 
 export const dynamic = "force-dynamic";
 
@@ -48,7 +51,7 @@ async function signVariations(row: CoverRow, userId: string, ttl: number): Promi
 export default async function CoverV2Page({
   searchParams,
 }: {
-  searchParams: Promise<{ cover?: string }>;
+  searchParams: Promise<{ cover?: string; book?: string }>;
 }) {
   // Hidden entirely, not merely disabled: an unreleased Beta should not advertise
   // itself on an account that cannot use it.
@@ -98,8 +101,21 @@ export default async function CoverV2Page({
     });
   }
 
+  // ── the buyer's finished books, for "pick a book" prefill + "use for this book" ──
+  const { data: bookData } = await supabase
+    .from("books")
+    .select("id, title, book_type, theme, trim_size, page_count, config, book_metadata(subtitle)")
+    .eq("status", "completed")
+    .order("created_at", { ascending: false })
+    .limit(100);
+  const fallbackAuthor = profileAuthor(await loadPublishingProfile(userId));
+  const books: CoverBookOption[] = ((bookData ?? []) as unknown as Parameters<typeof coverBookOption>[0][]).map((b) =>
+    coverBookOption(b, fallbackAuthor, BOOK_TYPE_LABELS[b.book_type as BookType] ?? b.book_type)
+  );
+
   // ── optionally open one of them in the preview panel ──
-  const { cover: requested } = await searchParams;
+  const { cover: requested, book: requestedBook } = await searchParams;
+  const initialBookId = books.some((b) => b.id === requestedBook) ? requestedBook! : null;
   let preview: CoverPreview | null = null;
   if (requested) {
     const row = rows.find((r) => r.id === requested);
@@ -159,6 +175,8 @@ export default async function CoverV2Page({
             balance={sub.credits_remaining}
             covers={covers}
             initialPreview={preview}
+            books={books}
+            initialBookId={initialBookId}
           />
         </div>
       )}

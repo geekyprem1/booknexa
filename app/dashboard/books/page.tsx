@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus, FileText, FileImage, Package, BookOpen, FolderOpen, Layers } from "lucide-react";
+import { Plus, FileText, FileImage, Package, BookOpen, FolderOpen, Layers, Palette } from "lucide-react";
 import { BOOK_TYPES } from "@/lib/books/request";
 import type { PipelineBookType } from "@/lib/books/pipeline";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -103,6 +103,7 @@ export default async function MyBooksPage() {
                         <a href={`/api/ebook/${b.id}/export?format=epub`} className="rounded-lg border border-rule-strong px-3 py-1.5 text-xs font-medium hover:bg-paper">EPUB</a>
                         <a href={`/api/ebook/${b.id}/export?format=docx`} className="rounded-lg border border-rule-strong px-3 py-1.5 text-xs font-medium hover:bg-paper">DOCX</a>
                         <a href={`/api/ebook/${b.id}/cover`} className="inline-flex items-center gap-1 rounded-lg border border-rule-strong px-3 py-1.5 text-xs font-medium hover:bg-paper"><FileImage className="h-3.5 w-3.5" /> Kindle Cover</a>
+                        <Link href={`/dashboard/cover-v2?book=${b.id}`} className="inline-flex items-center gap-1 rounded-lg border border-rule-strong px-3 py-1.5 text-xs font-medium hover:bg-paper"><Palette className="h-3.5 w-3.5" /> Design cover</Link>
                         <Link href={`/dashboard/books/${b.id}`} className="inline-flex items-center gap-1 rounded-lg border border-rule-strong px-3 py-1.5 text-xs font-medium hover:bg-paper"><Package className="h-3.5 w-3.5" /> Launch Kit</Link>
                         {b.series_id && b.shelf_id ? (
                           <Link href={`/dashboard/shelves/${b.shelf_id}`} className="inline-flex items-center gap-1 rounded-lg border border-rule-strong px-3 py-1.5 text-xs font-medium hover:bg-paper"><Layers className="h-3.5 w-3.5" /> Series · Vol. {b.volume_no ?? "?"}</Link>
@@ -116,6 +117,7 @@ export default async function MyBooksPage() {
                       <div className="mt-3 flex flex-wrap gap-2">
                         <a href={`/api/books/${b.id}/download?part=interior`} className="inline-flex items-center gap-1 rounded-lg btn-nexa px-3 py-1.5 text-xs font-medium text-white"><FileText className="h-3.5 w-3.5" /> Interior PDF</a>
                         <a href={`/api/books/${b.id}/download?part=cover`} className="inline-flex items-center gap-1 rounded-lg border border-rule-strong px-3 py-1.5 text-xs font-medium hover:bg-paper"><FileImage className="h-3.5 w-3.5" /> Cover PDF</a>
+                        <Link href={`/dashboard/cover-v2?book=${b.id}`} className="inline-flex items-center gap-1 rounded-lg border border-rule-strong px-3 py-1.5 text-xs font-medium hover:bg-paper"><Palette className="h-3.5 w-3.5" /> Design cover</Link>
                         <Link href={`/dashboard/books/${b.id}`} className="inline-flex items-center gap-1 rounded-lg border border-rule-strong px-3 py-1.5 text-xs font-medium hover:bg-paper"><Package className="h-3.5 w-3.5" /> Launch Kit</Link>
                         {b.series_id && b.shelf_id ? (
                           <Link href={`/dashboard/shelves/${b.shelf_id}`} className="inline-flex items-center gap-1 rounded-lg border border-rule-strong px-3 py-1.5 text-xs font-medium hover:bg-paper"><Layers className="h-3.5 w-3.5" /> Series · Vol. {b.volume_no ?? "?"}</Link>
