@@ -9,6 +9,7 @@ import { BOOK_TYPE_LABELS, type BookType } from "../opportunity";
 import { loadPublishingProfile, profileAuthor } from "../publishing/profile";
 import { normalizeCoverStyle } from "../shelves/core";
 import { TRIM_SIZES, type TrimSize } from "../pdf/kdp-specs";
+import { KINDLE_COVER_PX } from "../cover/kindle";
 import { isOwnAssetKey, readAssets, type BookAssets } from "./assets";
 import type { MockupAvailability, MockupKind } from "./kinds";
 import type { ImageRef, MockupInputs } from "./templates";
@@ -178,7 +179,8 @@ export async function loadMockupSource(userId: string, bookId: string): Promise<
       front: images?.front ?? null,
       spine: images?.spine ?? null,
       spineRatio: images?.spineIn ? images.spineIn / trimH : 0.02,
-      aspect: trim.widthIn / trim.heightIn,
+      // Kindle covers are 1600 × 2560 px, not a print trim.
+      aspect: book.book_type === "ebook" ? KINDLE_COVER_PX.width / KINDLE_COVER_PX.height : trim.widthIn / trim.heightIn,
       previews,
       volumes,
       title: book.title,

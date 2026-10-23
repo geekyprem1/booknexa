@@ -2,10 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient, getAccountSession } from "@/lib/supabase/server";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { requireMutationRow } from "@/lib/supabase/errors";
-import { isCanonicalCoverVariationObjectKey } from "@/lib/storage";
+import { getBytes, isCanonicalCoverVariationObjectKey } from "@/lib/storage";
+import { applyStudioCoverToPrintBook, CoverNotReadyError, CoverTrimMismatchError } from "@/lib/books/studio-cover";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -45,7 +47,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   const [coverResult, bookResult] = await Promise.all([
     supabase.from("covers").select("id, variation_keys").eq("id", id).maybeSingle(),
-    supabase.from("books").select("id").eq("id", bookId).maybeSingle(),
+    supabase.from("books").select("id, book_type").eq("id", bookId).maybeSingle(),
   ]);
   if (coverResult.error || bookResult.error) {
     console.error("[cover-use] ownership lookup failed:", coverResult.error ?? bookResult.error);
@@ -65,6 +67,21 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: "Cover variation not found" }, { status: 404 });
   }
 
+  // Print books: KDP needs a wraparound PDF, not the front image. Build it now.
+  if (bookResult.data.book_type !== "ebook") {
+    try {
+      await applyStudioCoverToPrintBook(user.id, bookId, await getBytes(key));
+      return NextResponse.json({ ok: true, wrap: true });
+    } catch (error) {
+      if (error instanceof CoverTrimMismatchError || error instanceof CoverNotReadyError) {
+        return NextResponse.json({ error: error.message }, { status: 422 });
+      }
+      console.error("[cover-use] wrap build failed:", error);
+      return NextResponse.json({ error: "Could not build the paperback cover" }, { status: 500 });
+    }
+  }
+
+  // Ebooks: KDP takes the front image as-is.
   try {
     const updateResult = await getSupabaseAdminClient()
       .from("books")

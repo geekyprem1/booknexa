@@ -84,16 +84,27 @@ export async function generatePackageData(ctx: PublishContext): Promise<PackageD
 
 export function buildChecklist(ctx: PublishContext, series: SeriesInfo | null | undefined = ctx.series): string {
   const bleed = ctx.bookType === "coloring" ? "Bleed (edge-to-edge art)" : "No Bleed";
+  const isEbook = ctx.bookType === "ebook";
+  // Kindle eBook: reflowable manuscript + a separate JPEG cover, no trim/bleed.
+  // Paperback: interior PDF + one wraparound cover PDF (back, spine, front).
+  const files = isEbook
+    ? [
+        "[ ] Kindle eBook Content → upload manuscript (manuscript.epub)",
+        "[ ] Kindle eBook Content → upload cover (cover.jpg, front cover only)",
+      ]
+    : [
+        "[ ] Upload interior PDF (interior.pdf)",
+        "[ ] Upload cover PDF (cover.pdf, one file: back + spine + front)",
+        `[ ] Select trim size: ${ctx.trim}`,
+        `[ ] Select bleed setting: ${bleed}`,
+      ];
   return [
     `KDP PUBLISHING CHECKLIST — ${ctx.title}`,
     "",
-    "[ ] Upload interior PDF (interior.pdf)",
-    `[ ] Upload cover PDF (cover.${ctx.bookType === "ebook" ? "png" : "pdf"})`,
-    `[ ] Select trim size: ${ctx.trim}`,
-    `[ ] Select bleed setting: ${bleed}`,
+    ...files,
     "[ ] Enter title (see metadata.json)",
     "[ ] Enter subtitle (see metadata.json)",
-    ...(series ? [`[ ] Add to series: "${series.name}", number ${series.number} (Paperback Details → Series)`] : []),
+    ...(series ? [`[ ] Add to series: "${series.name}", number ${series.number} (${isEbook ? "Kindle eBook" : "Paperback"} Details → Series)`] : []),
     "[ ] Enter 7 keywords (see keywords.txt)",
     "[ ] Enter categories (see categories.txt)",
     "[ ] Paste description (description.txt)",

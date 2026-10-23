@@ -102,7 +102,13 @@ export default async function MyBooksPage() {
                         <a href={`/api/ebook/${b.id}/export?format=pdf`} className="rounded-lg border border-rule-strong px-3 py-1.5 text-xs font-medium hover:bg-paper">PDF</a>
                         <a href={`/api/ebook/${b.id}/export?format=epub`} className="rounded-lg border border-rule-strong px-3 py-1.5 text-xs font-medium hover:bg-paper">EPUB</a>
                         <a href={`/api/ebook/${b.id}/export?format=docx`} className="rounded-lg border border-rule-strong px-3 py-1.5 text-xs font-medium hover:bg-paper">DOCX</a>
+                        <a href={`/api/ebook/${b.id}/cover`} className="inline-flex items-center gap-1 rounded-lg border border-rule-strong px-3 py-1.5 text-xs font-medium hover:bg-paper"><FileImage className="h-3.5 w-3.5" /> Kindle Cover</a>
                         <Link href={`/dashboard/books/${b.id}`} className="inline-flex items-center gap-1 rounded-lg border border-rule-strong px-3 py-1.5 text-xs font-medium hover:bg-paper"><Package className="h-3.5 w-3.5" /> Launch Kit</Link>
+                        {b.series_id && b.shelf_id ? (
+                          <Link href={`/dashboard/shelves/${b.shelf_id}`} className="inline-flex items-center gap-1 rounded-lg border border-rule-strong px-3 py-1.5 text-xs font-medium hover:bg-paper"><Layers className="h-3.5 w-3.5" /> Series · Vol. {b.volume_no ?? "?"}</Link>
+                        ) : (
+                          <Link href={`/dashboard/books/${b.id}#series`} className="inline-flex items-center gap-1 rounded-lg border border-rule-strong px-3 py-1.5 text-xs font-medium hover:bg-paper"><Layers className="h-3.5 w-3.5" /> Make series</Link>
+                        )}
                       </div>
                     )}
 

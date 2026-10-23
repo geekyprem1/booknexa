@@ -38,7 +38,10 @@ export default async function BookDetailPage({ params }: { params: Promise<{ id:
     data: { user },
   } = await supabase.auth.getUser();
   const mockupState = user && book.status === "completed" ? await quickMockupState(user.id, book.id) : null;
-  const canStartSeries = !book.series_id && book.status === "completed" && BOOK_TYPES.includes(book.book_type as PipelineBookType);
+  const canStartSeries =
+    !book.series_id &&
+    book.status === "completed" &&
+    (book.book_type === "ebook" || BOOK_TYPES.includes(book.book_type as PipelineBookType));
 
   const { data: pkgRow } = await supabase
     .from("book_publish_packages")
@@ -93,6 +96,7 @@ export default async function BookDetailPage({ params }: { params: Promise<{ id:
               <a href={`/api/ebook/${book.id}/export?format=pdf`} className="rounded border border-ink px-3 py-1.5 text-xs font-medium">PDF</a>
               <a href={`/api/ebook/${book.id}/export?format=epub`} className="rounded border border-ink px-3 py-1.5 text-xs font-medium">EPUB</a>
               <a href={`/api/ebook/${book.id}/export?format=docx`} className="rounded border border-ink px-3 py-1.5 text-xs font-medium">DOCX</a>
+              <a href={`/api/ebook/${book.id}/cover`} className="rounded border border-ink px-3 py-1.5 text-xs font-medium">Kindle Cover (JPG)</a>
             </div>
           ) : (
             <div className="mt-3 flex flex-wrap gap-2">
@@ -136,6 +140,7 @@ export default async function BookDetailPage({ params }: { params: Promise<{ id:
             defaultShelfName={book.theme || seriesNameFromTitle(book.title)}
             shelves={shelves}
             currentShelfId={book.shelf_id ?? null}
+            isEbook={isEbook}
           />
         </div>
       )}

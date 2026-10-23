@@ -6,9 +6,11 @@ import {
   getCoverVariationSignedUrl,
 } from "@/lib/storage";
 import { rateLimit, rateLimitResponse } from "@/lib/util/rate-limit";
+import { CoverNotReadyError, CoverTrimMismatchError, repairPrintCover } from "@/lib/books/studio-cover";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 export async function GET(
   req: NextRequest,
@@ -32,7 +34,7 @@ export async function GET(
   // RLS ensures the user can only read their own book.
   const { data: book } = await supabase
     .from("books")
-    .select("id, interior_key, cover_key, status")
+    .select("id, book_type, interior_key, cover_key, status")
     .eq("id", id)
     .single();
 
@@ -41,7 +43,22 @@ export async function GET(
     return NextResponse.json({ error: "Book is not ready yet" }, { status: 409 });
   }
 
-  const key = part === "cover" ? book.cover_key : book.interior_key;
+  let coverKey: string | null = book.cover_key;
+  if (part === "cover") {
+    // A print book whose cover_key still points at a Studio front PNG gets its
+    // wraparound PDF built once here (KDP rejects a front-only paperback cover).
+    try {
+      coverKey = await repairPrintCover(user.id, book);
+    } catch (error) {
+      if (error instanceof CoverTrimMismatchError || error instanceof CoverNotReadyError) {
+        return NextResponse.json({ error: error.message }, { status: 422 });
+      }
+      console.error("[download] cover repair failed:", error);
+      return NextResponse.json({ error: "Could not build the paperback cover" }, { status: 500 });
+    }
+  }
+
+  const key = part === "cover" ? coverKey : book.interior_key;
   if (!key) return NextResponse.json({ error: "File unavailable" }, { status: 404 });
 
   let url: string | null = null;

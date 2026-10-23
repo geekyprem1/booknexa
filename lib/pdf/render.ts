@@ -100,6 +100,10 @@ export interface PngOptions {
   dpi?: number;
   /** Allow the Google Fonts CDN — required for the Cover Studio's genre typography. */
   allowFontCdn?: boolean;
+  /** Output format. Default PNG; JPEG is what KDP accepts for Kindle eBook covers. */
+  type?: "png" | "jpeg";
+  /** JPEG quality 0–100 (ignored for PNG). Default 92. */
+  quality?: number;
 }
 
 const CSS_PX_PER_IN = 96;
@@ -133,10 +137,11 @@ export async function renderPng(
     } catch {
       /* font readiness is best-effort; proceed with whatever is loaded */
     }
-    return await page.screenshot({
-      type: "png",
-      clip: { x: 0, y: 0, width, height },
-    });
+    const clip = { x: 0, y: 0, width, height };
+    if (opts.type === "jpeg") {
+      return await page.screenshot({ type: "jpeg", quality: opts.quality ?? 92, clip });
+    }
+    return await page.screenshot({ type: "png", clip });
   } finally {
     await page.close();
   }

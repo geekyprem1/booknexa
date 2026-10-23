@@ -3,6 +3,9 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getBytes } from "@/lib/storage";
 import { buildPackageZip, type PackageAsset, type PackageData, type PublishContext } from "@/lib/publishing";
 import { buildEbookPdf } from "@/lib/export/pdf";
+import { buildEpub } from "@/lib/export/epub";
+import { kindleCoverJpeg } from "@/lib/cover/kindle";
+import { CoverNotReadyError, CoverTrimMismatchError, repairPrintCover } from "@/lib/books/studio-cover";
 import { TRIM_SIZES, type TrimSize } from "@/lib/pdf/kdp-specs";
 import { rateLimit, rateLimitResponse } from "@/lib/util/rate-limit";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -18,6 +21,7 @@ const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(
 /** Gather interior + cover bytes for any book type. */
 async function bookAssets(
   supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  userId: string,
   book: { id: string; title: string; book_type: string; trim_size?: string | null; interior_key: string | null; cover_key: string | null; config: unknown }
 ): Promise<PackageAsset[]> {
   const assets: PackageAsset[] = [];
@@ -33,22 +37,25 @@ async function bookAssets(
     // The interior PDF must match the trim the package declares in its metadata.
     const trimRaw = book.trim_size ?? "6x9";
     const trim = (trimRaw in TRIM_SIZES ? trimRaw : "6x9") as TrimSize;
-    const pdf = await buildEbookPdf(
-      {
-        title: book.title,
-        subtitle,
-        author: cfg.author ?? "BookNexa",
-        chapters: (chapters ?? []).map((c) => ({ idx: c.idx, title: c.title, contentMd: c.content_md })),
-      },
-      { trim }
-    );
-    assets.push({ name: "interior.pdf", bytes: pdf });
-    if (book.cover_key) assets.push({ name: "cover.png", bytes: await getBytes(book.cover_key) });
+    const ebookData = {
+      title: book.title,
+      subtitle,
+      author: cfg.author ?? "BookNexa",
+      chapters: (chapters ?? []).map((c) => ({ idx: c.idx, title: c.title, contentMd: c.content_md })),
+    };
+    // Kindle manuscript: EPUB is KDP's recommended eBook format. The PDF stays
+    // for a print edition.
+    assets.push({ name: "manuscript.epub", bytes: await buildEpub(ebookData) });
+    assets.push({ name: "interior.pdf", bytes: await buildEbookPdf(ebookData, { trim }) });
+    // Kindle cover: KDP takes JPEG or TIFF, not PNG.
+    if (book.cover_key) assets.push({ name: "cover.jpg", bytes: await kindleCoverJpeg(await getBytes(book.cover_key)) });
     return assets;
   }
 
   if (book.interior_key) assets.push({ name: "interior.pdf", bytes: await getBytes(book.interior_key) });
-  if (book.cover_key) assets.push({ name: "cover.pdf", bytes: await getBytes(book.cover_key) });
+  // Print books must ship a wraparound PDF; convert a legacy Studio PNG first.
+  const coverKey = await repairPrintCover(userId, book);
+  if (coverKey) assets.push({ name: "cover.pdf", bytes: await getBytes(coverKey) });
   return assets;
 }
 
@@ -116,7 +123,15 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     alternativeTitles: (pkg.alternative_titles as string[]) ?? [],
   };
 
-  const assets = await bookAssets(supabase, book);
+  let assets: PackageAsset[];
+  try {
+    assets = await bookAssets(supabase, user.id, book);
+  } catch (error) {
+    if (error instanceof CoverTrimMismatchError || error instanceof CoverNotReadyError) {
+      return NextResponse.json({ error: error.message }, { status: 422 });
+    }
+    throw error;
+  }
   assets.push(...(await mockupAssets(user.id, book.id)));
   const zip = await buildPackageZip({ ctx, data, assets });
 
