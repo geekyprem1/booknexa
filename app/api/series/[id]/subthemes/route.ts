@@ -35,7 +35,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     return serverError("load series", e);
   }
   const theme = typeof series.base_input?.theme === "string" ? series.base_input.theme : "";
-  if (!theme) return badRequest("Subthemes only apply to themed series (word search, coloring, scramble, crossword, activity).");
+  if (!theme) return badRequest("Subthemes only apply to themed series (ebook, word search, coloring, scramble, crossword, activity).");
 
   try {
     await reserve(user.id, COST, "series_subthemes", series.id);
@@ -47,9 +47,19 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
 
   try {
     const typeLabel = BOOK_TYPE_LABEL[series.book_type as PipelineBookType] ?? series.book_type;
+    const isEbook = series.book_type === "ebook";
+    const ebookAudience = typeof series.base_input?.audience === "string" ? series.base_input.audience : "";
+    const audience = shelf?.audience || (isEbook ? ebookAudience : "");
     const { data: subthemes } = await generateJson<string[]>({
-      system: "You plan Amazon KDP low-content book series. Reply with JSON only.",
-      prompt: `A ${typeLabel} series has the theme "${theme}"${shelf?.audience ? ` for ${shelf.audience}` : ""}.
+      system: isEbook
+        ? "You plan Amazon KDP non-fiction ebook series. Reply with JSON only."
+        : "You plan Amazon KDP low-content book series. Reply with JSON only.",
+      prompt: isEbook
+        ? `A non-fiction ebook series covers the topic "${theme}"${audience ? ` for ${audience}` : ""}.
+Suggest 10 distinct subtopics, one per volume, so each volume is a different book that doesn't repeat the others.
+Each subtopic: 2–6 words, specific enough to fill a short ebook, clearly inside the main topic, no numbering.
+Return a JSON array of 10 strings.`
+        : `A ${typeLabel} series has the theme "${theme}"${audience ? ` for ${audience}` : ""}.
 Suggest 10 distinct subthemes, one per volume, so each volume gets a different word list or set of pages.
 Each subtheme: 1–4 words, concrete, family-friendly, clearly inside the main theme, no numbering.
 Return a JSON array of 10 strings.`,

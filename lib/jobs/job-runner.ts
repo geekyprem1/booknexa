@@ -3,6 +3,7 @@
 import { getSupabaseAdminClient } from "../supabase/admin";
 import { generateAndStoreBook, normalizeSeed, type PipelineBookType } from "../books/pipeline";
 import { generateAndStoreEbook } from "../books/ebook-pipeline";
+import type { EbookCoverStyle } from "../generators/ebook/cover";
 import { generateAndStoreStorybook } from "../books/storybook-pipeline";
 import { runAutopilotBooks } from "../books/autopilot-pipeline";
 import { claimJob, markCompleted, markFailed, progressUpdater } from "./job-progress";
@@ -16,6 +17,15 @@ function jobCoverStyle(raw: unknown): CoverStyle | undefined {
   const badge = (raw as Record<string, unknown>).badge;
   if (typeof badge === "string" && badge.trim()) style.badge = badge.trim().slice(0, 24);
   return style.background || style.spineColor || style.badge ? style : undefined;
+}
+
+/** Series ebook cover: shelf color + badge, plus a palette key so volumes match. */
+function ebookCoverStyle(raw: unknown): EbookCoverStyle | undefined {
+  const style = jobCoverStyle(raw);
+  const key = raw && typeof raw === "object" ? (raw as Record<string, unknown>).paletteKey : undefined;
+  const paletteKey = typeof key === "string" && key.trim() ? key.trim().slice(0, 160) : undefined;
+  if (!style && !paletteKey) return undefined;
+  return { background: style?.background, badge: style?.badge, paletteKey };
 }
 
 async function discardFencedBook(bookId: string, userId: string): Promise<void> {
@@ -90,10 +100,14 @@ export async function runJob(jobId: string): Promise<void> {
           title: input.title as string | undefined,
           author: input.author as string | undefined,
           trimSize: input.trimSize as string | undefined,
+          coverStyle: ebookCoverStyle(input.coverStyle),
         },
         {
           opportunity: input.opportunity,
           autopilotRunId: (input.autopilotRunId as string | undefined) ?? null,
+          shelfId: typeof input.shelfId === "string" ? input.shelfId : null,
+          seriesId: typeof input.seriesId === "string" ? input.seriesId : null,
+          volumeNo: Number.isInteger(input.volumeNo) && (input.volumeNo as number) > 0 ? (input.volumeNo as number) : null,
           onProgress,
         }
       );

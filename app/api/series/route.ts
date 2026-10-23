@@ -10,6 +10,7 @@ import {
   optionalText,
   seriesNameFromTitle,
 } from "@/lib/shelves/core";
+import { ebookInputFromBook, parseEbookSeriesInput } from "@/lib/shelves/ebook";
 import { getShelf, isUuid, SERIES_COLUMNS, SHELF_COLUMNS, type ShelfRow } from "@/lib/shelves/store";
 import { badRequest, jsonBody, notFound, serverError, shelfRouteUser } from "@/lib/shelves/http";
 
@@ -40,7 +41,7 @@ export async function POST(req: NextRequest) {
 
   try {
     // â”€â”€ source: an existing book, or a fresh request â”€â”€
-    let bookType: PipelineBookType;
+    let bookType: PipelineBookType | "ebook";
     let baseInput: Record<string, unknown>;
     let defaultName: string;
     let sourceBookId: string | null = null;
@@ -55,29 +56,48 @@ export async function POST(req: NextRequest) {
         .maybeSingle();
       if (error) throw error;
       if (!book) return notFound("Book");
-      if (!BOOK_TYPES.includes(book.book_type as PipelineBookType)) {
-        return badRequest("Series work with print book types (puzzles, workbooks, journals, coloring).");
+      const isEbook = book.book_type === "ebook";
+      if (!isEbook && !BOOK_TYPES.includes(book.book_type as PipelineBookType)) {
+        return badRequest("Series work with ebooks and print book types (puzzles, workbooks, journals, coloring).");
       }
       if (book.status !== "completed") return badRequest("Only finished books can start a series.");
       if (book.series_id) return NextResponse.json({ error: "This book is already in a series." }, { status: 409 });
 
-      const { data: job } = await admin
+      // Ebooks: only an "ebook" job holds the original request (an Autopilot
+      // job is linked to its first book but stores a different input shape).
+      let jobQuery = admin
         .from("generation_jobs")
         .select("input")
         .eq("book_id", book.id)
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      const raw = job?.input
-        ? baseInputFromJob(job.input as Record<string, unknown>)
-        : baseInputFromBook(book as Parameters<typeof baseInputFromBook>[0]);
-      const parsed = parseBookRequest({ ...raw, bookType: book.book_type });
-      if (!parsed.ok) return badRequest(`Can't reuse this book's settings: ${parsed.error}`);
-      bookType = parsed.bookType;
-      baseInput = storedBaseInput(parsed);
+        .eq("user_id", user.id);
+      if (isEbook) jobQuery = jobQuery.eq("job_type", "ebook");
+      const { data: job } = await jobQuery.order("created_at", { ascending: false }).limit(1).maybeSingle();
+
+      if (isEbook) {
+        const raw = job?.input
+          ? baseInputFromJob(job.input as Record<string, unknown>)
+          : ebookInputFromBook(book as Parameters<typeof ebookInputFromBook>[0]);
+        const parsed = parseEbookSeriesInput(raw);
+        if (!parsed.ok) return badRequest(`Can't reuse this book's settings: ${parsed.error}`);
+        bookType = "ebook";
+        baseInput = { ...parsed.input };
+      } else {
+        const raw = job?.input
+          ? baseInputFromJob(job.input as Record<string, unknown>)
+          : baseInputFromBook(book as Parameters<typeof baseInputFromBook>[0]);
+        const parsed = parseBookRequest({ ...raw, bookType: book.book_type });
+        if (!parsed.ok) return badRequest(`Can't reuse this book's settings: ${parsed.error}`);
+        bookType = parsed.bookType;
+        baseInput = storedBaseInput(parsed);
+      }
       defaultName = seriesNameFromTitle(book.title);
       sourceBookId = book.id;
+    } else if (body.request && typeof body.request === "object" && !Array.isArray(body.request) && (body.request as Record<string, unknown>).bookType === "ebook") {
+      const parsed = parseEbookSeriesInput(body.request as Record<string, unknown>);
+      if (!parsed.ok) return badRequest(parsed.error);
+      bookType = "ebook";
+      baseInput = { ...parsed.input };
+      defaultName = parsed.input.theme;
     } else if (body.request && typeof body.request === "object" && !Array.isArray(body.request)) {
       const parsed = parseBookRequest(body.request as Record<string, unknown>);
       if (!parsed.ok) return badRequest(parsed.error);

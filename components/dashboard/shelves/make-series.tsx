@@ -12,19 +12,21 @@ export interface ShelfOption {
 
 const NEW = "__new__";
 
-/** Book detail: turn a finished print book into Vol. 1 of a series. */
+/** Book detail: turn a finished print book or ebook into Vol. 1 of a series. */
 export function MakeSeries({
   bookId,
   defaultName,
   defaultShelfName,
   shelves,
   currentShelfId,
+  isEbook = false,
 }: {
   bookId: string;
   defaultName: string;
   defaultShelfName: string;
   shelves: ShelfOption[];
   currentShelfId: string | null;
+  isEbook?: boolean;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -61,7 +63,9 @@ export function MakeSeries({
     <div className="rounded-lg border border-rule p-5">
       <h2 className="font-semibold">Turn this into a series</h2>
       <p className="mt-1 text-sm text-ink-soft">
-        This book becomes Vol. 1. Every next volume reuses its settings with brand-new puzzles, a numbered title and a matching cover.
+        {isEbook
+          ? "This ebook becomes Vol. 1. Every next volume reuses its audience, tone and length, covers a new subtopic, and gets a numbered title and a matching cover."
+          : "This book becomes Vol. 1. Every next volume reuses its settings with brand-new puzzles, a numbered title and a matching cover."}
       </p>
       {!open ? (
         <button type="button" onClick={() => setOpen(true)} className={`${BTN_PRIMARY} mt-4`}>

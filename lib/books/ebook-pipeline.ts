@@ -7,6 +7,7 @@ import { getSupabaseAdminClient } from "../supabase/admin";
 import { requireMutationRow, requireMutationRows } from "../supabase/errors";
 import { putBytes, bookObjectKey } from "../storage";
 import { buildEbook } from "../generators/ebook";
+import type { EbookCoverStyle } from "../generators/ebook/cover";
 import { loadPublishingProfile, profileAuthor } from "../publishing/profile";
 import { TRIM_SIZES, type TrimSize } from "../pdf/kdp-specs";
 
@@ -21,6 +22,8 @@ export interface EbookGenInput {
   author?: string;
   /** KDP trim size stored on the book (defaults to 6x9). */
   trimSize?: string;
+  /** Series volumes: shelf color, "VOL. n" badge, shared palette. */
+  coverStyle?: EbookCoverStyle;
 }
 
 export interface StoredEbook {
@@ -35,6 +38,10 @@ export async function generateAndStoreEbook(
   opts?: {
     opportunity?: unknown;
     autopilotRunId?: string | null;
+    /** Shelf Suite grouping (series volumes). Only written when set, like the print pipeline. */
+    shelfId?: string | null;
+    seriesId?: string | null;
+    volumeNo?: number | null;
     onProgress?: (step: string, percent: number) => void | Promise<void>;
   }
 ): Promise<StoredEbook> {
@@ -60,8 +67,14 @@ export async function generateAndStoreEbook(
     title: input.title,
     author,
     trim,
+    coverStyle: input.coverStyle,
   });
   await progress("Saving", 75);
+
+  const grouping: Record<string, unknown> = {};
+  if (opts?.shelfId) grouping.shelf_id = opts.shelfId;
+  if (opts?.seriesId) grouping.series_id = opts.seriesId;
+  if (opts?.volumeNo) grouping.volume_no = opts.volumeNo;
 
   const insertResult = await admin
     .from("books")
@@ -77,6 +90,7 @@ export async function generateAndStoreEbook(
       config: { audience: built.audience, tone: built.tone, author: built.author },
       opportunity: opts?.opportunity ?? null,
       autopilot_run_id: opts?.autopilotRunId ?? null,
+      ...grouping,
     })
     .select("id")
     .single();

@@ -111,6 +111,8 @@ export default async function ShelfDetailPage({ params }: { params: Promise<{ id
           {series.map((s) => {
             const base = s.base_input ?? {};
             const count = typeof base.count === "number" ? base.count : undefined;
+            const chapterCount = typeof base.chapterCount === "number" ? base.chapterCount : undefined;
+            const isEbook = s.book_type === "ebook";
             return (
               <SeriesCard
                 key={s.id}
@@ -122,7 +124,8 @@ export default async function ShelfDetailPage({ params }: { params: Promise<{ id
                   subthemes: s.subthemes ?? [],
                   nextVolume: s.next_volume,
                   themed: typeof base.theme === "string" && base.theme.length > 0,
-                  unitCost: costFor(s.book_type as CostableAction, { count }),
+                  unitCost: costFor(s.book_type as CostableAction, isEbook ? { chapterCount } : { count }),
+                  isEbook,
                 }}
                 volumes={books
                   .filter((b) => b.series_id === s.id)

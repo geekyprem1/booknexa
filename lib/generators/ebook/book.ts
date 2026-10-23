@@ -7,7 +7,7 @@
 import { generateOutline } from "../../ai/outline";
 import { writeChapter, wordCount } from "../../ai/chapter";
 import { generateMetadata } from "../../ai/metadata";
-import { buildEbookCover } from "./cover";
+import { buildEbookCover, type EbookCoverStyle } from "./cover";
 import type { TrimSize } from "../../pdf/kdp-specs";
 
 const DEFAULT_AUTHOR = "BookNexa";
@@ -39,6 +39,8 @@ export interface EbookBuildOptions {
   author?: string;
   /** KDP trim size printed on the cover (defaults to 6×9). */
   trim?: TrimSize;
+  /** Series volumes: shelf color, "VOL. n" badge, shared palette. */
+  coverStyle?: EbookCoverStyle;
 }
 
 export interface BuiltChapter {
@@ -99,7 +101,7 @@ export async function buildEbook(opts: EbookBuildOptions): Promise<EbookBuildRes
   });
 
   const title = opts.title?.trim() || metadata.title || bookTitle;
-  const coverBytes = await buildEbookCover({ title, subtitle: metadata.subtitle, author, trim: opts.trim });
+  const coverBytes = await buildEbookCover({ title, subtitle: metadata.subtitle, author, trim: opts.trim, style: opts.coverStyle });
 
   return {
     title,

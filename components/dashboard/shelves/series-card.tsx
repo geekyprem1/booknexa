@@ -17,6 +17,8 @@ export interface SeriesCardData {
   themed: boolean;
   /** Credits per volume at the series' settings. */
   unitCost: number;
+  /** Ebook series: every volume needs its own subtheme (no cycling). */
+  isEbook?: boolean;
 }
 
 export interface VolumeData {
@@ -52,6 +54,9 @@ export function SeriesCard({
 
   const sorted = [...volumes].sort((a, b) => (a.volumeNo ?? 0) - (b.volumeNo ?? 0));
   const preview = pattern.replace(/\{name\}/g, name).replace(/\{n\}/g, String(series.nextVolume));
+  // Ebook volume n uses subtheme n; without it there's no new topic to write about.
+  const ebookTopicsLeft = series.isEbook ? Math.max(0, series.subthemes.length - series.nextVolume + 1) : null;
+  const nextSubtheme = series.isEbook ? series.subthemes[series.nextVolume - 1] : undefined;
 
   async function generate() {
     setBusy(true);
@@ -187,9 +192,21 @@ export function SeriesCard({
         <button type="button" onClick={generate} disabled={busy} className={BTN_PRIMARY}>
           {busy ? "Working…" : `Generate Vol. ${series.nextVolume}${count > 1 ? `–${series.nextVolume + count - 1}` : ""}`}
         </button>
-        <span className="pb-2 text-xs text-ink-muted">≈ {series.unitCost * count} credits · same settings, fresh puzzles</span>
+        <span className="pb-2 text-xs text-ink-muted">
+          ≈ {series.unitCost * count} credits · {series.isEbook ? "same style, new subtopic per volume" : "same settings, fresh puzzles"}
+        </span>
       </div>
-      <p className="mt-2 text-xs text-ink-muted">Next title: <span className="font-medium text-ink-soft">{preview}</span></p>
+      <p className="mt-2 text-xs text-ink-muted">
+        Next title: <span className="font-medium text-ink-soft">{preview}</span>
+        {nextSubtheme ? <> · Topic: <span className="font-medium text-ink-soft">{nextSubtheme}</span></> : null}
+      </p>
+      {ebookTopicsLeft !== null && ebookTopicsLeft < count && (
+        <p className="mt-2 text-xs text-clay">
+          {ebookTopicsLeft === 0
+            ? "Add subthemes in Series settings first. Each ebook volume needs its own topic (volume 1 uses the first line)."
+            : `Only ${ebookTopicsLeft} subtheme${ebookTopicsLeft === 1 ? "" : "s"} left for new volumes. Add more in Series settings.`}
+        </p>
+      )}
 
       {queued.length > 0 && (
         <ul className="mt-3 space-y-1 text-sm" aria-live="polite">
