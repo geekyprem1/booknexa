@@ -99,6 +99,27 @@ function timeAgo(iso: string): string {
   return `${n} ${unit}${n === 1 ? "" : "s"} ago`;
 }
 
+/** Back-cover blurb for the paperback wraparound. */
+function BlurbField({ value, onChange, compact = false }: { value: string; onChange: (v: string) => void; compact?: boolean }) {
+  return (
+    <div className="mt-3">
+      <label className={compact ? "block text-[11px] font-medium text-ink-soft" : label}>
+        Back cover blurb <span className="font-normal text-ink-muted">({value.length}/2000)</span>
+      </label>
+      <p className="text-[11px] text-ink-muted">
+        Printed on the back. Leave empty to show just the title and subtitle. Lines starting with &quot;- &quot; become bullets.
+      </p>
+      <textarea
+        value={value}
+        onChange={(e) => onChange(e.target.value.slice(0, 2000))}
+        rows={compact ? 4 : 5}
+        className={`${field} ${compact ? "text-[12px]" : ""}`}
+        placeholder="What the reader gets from this book, in 2 short paragraphs."
+      />
+    </div>
+  );
+}
+
 export function CoverV2Studio({
   styles,
   defaultModel,
@@ -150,6 +171,12 @@ export function CoverV2Studio({
   const [wrapPages, setWrapPages] = useState(String(startBook?.pageCount ?? 120));
   const [wrapPaper, setWrapPaper] = useState("white");
   const [wrapBg, setWrapBg] = useState("#1a1a1a");
+  // Back-cover copy for the wraparound. Prefilled from the picked book's description.
+  const [blurb, setBlurb] = useState(startBook?.description ?? "");
+  const wrapQuery = (v: number) =>
+    `v=${v}&pages=${encodeURIComponent(wrapPages)}&paper=${wrapPaper}` +
+    `&bg=${encodeURIComponent(wrapBg.replace("#", ""))}` +
+    (blurb.trim() ? `&blurb=${encodeURIComponent(blurb.trim().slice(0, 2000))}` : "");
 
   const current = preview?.variations[active] ?? preview?.variations[0] ?? null;
 
@@ -200,6 +227,7 @@ export function CoverV2Studio({
     setNiche(b.niche);
     setGenre(b.genre);
     setTrim(b.trim);
+    setBlurb(b.description);
     if (b.pageCount) setWrapPages(String(b.pageCount));
   }
 
@@ -270,9 +298,7 @@ export function CoverV2Studio({
       // best (first) concept, using the trim/pages/paper/color chosen in the form.
       if (alsoPrint) {
         const idx = json.variations?.[0]?.index ?? 0;
-        const url =
-          `/api/cover/${json.id}/wrap-pdf?v=${idx}&pages=${encodeURIComponent(wrapPages)}` +
-          `&paper=${wrapPaper}&bg=${encodeURIComponent(wrapBg.replace("#", ""))}`;
+        const url = `/api/cover/${json.id}/wrap-pdf?${wrapQuery(idx)}`;
         const a = document.createElement("a");
         a.href = url;
         a.rel = "noopener";
@@ -448,6 +474,8 @@ export function CoverV2Studio({
               />
             </div>
           </div>
+
+          {alsoPrint && <BlurbField value={blurb} onChange={setBlurb} />}
 
           {alsoPrint && (
             <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -664,6 +692,7 @@ export function CoverV2Studio({
                   </select>
                 </div>
               </div>
+              <BlurbField value={blurb} onChange={setBlurb} compact />
               <div className="mt-2 flex items-center gap-2">
                 <label className="text-[11px] font-medium text-ink-soft">Back / spine color</label>
                 <input
@@ -676,9 +705,7 @@ export function CoverV2Studio({
                 <span className="text-[11px] text-ink-muted">{wrapBg}</span>
               </div>
               <a
-                href={`/api/cover/${preview.id}/wrap-pdf?v=${current.index}&pages=${encodeURIComponent(
-                  wrapPages,
-                )}&paper=${wrapPaper}&bg=${encodeURIComponent(wrapBg.replace("#", ""))}`}
+                href={`/api/cover/${preview.id}/wrap-pdf?${wrapQuery(current.index)}`}
                 className="btn-nexa mt-3 flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-[13px] font-semibold"
               >
                 ⤓ Download print wraparound PDF

@@ -54,13 +54,14 @@ export async function applyStudioCoverToPrintBook(userId: string, bookId: string
   const admin = getSupabaseAdminClient();
   const { data, error } = await admin
     .from("books")
-    .select("id, title, trim_size, page_count, config, book_metadata(subtitle)")
+    .select("id, title, trim_size, page_count, config, book_metadata(subtitle, description)")
     .eq("id", bookId)
     .eq("user_id", userId)
     .maybeSingle();
   if (error) throw error;
   if (!data) throw new CoverNotReadyError("Book not found");
-  const book = data as unknown as PrintBookRow & { book_metadata: { subtitle: string | null }[] | { subtitle: string | null } | null };
+  type Meta = { subtitle: string | null; description: string | null };
+  const book = data as unknown as PrintBookRow & { book_metadata: Meta[] | Meta | null };
   if (!book.page_count) throw new CoverNotReadyError("Finish generating the book first: the spine width needs its page count.");
 
   const trimRaw = book.trim_size ?? "8.5x11";
@@ -83,6 +84,7 @@ export async function applyStudioCoverToPrintBook(userId: string, bookId: string
     title: book.title,
     subtitle: meta?.subtitle ?? "",
     author,
+    blurb: meta?.description ?? "",
   });
 
   const coverKey = bookObjectKey(userId, bookId, "cover");

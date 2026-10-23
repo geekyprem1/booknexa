@@ -104,7 +104,7 @@ export default async function CoverV2Page({
   // ── the buyer's finished books, for "pick a book" prefill + "use for this book" ──
   const { data: bookData } = await supabase
     .from("books")
-    .select("id, title, book_type, theme, trim_size, page_count, config, book_metadata(subtitle)")
+    .select("id, title, book_type, theme, trim_size, page_count, config, book_metadata(subtitle, description)")
     .eq("status", "completed")
     .order("created_at", { ascending: false })
     .limit(100);

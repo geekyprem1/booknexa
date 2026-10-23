@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient, getAccountSession } from "@/lib/supabase/server";
 import { getBytes, isCanonicalCoverVariationObjectKey } from "@/lib/storage";
 import { rateLimit, rateLimitResponse } from "@/lib/util/rate-limit";
-import { buildStudioWrapPdf, DEFAULT_WRAP_BG, parseHex } from "@/lib/cover/wrap";
+import { buildStudioWrapPdf, cleanBlurb, DEFAULT_WRAP_BG, parseHex } from "@/lib/cover/wrap";
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 import {
   MIN_PAGE_COUNT,
   type PaperStock,
@@ -77,6 +79,15 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   }
 
   const pageCount = parsePages(sp.get("pages"));
+
+  // Back-cover blurb: typed in the Studio (?blurb=), else the linked book's
+  // description (?book=, RLS-scoped to the owner).
+  let blurb = cleanBlurb(sp.get("blurb"));
+  const bookParam = sp.get("book");
+  if (!blurb && bookParam && UUID.test(bookParam)) {
+    const { data: meta } = await supabase.from("book_metadata").select("description").eq("book_id", bookParam).maybeSingle();
+    blurb = cleanBlurb(meta?.description as string | null | undefined);
+  }
   const { pdf } = await buildStudioWrapPdf({
     frontPng: await getBytes(key),
     trim: parseTrim((cover.trim as string) ?? "6x9"),
@@ -86,6 +97,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     title: (cover.title as string) ?? "",
     subtitle: (cover.subtitle as string) ?? "",
     author: (cover.author as string) ?? "",
+    blurb,
   });
   return new NextResponse(Buffer.from(pdf), {
     headers: {

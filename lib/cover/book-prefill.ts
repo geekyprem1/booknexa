@@ -5,11 +5,14 @@
 
 import { TRIM_SIZES } from "../pdf/kdp-specs";
 import type { CoverGenre } from "./types";
+import { cleanBlurb } from "./blurb";
 
 export interface CoverBookOption {
   id: string;
   title: string;
   subtitle: string;
+  /** Book description, used as the back-cover blurb. */
+  description: string;
   niche: string;
   author: string;
   genre: CoverGenre;
@@ -30,6 +33,8 @@ export function genreForBookType(bookType: string): CoverGenre {
   return "self_help";
 }
 
+type Meta = { subtitle: string | null; description?: string | null };
+
 export function coverBookOption(
   book: {
     id: string;
@@ -39,7 +44,7 @@ export function coverBookOption(
     trim_size: string | null;
     page_count: number | null;
     config: Record<string, unknown> | null;
-    book_metadata: { subtitle: string | null }[] | { subtitle: string | null } | null;
+    book_metadata: Meta[] | Meta | null;
   },
   fallbackAuthor: string,
   typeLabel: string
@@ -52,6 +57,7 @@ export function coverBookOption(
     id: book.id,
     title: book.title,
     subtitle: meta?.subtitle ?? "",
+    description: cleanBlurb(meta?.description),
     niche: book.theme ?? "",
     author,
     genre: genreForBookType(book.book_type),

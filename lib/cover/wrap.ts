@@ -12,6 +12,7 @@ import { escapeHtml } from "../html/escape";
 import { renderPdf, renderPng } from "../pdf/render";
 import { computeCover, TRIM_SIZES, BLEED_IN, type CoverSpec, type PaperStock, type TrimSize } from "../pdf/kdp-specs";
 import { pngSize } from "../cover-v2/geometry";
+import { cleanBlurb } from "./blurb";
 
 export const DEFAULT_WRAP_BG = "#1a1a1a";
 
@@ -95,6 +96,95 @@ export interface StudioWrapInput {
   title: string;
   subtitle?: string;
   author?: string;
+  /** Back-cover blurb (the book description). Plain text; "- " lines become bullets. */
+  blurb?: string;
+}
+
+/** KDP prints its barcode in a 2" × 1.2" box, 0.25" in from the back's bottom-right trim. */
+export const BARCODE_W_IN = 2;
+export const BARCODE_H_IN = 1.2;
+const BARCODE_INSET_IN = 0.25;
+export { cleanBlurb, MAX_BLURB_CHARS } from "./blurb";
+
+export interface BlurbBlock { kind: "p" | "li"; text: string }
+
+/** Blurb → blocks: paragraphs, and "- " lines as bullets. */
+export function blurbBlocks(blurb: string): BlurbBlock[] {
+  const out: BlurbBlock[] = [];
+  let para: string[] = [];
+  const flushPara = () => {
+    if (para.length) out.push({ kind: "p", text: para.join(" ") });
+    para = [];
+  };
+  for (const line of blurb.split(/\r?\n/)) {
+    const t = line.trim();
+    const bullet = /^[-•*]\s+(.*)$/.exec(t);
+    if (bullet) { flushPara(); if (bullet[1].trim()) out.push({ kind: "li", text: bullet[1].trim() }); continue; }
+    if (!t) { flushPara(); continue; }
+    para.push(t);
+  }
+  flushPara();
+  return out;
+}
+
+/** Blocks → escaped HTML, with consecutive bullets in one list. */
+function blocksHtml(blocks: BlurbBlock[]): string {
+  const out: string[] = [];
+  let list: string[] = [];
+  const flush = () => {
+    if (list.length) out.push(`<ul>${list.join("")}</ul>`);
+    list = [];
+  };
+  for (const b of blocks) {
+    if (b.kind === "li") { list.push(`<li>${escapeHtml(b.text)}</li>`); continue; }
+    flush();
+    out.push(`<p>${escapeHtml(b.text)}</p>`);
+  }
+  flush();
+  return out.join("");
+}
+
+// Arial averages ~0.5em per character; keep 12% slack for ragged line ends.
+const charsPerLine = (pt: number, widthIn: number, indentIn = 0) =>
+  Math.max(10, Math.floor(((widthIn - indentIn) * 72 * 0.88) / (pt * 0.5)));
+
+/** Estimated height (in) of the blocks at a body size, incl. paragraph gaps. */
+function blocksHeightIn(blocks: BlurbBlock[], pt: number, widthIn: number): number {
+  let h = 0;
+  for (const b of blocks) {
+    const li = b.kind === "li";
+    const lines = Math.ceil(b.text.length / charsPerLine(pt, widthIn, li ? 0.2 : 0));
+    h += lines * (pt / 72) * (li ? 1.4 : 1.45) + (li ? 0.04 : 0.12);
+  }
+  return h;
+}
+
+/**
+ * Fit the blurb into the body box: the largest size (12 → 8.5pt) that fits,
+ * and if even 8.5pt is too long, drop trailing blocks and end the last one on
+ * a whole sentence with "…". Nothing is ever cut mid-line by CSS.
+ */
+export function fitBlurb(blurb: string, widthIn: number, heightIn: number): { pt: number; blocks: BlurbBlock[] } {
+  const blocks = blurbBlocks(blurb);
+  for (const pt of [12, 11.5, 11, 10.5, 10, 9.5, 9, 8.5]) {
+    if (blocksHeightIn(blocks, pt, widthIn) <= heightIn) return { pt, blocks };
+  }
+  const pt = 8.5;
+  const kept: BlurbBlock[] = [];
+  for (const b of blocks) {
+    if (blocksHeightIn([...kept, b], pt, widthIn) <= heightIn) { kept.push(b); continue; }
+    // Shorten this block to whole sentences that still fit.
+    const sentences = b.text.match(/[^.!?]+[.!?]+["')\]]*\s*|[^.!?]+$/g) ?? [b.text];
+    let text = "";
+    for (const s of sentences) {
+      const next = (text + s).trim();
+      if (blocksHeightIn([...kept, { ...b, text: `${next}…` }], pt, widthIn) > heightIn) break;
+      text = next;
+    }
+    if (text) kept.push({ ...b, text: /[.!?]["')\]]*$/.test(text) ? text : `${text}…` });
+    break;
+  }
+  return { pt, blocks: kept };
 }
 
 export interface StudioWrap {
@@ -122,7 +212,21 @@ export function studioWrapHtml(input: StudioWrapInput): StudioWrap {
   // Clearance from trim/fold edges for text. 0.5in keeps letters well clear of the
   // trim tolerance so nothing looks clipped at the edge.
   const SAFE = 0.5;
-  const backTextWidth = Math.max(1, spec.panelWidthIn - 2 * SAFE - spec.bleedIn);
+  const backTextWidth = Math.max(1, spec.panelWidthIn - 2 * SAFE);
+
+  // Text stops above KDP's barcode box (plus a small gap) across the full width,
+  // so a long blurb can never run under the barcode.
+  const topIn = SAFE + spec.bleedIn;
+  const reservedBottomIn = spec.bleedIn + BARCODE_INSET_IN + BARCODE_H_IN + 0.25;
+  const backTextHeight = Math.max(1, spec.fullHeightIn - topIn - reservedBottomIn);
+  const blurb = cleanBlurb(input.blurb);
+  // Space above the body: title + subtitle lines + rule; below it: the author line.
+  const subLines = subtitle ? Math.ceil((input.subtitle ?? "").length / charsPerLine(11, backTextWidth)) : 0;
+  const headIn = 0.45 + subLines * 0.21 + (subtitle ? 0.18 : 0) + 0.2;
+  const authorIn = author ? 0.42 : 0;
+  const bodyHeight = Math.max(0.5, backTextHeight - headIn - authorIn);
+  const fitted = fitBlurb(blurb, backTextWidth, bodyHeight);
+  const bodyPt = fitted.pt;
 
   const spineText = spec.allowsSpineText
     ? `<div class="spine-text">${title}${author ? ` &nbsp;&middot;&nbsp; ${author}` : ""}</div>`
@@ -136,10 +240,20 @@ export function studioWrapHtml(input: StudioWrapInput): StudioWrap {
              background: ${bg}; color: ${fg}; font-family: Arial, Helvetica, sans-serif; overflow: hidden; }
     .panel { position: absolute; top: 0; height: 100%; }
     /* BACK */
-    .back { left: 0; width: ${spec.spineStartIn}in; padding: ${SAFE + spec.bleedIn}in ${SAFE}in ${SAFE}in ${SAFE + spec.bleedIn}in; }
-    .back h3 { margin: 0 0 0.12in; font-size: 15pt; line-height: 1.2; max-width: ${backTextWidth}in; }
-    .back p { margin: 0; font-size: 10.5pt; line-height: 1.5; opacity: 0.9; max-width: ${backTextWidth}in; }
-    .back .by { margin-top: 0.2in; font-size: 10pt; opacity: 0.75; }
+    .back { left: 0; width: ${spec.spineStartIn}in; }
+    .back-text { position: absolute; left: ${SAFE + spec.bleedIn}in; top: ${topIn}in;
+                 width: ${backTextWidth}in; max-height: ${backTextHeight}in; overflow: hidden; }
+    /* Last guard only: the body is pre-fitted, so this should never clip. Author sits outside it. */
+    .back .body { max-height: ${bodyHeight}in; overflow: hidden; }
+    .back h3 { margin: 0 0 0.1in; font-size: 16pt; line-height: 1.2; }
+    .back .sub { margin: 0 0 0.18in; font-size: 11pt; line-height: 1.35; font-style: italic; opacity: 0.85; }
+    .back .rule { width: 0.9in; height: 2px; background: currentColor; opacity: 0.5; margin: 0 0 0.18in; }
+    .back .body p { margin: 0 0 0.12in; font-size: ${bodyPt}pt; line-height: 1.45; opacity: 0.92; }
+    .back .body ul { margin: 0 0 0.12in; padding-left: 0.2in; font-size: ${bodyPt}pt; line-height: 1.4; opacity: 0.92; }
+    .back .body li { margin: 0 0 0.04in; }
+    .back .by { margin-top: 0.16in; font-size: 10pt; letter-spacing: 0.04em; opacity: 0.75; }
+    /* Fallback without a blurb: subtitle reads as the back copy. */
+    .back .sub--body { font-style: normal; font-size: 10.5pt; line-height: 1.5; }
     /* SPINE */
     .spine { left: ${spec.spineStartIn}in; width: ${spec.spineWidthIn}in; background: ${spineBg}; color: ${spineFg};
              display: flex; align-items: center; justify-content: center; }
@@ -149,11 +263,14 @@ export function studioWrapHtml(input: StudioWrapInput): StudioWrap {
     .front img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
   </style></head><body>
     <div class="cover">
-      <!-- Back text sits up top; the bottom ~1.2in stays clear for KDP's barcode. -->
+      <!-- Back text stops above the barcode box (bottom ${reservedBottomIn.toFixed(2)}in kept clear). -->
       <div class="panel back">
-        ${title ? `<h3>${title}</h3>` : ""}
-        ${subtitle ? `<p>${subtitle}</p>` : ""}
-        ${author ? `<div class="by">${author}</div>` : ""}
+        <div class="back-text">
+          ${title ? `<h3>${title}</h3>` : ""}
+          ${subtitle ? `<p class="sub${fitted.blocks.length ? "" : " sub--body"}">${subtitle}</p>` : ""}
+          ${fitted.blocks.length ? `<div class="rule"></div><div class="body">${blocksHtml(fitted.blocks)}</div>` : ""}
+          ${author ? `<div class="by">${author}</div>` : ""}
+        </div>
       </div>
       <div class="panel spine">${spineText}</div>
       <div class="panel front"><img src="${dataUri}" alt="" /></div>
