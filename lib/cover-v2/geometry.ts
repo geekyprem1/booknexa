@@ -92,13 +92,36 @@ export function jpegSize(bytes: Uint8Array): Pixels | null {
  * The result is asserted, because a cover that is the wrong size is unusable on KDP
  * and must fail loudly instead of reaching a buyer.
  */
+/** Above this aspect mismatch a crop would cut into the model's own title/author text. */
+export const MAX_CROP_RATIO = 0.03;
+
+/**
+ * How the generated image is fitted to the trim. A small mismatch is cropped
+ * (`cover`). A big one (GPT Image 2 only paints 2:3, while 8.5×11 + bleed is
+ * ~0.78) would slice ~7% off the top and bottom, where the title and author
+ * sit, so the whole image is kept (`contain`) over a blurred copy of itself.
+ */
+export function fitMode(source: Pixels | null, target: Pixels): "cover" | "contain" {
+  if (!source || !source.width || !source.height) return "cover";
+  const s = source.width / source.height;
+  const t = target.width / target.height;
+  return Math.abs(s - t) / t > MAX_CROP_RATIO ? "contain" : "cover";
+}
+
 export async function finalizeToPng(jpeg: Uint8Array, target: Pixels): Promise<Uint8Array> {
-  const dataUri = `data:image/jpeg;base64,${Buffer.from(jpeg).toString("base64")}`;
+  const isPng = jpeg[0] === 0x89 && jpeg[1] === 0x50;
+  const dataUri = `data:image/${isPng ? "png" : "jpeg"};base64,${Buffer.from(jpeg).toString("base64")}`;
+  const mode = fitMode(isPng ? pngSize(jpeg) : jpegSize(jpeg), target);
   const html = `<!doctype html><html><head><meta charset="utf-8"><style>
     *{margin:0;padding:0}
     html,body{width:100%;height:100%;overflow:hidden;background:#000}
-    img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
-  </style></head><body><img src="${dataUri}" alt=""></body></html>`;
+    img{display:block;position:absolute;inset:0;width:100%;height:100%;object-position:center}
+    .fill{object-fit:cover;filter:blur(28px) brightness(0.92);transform:scale(1.12)}
+    .main{object-fit:${mode}}
+  </style></head><body>
+    ${mode === "contain" ? `<img class="fill" src="${dataUri}" alt="">` : ""}
+    <img class="main" src="${dataUri}" alt="">
+  </body></html>`;
 
   // renderPng's final pixel size is widthIn * dpi, so dividing by the DPI gives the
   // exact target back. No font CDN is needed here — this page has no text.
