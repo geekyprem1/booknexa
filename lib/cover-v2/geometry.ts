@@ -108,18 +108,53 @@ export function fitMode(source: Pixels | null, target: Pixels): "cover" | "conta
   return Math.abs(s - t) / t > MAX_CROP_RATIO ? "contain" : "cover";
 }
 
+/** Share of the image's own edge that is stretched across each gap. */
+const EDGE_SLICE = 0.015;
+const CSS_PX_PER_IN = 96;
+
+/**
+ * Fill the two gaps left by a `contain` fit by stretching the image's own outer
+ * edge (the last 1.5% of columns, or rows) across each gap and blurring it. The
+ * gaps then continue the edge colors, instead of a blurred copy of the whole
+ * cover pulling the title's colors into the margins.
+ */
+function edgeFillHtml(dataUri: string, source: Pixels, target: Pixels): string {
+  const W = (target.width / PRINT_DPI) * CSS_PX_PER_IN;
+  const H = (target.height / PRINT_DPI) * CSS_PX_PER_IN;
+  const m = 24; // overscan so the blur doesn't fade out at the gap's inner edge
+  const blur = "filter:blur(10px) brightness(0.96)";
+  const bg = `background-image:url('${dataUri}');background-repeat:no-repeat`;
+  if (source.width / source.height < W / H) {
+    // Narrower image: gaps on the left and right.
+    const w = H * (source.width / source.height);
+    const g = (W - w) / 2;
+    const size = `background-size:${(g + 2 * m) / EDGE_SLICE}px ${H + 2 * m}px`;
+    const side = (left: number, pos: string) =>
+      `<div style="position:absolute;top:0;left:${left}px;width:${g + 1}px;height:${H}px;overflow:hidden">` +
+      `<div style="position:absolute;left:${-m}px;top:${-m}px;width:${g + 2 * m}px;height:${H + 2 * m}px;${bg};${size};background-position:${pos} 0;${blur}"></div></div>`;
+    return side(0, "left") + side(W - g - 1, "right");
+  }
+  // Wider image: gaps on the top and bottom.
+  const h = W / (source.width / source.height);
+  const g = (H - h) / 2;
+  const size = `background-size:${W + 2 * m}px ${(g + 2 * m) / EDGE_SLICE}px`;
+  const side = (top: number, pos: string) =>
+    `<div style="position:absolute;left:0;top:${top}px;width:${W}px;height:${g + 1}px;overflow:hidden">` +
+    `<div style="position:absolute;left:${-m}px;top:${-m}px;width:${W + 2 * m}px;height:${g + 2 * m}px;${bg};${size};background-position:0 ${pos};${blur}"></div></div>`;
+  return side(0, "top") + side(H - g - 1, "bottom");
+}
+
 export async function finalizeToPng(jpeg: Uint8Array, target: Pixels): Promise<Uint8Array> {
   const isPng = jpeg[0] === 0x89 && jpeg[1] === 0x50;
   const dataUri = `data:image/${isPng ? "png" : "jpeg"};base64,${Buffer.from(jpeg).toString("base64")}`;
-  const mode = fitMode(isPng ? pngSize(jpeg) : jpegSize(jpeg), target);
+  const source = isPng ? pngSize(jpeg) : jpegSize(jpeg);
+  const mode = fitMode(source, target);
   const html = `<!doctype html><html><head><meta charset="utf-8"><style>
     *{margin:0;padding:0}
     html,body{width:100%;height:100%;overflow:hidden;background:#000}
-    img{display:block;position:absolute;inset:0;width:100%;height:100%;object-position:center}
-    .fill{object-fit:cover;filter:blur(28px) brightness(0.92);transform:scale(1.12)}
-    .main{object-fit:${mode}}
+    .main{display:block;position:absolute;inset:0;width:100%;height:100%;object-position:center;object-fit:${mode}}
   </style></head><body>
-    ${mode === "contain" ? `<img class="fill" src="${dataUri}" alt="">` : ""}
+    ${mode === "contain" && source ? edgeFillHtml(dataUri, source, target) : ""}
     <img class="main" src="${dataUri}" alt="">
   </body></html>`;
 
