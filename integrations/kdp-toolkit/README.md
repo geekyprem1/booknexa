@@ -1,6 +1,12 @@
 # KDP Toolkit adapter (experimental)
 
-This adapter connects the external [KDP Toolkit](https://github.com/devanasolver/kdp-toolkit) print generator to BookNexa's shared KDP package contract. It invokes the installed upstream `kdp` CLI; it does **not** copy or vendor the upstream project. The upstream repository is MIT-licensed (Copyright © 2026 Anas Solver); the published package records that provenance. This wrapper is experimental and does not imply KDP acceptance or legal review of generated content.
+This wrapper invokes the separately installed upstream KDP Toolkit command line; it does not vendor its code. The upstream project is MIT-licensed; package manifests include its name, source URL, version, and license.
+
+## Important scope
+
+This is a **print-production adapter**, not a full book creation or market-research service. It requires a prepared project containing `manuscript.md` and `metadata.json`; it lays out that manuscript as an interior PDF, creates a matching generated cover wrap, validates both PDFs, packages them, and checks the package against BookNexa's KDP contract. It does not write or edit the manuscript, research niches/competitors/demand, or upload/publish.
+
+BookNexa itself has separate niche research and native book-generation flows, but this external adapter does not automatically connect their research result to writing. For an end-to-end journey, those stages still need to be orchestrated and reviewed before passing an authored manuscript into this print adapter.
 
 ## Requirements
 
@@ -9,11 +15,7 @@ This adapter connects the external [KDP Toolkit](https://github.com/devanasolver
 - Node dependencies installed in this BookNexa checkout (the adapter invokes the BookNexa preflight)
 - A project folder with `manuscript.md` and `metadata.json`; start one with `kdp new ./mybook --title ... --author ...`
 
-The adapter uses the KDP Toolkit's print interior/cover build and validation commands. Print specifications and cover geometry therefore follow that tool's selected trim, ink/paper, bleed, and final interior page count. Keep checking upstream specs against BookNexa's own engine before using the outputs commercially.
-
 ## Build and validate a package
-
-From the BookNexa repository root:
 
 ```bash
 python integrations/kdp-toolkit/adapter.py \
@@ -23,35 +25,12 @@ python integrations/kdp-toolkit/adapter.py \
   --ink-paper bw-white
 ```
 
-The adapter:
+The adapter builds and validates the interior, reads the final page count from its validation result, makes and validates a full-wrap cover, emits the shared BookNexa package manifest and validation reports, and runs BookNexa's local package checker. The output is not proof of editorial quality or KDP acceptance.
 
-1. normalizes common metadata fields while preserving source metadata;
-2. invokes `kdp interior` and checks its JSON preflight result;
-3. gets the final page count from that validator, then generates and validates the matching full-wrap cover;
-4. writes `metadata.json`, `booknexa-kdp.json`, `interior.pdf`, `cover.pdf`, and both validation reports into a ZIP using an atomic replace;
-5. runs BookNexa's local package CLI in `--check` mode against that ZIP.
+## Optional local browser handoff
 
-It does not upload project files to any service. It requires a local display only for browser handoff.
+Create a local profile first with `npm run kdp:accounts -- add "US imprint"`, then run the adapter with `--handoff --account "US imprint"`. It opens KDP in the chosen isolated local Chromium profile only after package checks pass. The user signs in and handles Amazon prompts. This tool does not fill forms, upload files, or publish.
 
-## Optional handoff to a selected Amazon account
+## Test and smoke-test guide
 
-Use a previously named local profile, or create one with `npm run kdp:accounts -- add "US imprint"`:
-
-```bash
-python integrations/kdp-toolkit/adapter.py \
-  --project ./mybook \
-  --output ./output/mybook-kdp.zip \
-  --trim 6x9 \
-  --handoff \
-  --account "US imprint"
-```
-
-The package must pass both upstream validators and BookNexa's package preflight before KDP is opened. `--handoff` opens the visible browser using only that account's isolated local Chromium profile. The user signs in and handles Amazon prompts. This remains a browser handoff only: no form fill, upload, or publish action is automated.
-
-## Tests
-
-```bash
-python -m unittest scripts/test-kdp-toolkit-adapter.py
-```
-
-These tests cover metadata normalization, manifest/provenance, and path safety without needing Amazon credentials or a live KDP account. A real package build requires KDP Toolkit installed; never use a real Amazon account as an automated test fixture.
+Run `npm run test:kdp-integration` and `python -m py_compile integrations/kdp-toolkit/adapter.py`. For the real CLI and browser smoke-test sequence, acceptance checklist, and honest PR validation summary, see [`../../docs/kdp-toolkit-smoke-test.md`](../../docs/kdp-toolkit-smoke-test.md).
