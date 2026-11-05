@@ -13,10 +13,7 @@ export type GeneratorAdapter = {
   notes: string;
 };
 
-/**
- * Registry is descriptive for now; external entries are not executable integrations.
- * Enabling one requires a reviewed adapter implementation and passing its quality gates.
- */
+/** External adapters are only selectable once their implementation is explicitly available. */
 export const GENERATOR_ADAPTERS: readonly GeneratorAdapter[] = [
   {
     id: "booknexa-native",
@@ -28,13 +25,13 @@ export const GENERATOR_ADAPTERS: readonly GeneratorAdapter[] = [
   },
   {
     id: "kdp-toolkit",
-    name: "KDP Toolkit",
-    status: "audit-required",
-    formats: ["paperback", "hardcover"],
+    name: "KDP Toolkit print adapter",
+    status: "experimental",
+    formats: ["paperback"],
     bookTypes: ["text", "workbook", "low-content"],
     sourceUrl: "https://github.com/devanasolver/kdp-toolkit",
-    license: "MIT (verify upstream before reuse)",
-    notes: "Candidate print formatting and preflight adapter; compare its KDP calculations with BookNexa before adopting.",
+    license: "MIT (upstream CLI invoked; no code vendored)",
+    notes: "Experimental Python wrapper builds and validates KDP Toolkit print PDFs, emits the shared package, then can hand off to a chosen local KDP browser profile.",
   },
   {
     id: "kindlepub",
