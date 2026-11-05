@@ -26,10 +26,12 @@
     "test:planner": "tsx scripts/test-planner.ts",
     "test:mockups": "tsx scripts/test-mockups.ts",
     "test:ads": "tsx scripts/test-ads.ts",
+    "test:kdp-adapters": "tsx scripts/test-kdp-adapters.ts",
+    "kdp:local": "tsx scripts/kdp-local-publisher.ts",
+    "kdp:accounts": "tsx scripts/kdp-accounts.ts",
     "coloring:samples": "tsx scripts/generate-coloring-samples.ts",
     "story:poc": "node --env-file=.env.local --import tsx scripts/story-poc.ts",
-    "worker": "node --env-file=.env.local --import tsx scripts/worker.ts",
-    "kdp:local": "tsx scripts/kdp-local-publisher.ts"
+    "worker": "node --env-file=.env.local --import tsx scripts/worker.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1073.0",

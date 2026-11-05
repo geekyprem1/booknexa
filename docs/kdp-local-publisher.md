@@ -1,69 +1,54 @@
 # Local KDP package and browser handoff
 
-The first publishing-tool milestone is deliberately a **preflight plus browser handoff**, not an unattended publisher. It accepts a ZIP produced by BookNexa or another book generator, checks a common artifact contract, and can open a visible local browser at the KDP bookshelf. It does not inspect KDP pages, fill forms, upload assets, click Publish, or save Amazon credentials.
+The local publisher accepts packages from BookNexa and compatible external generator adapters. This milestone provides ZIP preflight and a visible browser handoff; it does not inspect KDP pages, fill forms, upload assets, or publish.
 
 ## Run
 
-From the BookNexa repository after `npm install`:
-
 ```bash
 npm run kdp:local -- --package ./path/to/publish-package.zip --format paperback --check
-npm run kdp:local -- --package ./path/to/publish-package.zip --format paperback --open
+npm run kdp:local -- --package ./path/to/publish-package.zip --format paperback --open --account "US imprint"
+npm run kdp:accounts -- add "UK publishing account"
+npm run kdp:accounts -- list
 ```
 
-Supported editions are `ebook`, `paperback`, and `hardcover`. The edition can be supplied on the command line or in the optional package manifest. `--check` is the default behavior. `--open` only opens `https://kdp.amazon.com/bookshelf`; the user signs in and interacts with Amazon themselves. A local persistent browser profile is stored under `~/.booknexa-kdp-publisher/chrome-profile/` and is never added to the project. The tool does not read or export its cookies.
+Supported editions are `ebook`, `paperback`, and `hardcover`. `--check` is the default. `--open` opens `https://kdp.amazon.com/bookshelf` in a visible local Chromium session after package preflight.
 
-Do not run `--open` in a server/container environment that has no trusted desktop display. Keep the profile directory private, and delete it to sign out and remove local browser state.
+### Multiple Amazon accounts
 
-## Common package contract
+Use one local profile label for each Amazon KDP account (for example, `US imprint` and `UK publishing account`). `kdp:accounts add` creates an isolated Chromium profile; use the same label on each publishing run to reuse that account's signed-in session. List labels with `kdp:accounts list` or `kdp:local -- --list-accounts`.
 
-The input is a ZIP containing `metadata.json`, one manuscript, and one cover. The package can also contain generator-specific notes, previews, validation reports, and other files. Nothing is extracted to disk by this milestone.
+Profiles live under `~/.booknexa-kdp-publisher/accounts/` (Windows uses the home directory equivalent). Labels and profile metadata are local. Amazon passwords/MFA are entered by the user in the visible browser; cookies remain inside the account-specific Chromium profile. Nothing is sent to BookNexa or stored in its database. Treat the profile directory as sensitive, do not copy it between accounts, and delete an account's profile directory manually when you want to sign out/remove that local session. The tool does not automate account switching within Amazon; each run opens the selected isolated profile.
 
-For an unambiguous cross-generator package, include `booknexa-kdp.json` at the ZIP root:
+Do not run `--open` in a server/container without a trusted desktop display. Amazon prompts, MFA, CAPTCHAs, and account challenges must be handled directly by the user.
+
+## Shared package contract
+
+The ZIP has a root `metadata.json`, one manuscript, one cover, and a `booknexa-kdp.json` manifest. The schema is in [`kdp-package.schema.json`](./kdp-package.schema.json). ZIPs may also include source-generator notes, previews, validation reports, and other files. The preflight does not extract package contents to disk.
+
+Example manifest:
 
 ```json
 {
   "schemaVersion": 1,
   "format": "paperback",
   "metadata": "metadata.json",
-  "assets": {
-    "manuscript": "interior.pdf",
-    "cover": "cover.pdf"
-  }
+  "assets": { "manuscript": "interior.pdf", "cover": "cover.pdf" },
+  "source": { "adapter": "booknexa-word-search", "version": "1.0.0", "license": "internal" },
+  "validation": { "status": "passed", "validator": "BookNexa print preflight", "validatedAt": "2026-11-05T00:00:00Z" }
 }
 ```
 
-Paths are ZIP-relative. The tool rejects absolute paths and `..` path components. The manifest is optional for familiar filenames; pass `--format` when an older `metadata.json` does not identify an edition.
+All paths are ZIP-relative. The reader rejects absolute/traversal paths, unsupported editions/extensions, missing assets, invalid metadata, and oversized archives. `metadata.json` must include non-empty `title`, `author`, and `description`; other metadata can be generator-specific. Use explicit manifest asset paths where naming differs. Extension checks are only an initial gate—not proof of visual quality or KDP acceptance.
 
-Required metadata fields are `title`, `author`, and `description`. `keywords`, `categories`, `series`, `trim_size`, and other KDP metadata can be present as generator-specific values. This first milestone reports a package summary, it does not claim that Amazon will accept a file or listing.
+## Generator adapters
 
-### Asset extensions
+See [`kdp-generator-adapters.md`](./kdp-generator-adapters.md) and the typed registry in `lib/kdp/adapters.ts`. The registry marks external repos as audit-required/reference-only; it does not claim they are integrated or execute their code. Each adapter must declare its supported genres/editions, source/version/license, dependencies and external services; normalize metadata/assets; and pass format-specific validation plus human sample review.
 
-| Edition | Manuscript | Cover |
-|---|---|---|
-| Kindle eBook | `.epub`, `.docx`, `.kpf` | `.jpg`, `.jpeg`, `.tif`, `.tiff`, `.png` |
-| Paperback / hardcover | `.pdf`, `.docx` | `.pdf` full-wrap |
+Integration order: keep native BookNexa generators working through the shared contract; audit KDP Toolkit for print preparation; audit KindlePub for EPUB; evaluate the coloring generator only after licensing and generation-service terms are checked. Editorial skills are checklist references, not generators. External code stays optional and isolated until reviewed.
 
-Use the manifest when the ZIP has multiple files of the same role, or when another generator uses different filenames. In particular, print cover PDFs must be built for the chosen trim, bleed, paper, and final page count; a package preflight cannot establish visual quality or KDP Previewer acceptance.
+## Safety and publishing boundary
 
-## Generator integrations
-
-Book creation must stay modular: KDP edition and common publishing assets are the boundary, not a fixed list of BookNexa book genres. A source generator can be integrated by converting its output and metadata into this package contract; it does not need to be merged into BookNexa's core generator code.
-
-Candidate evaluation order:
-
-1. **`devanasolver/kdp-toolkit`** — investigate as an external print-PDF and preflight adapter. Keep its MIT notice if code is reused; compare its spec calculations with BookNexa's existing PDF engine before choosing one source of truth.
-2. **`jessl2juice/kindlepub`** — investigate as an EPUB build/validation adapter. Its README identifies an MIT license. Keep it as an optional ebook tool until its scripts and dependencies have been audited.
-3. **`ElliottSax/coloring-books`** — a possible coloring interior generator. Verify the repository's current license and third-party image service terms before code or output reuse.
-4. **`wendy5062/KDP-PUBLISHING-SKILL`** — editorial/readiness checklist reference, not a book-generation or upload engine. Preserve its license and attribution if any material is reused.
-5. **`ekr0/auto-kdp`** — reference for KDP browser-flow lessons only for now. It is MIT-licensed, but KDP UI automation is fragile; this MVP intentionally avoids copying its form-filling/publishing behavior.
-
-Adapters should be isolated, produce reproducible artifacts, carry provenance/license information, and pass their own file-format validation before their output reaches the local publishing handoff. Do not copy code or assets from a candidate until its license, dependencies, and upstream terms have been checked.
-
-## Safety boundaries and next milestone
-
-- Amazon passwords, MFA codes, and session cookies must never be collected by BookNexa or committed to Git.
-- Browser profile/session data is local and excluded from version control.
-- No publish action exists in this version. Any future upload automation must stop for user review at the preview and require explicit confirmation before the final irreversible publish action.
-- Browser automation may encounter Amazon login challenges, CAPTCHA, or changed pages; the user must handle those in the visible browser. Do not bypass these checks.
-- Before adding any form automation, test the package contract across BookNexa ebook/print outputs and the separately audited generator adapters.
+- Never send Amazon credentials, cookies, or local account profiles to BookNexa.
+- This milestone has no KDP form automation, upload operation, or publish action.
+- Any later browser automation must keep Amazon challenges user-controlled, stop for preview review, and require explicit user confirmation before the final publish step.
+- Live KDP accounts are never used in automated tests.
