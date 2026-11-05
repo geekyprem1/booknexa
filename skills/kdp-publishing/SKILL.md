@@ -9,7 +9,7 @@ Act as the thinking-and-coordination layer for a book project. Use the connected
 
 ## Capability discovery and installation
 
-At the start of the task, discover what this agent can actually do. Follow [capability-discovery.md](references/capability-discovery.md) before assuming a missing capability or installing anything.
+At the start of the task, discover what this agent can actually do. Follow [capability-discovery.md](references/capability-discovery.md) before assuming a missing capability or installing anything. When evaluating an external code repository, the agent may clone it into an isolated, temporary audit workspace if the user requested that repository be evaluated or has approved cloning. Cloning is for inspection only; it is not permission to install or run the code.
 
 - Inspect the active host's available tools, installed skills, configured MCP servers, and repository/local CLI help.
 - When a needed capability is missing, search for a suitable maintained tool or integration using sources authorized by the host. Prefer official registries/documentation and known upstream repositories; distinguish a reusable skill/instruction from an executable tool, server, or binary.
