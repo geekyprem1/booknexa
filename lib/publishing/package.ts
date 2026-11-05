@@ -1,9 +1,10 @@
 /**
  * Publish-package orchestration: generate all artifacts (reusing OpenRouter),
- * assemble the 6 text files, and build the downloadable ZIP.
+ * assemble the text files, KDP package manifest, assets, and downloadable ZIP.
  */
 
 import JSZip from "jszip";
+import { createBookNexaManifest } from "../kdp/package-manifest";
 import { generateKeywords, type KeywordSet } from "./keywords";
 import { recommendCategories } from "./categories";
 import { generateAltTitles } from "./titles";
@@ -33,13 +34,11 @@ export interface PublishContext {
   existingDescription?: string;
   existingKeywords?: string[];
   bleed?: boolean;
-  // Inherited from the Publishing Profile:
   publisher?: string;
   language?: string;
   copyright?: string;
   aiDisclosure?: string;
   priceOverride?: number | null;
-  /** Shelf Suite series this book is a volume of (KDP "Series" field). */
   series?: SeriesInfo | null;
 }
 
@@ -51,7 +50,6 @@ export interface PackageData {
   alternativeTitles: string[];
 }
 
-/** Run all generators (parallel) and assemble the package data. */
 export async function generatePackageData(ctx: PublishContext): Promise<PackageData> {
   const [keywords, categories, alternativeTitles, description] = await Promise.all([
     generateKeywords({ title: ctx.title, bookType: ctx.bookType, theme: ctx.theme, audience: ctx.audience, existing: ctx.existingKeywords }),
@@ -59,7 +57,6 @@ export async function generatePackageData(ctx: PublishContext): Promise<PackageD
     generateAltTitles({ title: ctx.title, bookType: ctx.bookType, theme: ctx.theme, audience: ctx.audience }),
     generateDescription({ title: ctx.title, bookType: ctx.bookType, theme: ctx.theme, audience: ctx.audience, existing: ctx.existingDescription }),
   ]);
-
   const metadataJson = buildMetadataJson({
     title: ctx.title,
     subtitle: ctx.subtitle,
@@ -78,61 +75,29 @@ export async function generatePackageData(ctx: PublishContext): Promise<PackageD
     categories,
     series: ctx.series ?? null,
   });
-
   return { metadataJson, keywords, description, categories, alternativeTitles };
 }
 
 export function buildChecklist(ctx: PublishContext, series: SeriesInfo | null | undefined = ctx.series): string {
   const bleed = ctx.bookType === "coloring" ? "Bleed (edge-to-edge art)" : "No Bleed";
   const isEbook = ctx.bookType === "ebook";
-  // Kindle eBook: reflowable manuscript + a separate JPEG cover, no trim/bleed.
-  // Paperback: interior PDF + one wraparound cover PDF (back, spine, front).
   const files = isEbook
-    ? [
-        "[ ] Kindle eBook Content → upload manuscript (manuscript.epub)",
-        "[ ] Kindle eBook Content → upload cover (cover.jpg, front cover only)",
-      ]
-    : [
-        "[ ] Upload interior PDF (interior.pdf)",
-        "[ ] Upload cover PDF (cover.pdf, one file: back + spine + front)",
-        `[ ] Select trim size: ${ctx.trim}`,
-        `[ ] Select bleed setting: ${bleed}`,
-      ];
+    ? ["[ ] Kindle eBook Content → upload manuscript (manuscript.epub)", "[ ] Kindle eBook Content → upload cover (cover.jpg, front cover only)"]
+    : ["[ ] Upload interior PDF (interior.pdf)", "[ ] Upload cover PDF (cover.pdf, one file: back + spine + front)", `[ ] Select trim size: ${ctx.trim}`, `[ ] Select bleed setting: ${bleed}`];
   return [
-    `KDP PUBLISHING CHECKLIST — ${ctx.title}`,
-    "",
-    ...files,
-    "[ ] Enter title (see metadata.json)",
-    "[ ] Enter subtitle (see metadata.json)",
+    `KDP PUBLISHING CHECKLIST — ${ctx.title}`, "", ...files,
+    "[ ] Enter title (see metadata.json)", "[ ] Enter subtitle (see metadata.json)",
     ...(series ? [`[ ] Add to series: "${series.name}", number ${series.number} (${isEbook ? "Kindle eBook" : "Paperback"} Details → Series)`] : []),
-    "[ ] Enter 7 keywords (see keywords.txt)",
-    "[ ] Enter categories (see categories.txt)",
-    "[ ] Paste description (description.txt)",
-    ctx.bookType === "ebook"
-      ? "[ ] Set price (see suggested_price in metadata.json)"
-      : "[ ] Set price per marketplace (see pricing.txt — stay at or above the 60% royalty line)",
-    "[ ] Review in KDP Previewer",
-    "[ ] Publish",
-    "[ ] Optional, once live: start Amazon Ads with ads_keywords.csv (setup steps in ads_guide.txt)",
-    "",
+    "[ ] Enter 7 keywords (see keywords.txt)", "[ ] Enter categories (see categories.txt)", "[ ] Paste description (description.txt)",
+    ctx.bookType === "ebook" ? "[ ] Set price (see suggested_price in metadata.json)" : "[ ] Set price per marketplace (see pricing.txt — stay at or above the 60% royalty line)",
+    "[ ] Review in KDP Previewer", "[ ] Publish", "[ ] Optional, once live: start Amazon Ads with ads_keywords.csv (setup steps in ads_guide.txt)", "",
     "Tip: alternative title ideas are in book_titles.txt.",
   ].join("\n");
 }
 
-/** The 6 plain-text/JSON artifact files. */
 export function packageFiles(ctx: PublishContext, data: PackageData): Array<{ name: string; content: string }> {
-  const keywordsTxt = [
-    "PRIMARY KEYWORDS (7):",
-    ...data.keywords.primary.map((k) => `- ${k}`),
-    "",
-    "LONG-TAIL KEYWORD IDEAS (20):",
-    ...data.keywords.longTail.map((k) => `- ${k}`),
-  ].join("\n");
-
-  const pricing =
-    data.metadataJson.pricing ??
-    (ctx.bookType !== "ebook" && ctx.pageCount ? buildPricing(ctx.trim, ctx.pageCount) : undefined);
-
+  const keywordsTxt = ["PRIMARY KEYWORDS (7):", ...data.keywords.primary.map((k) => `- ${k}`), "", "LONG-TAIL KEYWORD IDEAS (20):", ...data.keywords.longTail.map((k) => `- ${k}`)].join("\n");
+  const pricing = data.metadataJson.pricing ?? (ctx.bookType !== "ebook" && ctx.pageCount ? buildPricing(ctx.trim, ctx.pageCount) : undefined);
   return [
     { name: "metadata.json", content: JSON.stringify(data.metadataJson, null, 2) },
     { name: "keywords.txt", content: keywordsTxt },
@@ -145,7 +110,6 @@ export function packageFiles(ctx: PublishContext, data: PackageData): Array<{ na
   ];
 }
 
-/** Amazon.com royalty at the price in metadata.json (print books only). */
 export function usRoyalty(pricing: PricingJson | undefined, usPrice: number | undefined): { royalty: number; price: number } | null {
   const us = pricing?.marketplaces.find((r) => r.marketplace === "com");
   if (!pricing || !us) return null;
@@ -154,15 +118,9 @@ export function usRoyalty(pricing: PricingJson | undefined, usPrice: number | un
   return { royalty: r.royalty, price: r.listPrice };
 }
 
-/** ads_keywords.csv + ads_guide.txt (Amazon Ads starter). */
 function adsFiles(ctx: PublishContext, data: PackageData, pricing: PricingJson | undefined): Array<{ name: string; content: string }> {
   const us = usRoyalty(pricing, data.metadataJson.suggested_price);
-  const rows = buildAdsKeywords({
-    primary: data.keywords.primary,
-    longTail: data.keywords.longTail,
-    bookType: ctx.bookType,
-    royaltyUsd: us?.royalty ?? null,
-  });
+  const rows = buildAdsKeywords({ primary: data.keywords.primary, longTail: data.keywords.longTail, bookType: ctx.bookType, royaltyUsd: us?.royalty ?? null });
   if (!rows.some((r) => r.source !== "negative")) return [];
   return [
     { name: "ads_keywords.csv", content: adsKeywordsCsv(rows) },
@@ -170,58 +128,27 @@ function adsFiles(ctx: PublishContext, data: PackageData, pricing: PricingJson |
   ];
 }
 
-/** Human-readable price sheet: recommended price + royalty per marketplace. */
 export function buildPricingReport(pricing: PricingJson, usPrice?: number): string {
-  const rows = pricing.marketplaces.map((r) => {
-    const price = formatMoney(r.marketplace, r.list_price);
-    const earn = formatMoney(r.marketplace, r.royalty);
-    const print = formatMoney(r.marketplace, r.printing_cost);
-    return `${r.domains.join(", ")}\n  List price ${price} · ${Math.round(r.royalty_rate * 100)}% royalty · printing ${print} · you earn ≈ ${earn} per sale`;
-  });
-
-  const lines = [
-    "KDP PRICING — black ink paperback",
-    `Trim ${pricing.trim_size} · ${pricing.page_count} pages · rates verified ${pricing.verified_at}`,
-    "",
-    "Recommended: the lowest list price that earns KDP's 60% royalty in each store.",
-    "Below that line KDP pays 50%, so a slightly cheaper price earns much less.",
-    "",
-    ...rows,
-  ];
-
+  const rows = pricing.marketplaces.map((r) => `${r.domains.join(", ")}\n  List price ${formatMoney(r.marketplace, r.list_price)} · ${Math.round(r.royalty_rate * 100)}% royalty · printing ${formatMoney(r.marketplace, r.printing_cost)} · you earn ≈ ${formatMoney(r.marketplace, r.royalty)} per sale`);
+  const lines = ["KDP PRICING — black ink paperback", `Trim ${pricing.trim_size} · ${pricing.page_count} pages · rates verified ${pricing.verified_at}`, "", "Recommended: the lowest list price that earns KDP's 60% royalty in each store.", "Below that line KDP pays 50%, so a slightly cheaper price earns much less.", "", ...rows];
   const us = pricing.marketplaces.find((r) => r.marketplace === "com");
   if (us && usPrice && Math.abs(usPrice - us.list_price) > 0.001) {
-    const dims = trimDims(pricing.trim_size);
-    const yours = royalty("com", dims, pricing.page_count, usPrice);
-    lines.push(
-      "",
-      `Your Amazon.com price in metadata.json is ${formatMoney("com", usPrice)}: ` +
-        `${Math.round(yours.rate * 100)}% royalty, ≈ ${formatMoney("com", yours.royalty)} per sale ` +
-        `(vs ≈ ${formatMoney("com", us.royalty)} at ${formatMoney("com", us.list_price)}).` +
-        (yours.belowMinimum ? " This is below KDP's minimum list price and will be rejected." : "")
-    );
+    const yours = royalty("com", trimDims(pricing.trim_size), pricing.page_count, usPrice);
+    lines.push("", `Your Amazon.com price in metadata.json is ${formatMoney("com", usPrice)}: ${Math.round(yours.rate * 100)}% royalty, ≈ ${formatMoney("com", yours.royalty)} per sale (vs ≈ ${formatMoney("com", us.royalty)} at ${formatMoney("com", us.list_price)}).${yours.belowMinimum ? " This is below KDP's minimum list price and will be rejected." : ""}`);
   }
-
-  lines.push(
-    "",
-    "Check the final numbers in KDP's Pricing tab before you publish. Prices exclude VAT/GST that Amazon adds in some stores."
-  );
+  lines.push("", "Check the final numbers in KDP's Pricing tab before you publish. Prices exclude VAT/GST that Amazon adds in some stores.");
   return lines.join("\n");
 }
 
-export interface PackageAsset {
-  name: string;
-  bytes: Uint8Array;
-}
+export interface PackageAsset { name: string; bytes: Uint8Array }
 
-/** Build the publish-package ZIP from artifacts + book assets. */
-export async function buildPackageZip(opts: {
-  ctx: PublishContext;
-  data: PackageData;
-  assets: PackageAsset[];
-}): Promise<Uint8Array> {
+/** Build a portable, generator-neutral KDP package ZIP. */
+export async function buildPackageZip(opts: { ctx: PublishContext; data: PackageData; assets: PackageAsset[] }): Promise<Uint8Array> {
   const zip = new JSZip();
-  for (const f of packageFiles(opts.ctx, opts.data)) zip.file(f.name, f.content);
-  for (const a of opts.assets) zip.file(a.name, a.bytes);
+  const files = packageFiles(opts.ctx, opts.data);
+  for (const file of files) zip.file(file.name, file.content);
+  for (const asset of opts.assets) zip.file(asset.name, asset.bytes);
+  const manifest = createBookNexaManifest({ bookType: opts.ctx.bookType, assetNames: opts.assets.map((asset) => asset.name) });
+  zip.file("booknexa-kdp.json", JSON.stringify(manifest, null, 2));
   return zip.generateAsync({ type: "uint8array" });
 }
